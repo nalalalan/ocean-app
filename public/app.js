@@ -108,6 +108,8 @@ const defaultData = {
   sources: {
     personalDocUrl: "https://docs.google.com/document/d/1Ffi51WavVvaFBUQX37AbFQ4ZKGEkRlGl-NRcOVQP03c/edit?tab=t.0",
     personalDocNotes: "This is the rough personal update stream. Ocean should summarize it into calm next steps, not reproduce it raw.",
+    lastDocReviewAt: "",
+    reviewRitual: "Open the PhD Organization doc, copy only the newest useful chunk, paste it into Ocean, then let Ocean choose one next action.",
   },
   northStar: {
     statement: "Create embodied morphing systems that make people ask how it was possible: living surfaces, wave-like robotic materials, and soft structures that can perform, interact, and return to a calm equilibrium.",
@@ -458,6 +460,7 @@ function renderDashboard() {
   const t = totals();
   const projectEvidence = state.projects.filter((row) => row.evidence.trim()).length;
   const recentUpdates = [...state.updates].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 3);
+  const lastDocReview = state.sources.lastDocReviewAt ? new Date(state.sources.lastDocReviewAt).toLocaleString() : "Not reviewed yet";
   const categoryRows = Object.entries(t.byCategory).slice(0, 4)
     .map(([category, row]) => {
       const pct = row.total ? Math.round((row.earned / row.total) * 100) : 0;
@@ -486,22 +489,40 @@ function renderDashboard() {
       </section>
 
       <div class="grid cols-2" style="margin-top:16px">
-        <section class="panel">
-          <h2>Quick Capture</h2>
+        <section class="panel doc-pipeline">
+          <span class="eyebrow">PhD Doc Pipeline</span>
+          <h2>Your Google Doc stays messy. Ocean turns one chunk into movement.</h2>
+          <ol class="ritual-list">
+            <li>Open the PhD Organization doc.</li>
+            <li>Copy only the newest useful section.</li>
+            <li>Paste it here and translate it into one action.</li>
+          </ol>
           <div class="field">
-            <label>What changed?</label>
-            <input id="quickUpdateTitle" placeholder="paper thought, prototype result, feeling, screenshot context">
+            <label>Label</label>
+            <input id="quickUpdateTitle" placeholder="latest PhD doc update, paper thought, prototype result">
           </div>
           <div class="field" style="margin-top:10px">
-            <label>Messy note</label>
-            <textarea id="quickUpdateBody" placeholder="Paste from your Google Doc or write one rough update."></textarea>
+            <label>Paste from the Google Doc</label>
+            <textarea id="quickUpdateBody" placeholder="Paste the newest rough chunk. Do not organize it first."></textarea>
           </div>
           <div class="actions" style="margin-top:10px">
-            <button class="primary" onclick="addQuickUpdate()">Save to Inbox</button>
+            <button class="primary" onclick="addQuickUpdate()">Translate to next action</button>
             ${state.sources.personalDocUrl ? `<button onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open Google Doc</button>` : ""}
           </div>
+          <p class="footer-note">Last doc review: ${esc(lastDocReview)}</p>
         </section>
 
+        <section class="panel">
+          <h2>Career Compass</h2>
+          <div class="compass-list">
+            <div><strong>Dream role</strong><span>WDI creative technologist / R&D for living scenic and morphing systems.</span></div>
+            <div><strong>Adjacent paths</strong><span>Meta Reality Labs, Google/X, robotics labs, NASA/national labs, HCI and embodied AI teams.</span></div>
+            <div><strong>Technical bet</strong><span>Ocean-inspired morphing structures with real sensing, control, repeatability, and human-facing story.</span></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:16px">
         <section class="panel">
           <h2>Progress, Quietly</h2>
           <div class="kpi-value calm-score">${t.pct}%</div>
@@ -509,9 +530,6 @@ function renderDashboard() {
           <p class="muted">${projectEvidence} portfolio items have evidence. Scores are secondary; proof is what matters.</p>
           <div class="score-list compact-progress">${categoryRows}</div>
         </section>
-      </div>
-
-      <div class="grid cols-2" style="margin-top:16px">
         <section class="panel">
           <h2>Recent Inbox</h2>
           ${recentUpdates.length ? recentUpdates.map((update) => `
@@ -872,11 +890,12 @@ function addQuickUpdate() {
     createdAt: new Date().toISOString(),
     title,
     body,
-    tag: "General",
+    tag: "Research",
     image: "",
   });
   state.current.weeklyFocus = title || "New Ocean update";
   state.current.nextStep = suggestionForUpdate(state.updates[0])[0];
+  state.sources.lastDocReviewAt = new Date().toISOString();
   saveState();
   render();
 }
@@ -933,6 +952,7 @@ function renderSettings() {
           <h2>Update Source</h2>
           <div class="field"><label>Google Doc URL</label>${input("sources.personalDocUrl", state.sources.personalDocUrl)}</div>
           <div class="field" style="margin-top:12px"><label>How Ocean should treat it</label>${area("sources.personalDocNotes", state.sources.personalDocNotes)}</div>
+          <div class="field" style="margin-top:12px"><label>Review ritual</label>${area("sources.reviewRitual", state.sources.reviewRitual)}</div>
         </section>
         <section class="panel">
           <h2>Subdomain</h2>
