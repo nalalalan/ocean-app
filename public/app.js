@@ -793,11 +793,11 @@ function renderMinimalDashboard() {
       <section class="ocean-card">
         <div class="wave-mark" aria-hidden="true"></div>
         <p class="tiny-label">Ocean's job</p>
-        <h1>Programmable matter. Disney R&D.</h1>
+        <h1>Work on something amazing.</h1>
         <div class="answer-box">
           <span>Target</span>
           <strong>Creative Technologist / Research Scientist</strong>
-          <p>Make physical matter take on requested shapes through fabricated unit cells, built-in mechanisms, sensing, and control.</p>
+          <p>Find ambitious creative R&D worth learning for: morphing matter, robotics, physical interaction, strange interfaces, or any frontier technology that feels alive.</p>
         </div>
 
         <div class="answer-box">
