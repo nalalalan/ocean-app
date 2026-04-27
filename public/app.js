@@ -5,6 +5,7 @@ const projectStatuses = ["Idea", "Prototype", "Documented", "Polished", "Publish
 const networkStatuses = ["Not Started", "Contacted", "Replied", "Met", "Followed Up"];
 const opportunityStatuses = ["Watch", "Apply", "Applied", "Archived"];
 const updateTags = ["General", "Morphing Structures", "Prototype", "Research", "Portfolio", "Networking", "Opportunity", "Resume"];
+let radarState = { loading: true, updatedAt: null, items: [], error: null };
 
 const defaultData = {
   profile: {
@@ -111,6 +112,11 @@ const defaultData = {
     lastDocReviewAt: "",
     reviewRitual: "Open the PhD Organization doc, copy only the newest useful chunk, paste it into Ocean, then let Ocean choose one next action.",
   },
+  autopilot: {
+    enabled: true,
+    supervision: "Suggest only. Never silently change the plan.",
+    promise: "When I open Ocean, I should feel that this path is concrete, possible, and actively supported.",
+  },
   northStar: {
     statement: "Create embodied morphing systems that make people ask how it was possible: living surfaces, wave-like robotic materials, and soft structures that can perform, interact, and return to a calm equilibrium.",
     thesis: "A repeated-cell soft robotic material can become a high-tech shape-changing surface when mechanism design, pneumatic/cable actuation, sensing, controls, and experience design are developed together.",
@@ -183,6 +189,7 @@ function migrateState(data) {
   merged.profile = { ...structuredClone(defaultData.profile), ...(data.profile || {}) };
   merged.current = { ...structuredClone(defaultData.current), ...(data.current || {}) };
   merged.sources = { ...structuredClone(defaultData.sources), ...(data.sources || {}) };
+  merged.autopilot = { ...structuredClone(defaultData.autopilot), ...(data.autopilot || {}) };
   merged.northStar = { ...structuredClone(defaultData.northStar), ...(data.northStar || {}) };
   merged.updates = Array.isArray(data.updates) ? data.updates : [];
   merged.roadmap = Array.isArray(data.roadmap) ? data.roadmap : structuredClone(defaultData.roadmap);
@@ -359,6 +366,41 @@ function updateImpactLabel(update) {
   return "General";
 }
 
+async function loadRadar(force = false) {
+  if (!force && radarState.items.length && radarState.updatedAt) return;
+  radarState = { ...radarState, loading: true };
+  try {
+    const response = await fetch("/api/radar");
+    const radar = await response.json();
+    radarState = {
+      loading: false,
+      updatedAt: radar.updatedAt || null,
+      items: Array.isArray(radar.items) ? radar.items : [],
+      error: radar.error || null,
+    };
+  } catch (error) {
+    radarState = { loading: false, updatedAt: null, items: [], error: error.message };
+  }
+  if (["dashboard", "more"].includes(route())) render();
+}
+
+function radarCard(item, index) {
+  return `
+    <article class="radar-card">
+      <div>
+        <span class="radar-type">${esc(item.type || "Signal")}</span>
+        <strong>${esc(item.title || "Untitled signal")}</strong>
+        <p>${esc(item.why || item.summary || "")}</p>
+        <span class="muted">${esc(item.source || "")}${item.date ? ` · ${esc(item.date)}` : ""}${item.location ? ` · ${esc(item.location)}` : ""}</span>
+      </div>
+      <div class="actions">
+        ${item.url ? `<button class="compact" onclick="window.open('${esc(item.url)}','_blank')">Open</button>` : ""}
+        <button class="compact primary" onclick="adoptRadarItem(${index})">Track</button>
+      </div>
+    </article>
+  `;
+}
+
 function layout(title, subtitle, body) {
   const tabs = [
     ["dashboard", "Today"],
@@ -461,6 +503,7 @@ function renderDashboard() {
   const projectEvidence = state.projects.filter((row) => row.evidence.trim()).length;
   const recentUpdates = [...state.updates].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 3);
   const lastDocReview = state.sources.lastDocReviewAt ? new Date(state.sources.lastDocReviewAt).toLocaleString() : "Not reviewed yet";
+  const radarItems = radarState.items.slice(0, 5);
   const categoryRows = Object.entries(t.byCategory).slice(0, 4)
     .map(([category, row]) => {
       const pct = row.total ? Math.round((row.earned / row.total) * 100) : 0;
@@ -479,14 +522,39 @@ function renderDashboard() {
     "One calm place to continue. Add messy updates; let the tracker stay organized.",
     `
       <section class="panel focus-panel">
-        <span class="eyebrow">Next right thing</span>
+        <span class="eyebrow">This is possible</span>
         <h2>${esc(state.current.nextStep || nextAction())}</h2>
         <p>${esc(state.current.weeklyFocus)}</p>
+        <p class="muted">You are not trying to manifest a vague dream. You are building a PhD-backed body of work around soft robotics, morphing surfaces, HRI, and emotionally legible motion. Ocean exists to keep converting that into proof.</p>
         <div class="actions">
           <button class="primary" onclick="location.hash='updates'">Add a messy update</button>
           <button onclick="location.hash='projects'">Touch a project</button>
         </div>
       </section>
+
+      <div class="grid cols-2" style="margin-top:16px">
+        <section class="panel autopilot-panel">
+          <span class="eyebrow">Autopilot under supervision</span>
+          <h2>Ocean watches the horizon. You approve the moves.</h2>
+          <div class="compass-list">
+            <div><strong>Background radar</strong><span>Refreshes research and opportunity signals from official/searchable sources.</span></div>
+            <div><strong>Career translation</strong><span>Turns messy PhD-doc chunks into one concrete action.</span></div>
+            <div><strong>Portfolio pressure</strong><span>Keeps asking for visible proof: demo, video, measurement, story, reliability.</span></div>
+          </div>
+        </section>
+        <section class="panel possibility-panel">
+          <span class="eyebrow">Why the path is real</span>
+          <h2>Evidence you already have</h2>
+          <div class="proof-list">
+            <span>PhD in Mechanical Engineering</span>
+            <span>Soft robotics + morphing surfaces</span>
+            <span>NASA / field robotics signal</span>
+            <span>WPI soft robotics competition win</span>
+            <span>Sarrus linkage robotic material</span>
+            <span>HRI + creative technology narrative</span>
+          </div>
+        </section>
+      </div>
 
       <div class="grid cols-2" style="margin-top:16px">
         <section class="panel doc-pipeline">
@@ -523,6 +591,18 @@ function renderDashboard() {
       </div>
 
       <div class="grid cols-2" style="margin-top:16px">
+        <section class="panel radar-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Live Radar</h2>
+              <p class="muted">${radarState.updatedAt ? `Updated ${new Date(radarState.updatedAt).toLocaleString()}` : "Checking current signals..."}</p>
+            </div>
+            <button class="compact" onclick="refreshRadar()">Refresh</button>
+          </div>
+          ${radarState.loading ? `<div class="empty">Ocean is checking research and opportunity signals.</div>` : ""}
+          ${radarState.error ? `<div class="empty">Radar issue: ${esc(radarState.error)}</div>` : ""}
+          ${radarItems.length ? `<div class="radar-list">${radarItems.map((item, index) => radarCard(item, index)).join("")}</div>` : (!radarState.loading ? `<div class="empty">No radar items yet. Try refreshing.</div>` : "")}
+        </section>
         <section class="panel">
           <h2>Progress, Quietly</h2>
           <div class="kpi-value calm-score">${t.pct}%</div>
@@ -942,6 +1022,34 @@ function applyUpdateToTracker(id) {
   render();
 }
 
+function adoptRadarItem(index) {
+  const item = radarState.items[index];
+  if (!item) return;
+  const body = [
+    item.why,
+    item.summary,
+    item.url ? `Source: ${item.url}` : "",
+  ].filter(Boolean).join("\n\n");
+  state.updates.unshift({
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    title: item.title || "Radar signal",
+    body,
+    tag: item.type?.includes("Opportunity") ? "Opportunity" : "Research",
+    image: "",
+  });
+  state.current.weeklyFocus = item.title || "New radar signal";
+  state.current.nextStep = suggestionForUpdate(state.updates[0])[0];
+  saveState();
+  render();
+}
+
+function refreshRadar() {
+  radarState = { loading: true, updatedAt: radarState.updatedAt, items: radarState.items, error: null };
+  render();
+  loadRadar(true);
+}
+
 function renderSettings() {
   layout(
     "Settings",
@@ -953,6 +1061,11 @@ function renderSettings() {
           <div class="field"><label>Google Doc URL</label>${input("sources.personalDocUrl", state.sources.personalDocUrl)}</div>
           <div class="field" style="margin-top:12px"><label>How Ocean should treat it</label>${area("sources.personalDocNotes", state.sources.personalDocNotes)}</div>
           <div class="field" style="margin-top:12px"><label>Review ritual</label>${area("sources.reviewRitual", state.sources.reviewRitual)}</div>
+        </section>
+        <section class="panel">
+          <h2>Autopilot</h2>
+          <div class="field"><label>Mode</label>${area("autopilot.supervision", state.autopilot.supervision)}</div>
+          <div class="field" style="margin-top:12px"><label>Promise</label>${area("autopilot.promise", state.autopilot.promise)}</div>
         </section>
         <section class="panel">
           <h2>Subdomain</h2>
@@ -1012,6 +1125,11 @@ function renderMore() {
           <p class="muted">Google Doc source, domain, backup, import/export.</p>
           <button onclick="location.hash='settings'">Open</button>
         </section>
+        <section class="panel">
+          <h2>Radar</h2>
+          <p class="muted">Current research signals and opportunity searches.</p>
+          <button onclick="location.hash='dashboard'; setTimeout(refreshRadar, 0)">Refresh Radar</button>
+        </section>
       </div>
     `,
   );
@@ -1067,9 +1185,13 @@ Object.assign(window, {
   addQuickUpdate,
   addUpdate,
   applyUpdateToTracker,
+  adoptRadarItem,
+  refreshRadar,
   exportData,
   importData,
   resetData,
 });
 
 render();
+loadRadar();
+setInterval(() => loadRadar(true), 1000 * 60 * 30);
