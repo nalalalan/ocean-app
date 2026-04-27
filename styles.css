@@ -71,7 +71,7 @@ button:hover {
 
 .brand strong {
   display: block;
-  font-size: 18px;
+  font-size: 22px;
 }
 
 .brand span {
@@ -135,7 +135,7 @@ button:hover {
 
 .content {
   padding: 24px 26px 40px;
-  max-width: 1380px;
+  max-width: 1120px;
 }
 
 .grid {
@@ -155,8 +155,60 @@ button:hover {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 16px rgba(23, 32, 51, 0.05);
   padding: 16px;
+}
+
+.focus-panel {
+  padding: 24px;
+  background: linear-gradient(135deg, #ffffff 0%, #eef7ff 58%, #ecfdf5 100%);
+}
+
+.focus-panel h2 {
+  font-size: 26px;
+  line-height: 1.2;
+  max-width: 820px;
+}
+
+.eyebrow {
+  color: var(--blue);
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.calm-score {
+  color: var(--green);
+  font-size: 30px;
+}
+
+.compact-progress {
+  margin-top: 14px;
+}
+
+.compact-progress .score-row {
+  grid-template-columns: 96px 1fr 44px;
+  font-size: 13px;
+}
+
+.mini-update {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 4px;
+  padding: 10px 0;
+}
+
+.mini-update:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.mini-update span {
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .panel h2,
