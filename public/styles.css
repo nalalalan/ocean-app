@@ -122,6 +122,10 @@ button:hover {
   z-index: 2;
 }
 
+.home-actions {
+  display: none;
+}
+
 .topbar h1 {
   font-size: 22px;
   margin: 0;
@@ -364,6 +368,83 @@ button:hover {
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.minimal-home {
+  align-content: center;
+  display: grid;
+  gap: 18px;
+  margin: 0 auto;
+  max-width: 760px;
+  min-height: calc(100vh - 170px);
+  padding: 24px 0;
+}
+
+.wave-mark {
+  background:
+    radial-gradient(circle at 70% 35%, rgba(20, 184, 166, 0.22), transparent 32%),
+    linear-gradient(135deg, #dbeafe, #ecfeff 55%, #ecfdf5);
+  border: 1px solid #bfdbfe;
+  border-radius: 28px;
+  height: 78px;
+  position: relative;
+  width: 78px;
+}
+
+.wave-mark::before {
+  border: 7px solid #2458d3;
+  border-left-color: transparent;
+  border-bottom-color: #14b8a6;
+  border-radius: 50%;
+  content: "";
+  height: 38px;
+  left: 17px;
+  position: absolute;
+  top: 18px;
+  transform: rotate(-18deg);
+  width: 38px;
+}
+
+.tiny-label {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.minimal-home h2 {
+  font-size: 40px;
+  line-height: 1.08;
+  margin: 0;
+  max-width: 720px;
+}
+
+.minimal-next {
+  color: var(--muted);
+  font-size: 18px;
+  margin: 0;
+  max-width: 720px;
+}
+
+.minimal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.minimal-capture {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  max-width: 620px;
+  padding-top: 18px;
+}
+
+.minimal-capture textarea {
+  min-height: 74px;
 }
 
 .panel h2,
