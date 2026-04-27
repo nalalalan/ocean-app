@@ -1,0 +1,13 @@
+{
+  "name": "wdi-trajectory-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A personal trajectory tracker for becoming a Walt Disney Imagineering creative technologist.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

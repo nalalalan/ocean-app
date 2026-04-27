@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Trajectory tracker icon">
+  <defs>
+    <linearGradient id="g" x1="20" y1="16" x2="112" y2="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2458d3"/>
+      <stop offset="1" stop-color="#13a36f"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#172033"/>
+  <path d="M27 90c18-34 38-51 74-57" fill="none" stroke="url(#g)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M34 91h60" fill="none" stroke="#f8fafc" stroke-width="9" stroke-linecap="round"/>
+  <path d="M44 91V68l15 11 15-21 20 33" fill="none" stroke="#f8fafc" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="98" cy="33" r="10" fill="#f7c948"/>
+</svg>
