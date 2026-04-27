@@ -5,7 +5,7 @@ const projectStatuses = ["Idea", "Prototype", "Documented", "Polished", "Publish
 const networkStatuses = ["Not Started", "Contacted", "Replied", "Met", "Followed Up"];
 const opportunityStatuses = ["Watch", "Apply", "Applied", "Archived"];
 const updateTags = ["General", "Morphing Structures", "Prototype", "Research", "Portfolio", "Networking", "Opportunity", "Resume"];
-let radarState = { loading: true, updatedAt: null, items: [], error: null };
+let radarState = { loading: true, updatedAt: null, items: [], sourceStatus: [], error: null };
 
 const defaultData = {
   profile: {
@@ -394,19 +394,78 @@ function recommendedOpportunity() {
   return radarState.items.find((item) => item.type === "Opportunity" && /creative technolog|research|r&d|robotics|morph|programmable|prototype|animatronics|haptics|mechatronics/i.test(`${item.title} ${item.why}`));
 }
 
+function currentSignal() {
+  return radarState.items.find((item) => item.type === "Opportunity")
+    || radarState.items.find((item) => item.type === "Research signal")
+    || radarState.items.find((item) => item.type === "Target lane")
+    || null;
+}
+
+function liveItems() {
+  return radarState.items.filter((item) => item.type !== "Target lane");
+}
+
+function currentInfoMove() {
+  if (radarState.loading) return "Checking current roles and research signals now.";
+  const signal = currentSignal();
+  if (!signal) return currentCareerMove();
+  if (signal.type === "Research signal") {
+    return `Use this current research signal as a keyword check: ${signal.title}`;
+  }
+  return `Compare your next proof against this current lane: ${signal.title}`;
+}
+
+function radarTimeLabel() {
+  if (!radarState.updatedAt) return "not refreshed yet";
+  return `refreshed ${new Date(radarState.updatedAt).toLocaleString()}`;
+}
+
 function careerSignalMarkup() {
   if (radarState.loading) {
-    return `<div class="signal-line"><span>Checking only high-fit roles.</span></div>`;
+    return `<div class="signal-line"><span>Checking current info</span><strong>Ocean is refreshing roles and research signals.</strong></div>`;
   }
   const opportunity = recommendedOpportunity();
   if (!opportunity) {
-    return `<div class="signal-line"><span>No live role worth attention right now</span><strong>Only recommend Creative Technologist, Research Scientist, or postdoc paths tied to programmable matter, morphing systems, soft robotics, HRI, physical AI, or advanced prototyping.</strong></div>`;
+    return `<div class="signal-line"><span>No high-fit live role found</span><strong>Do not pivot randomly. Keep building programmable matter proof unless a role clearly asks for R&D, prototyping, robotics, physical interaction, haptics, or advanced mechanisms.</strong></div>`;
   }
   return `
     <div class="signal-line">
       <span>Worth looking at</span>
       <a href="${esc(opportunity.url)}" target="_blank" rel="noreferrer">${esc(opportunity.title)}</a>
     </div>
+  `;
+}
+
+function currentInfoMarkup() {
+  const items = liveItems().slice(0, 3);
+  const sourceRows = (radarState.sourceStatus || []).map((row) => `
+    <span class="${row.ok ? "ok" : "issue"}">${esc(row.source)}: ${esc(row.detail || "")}</span>
+  `).join("");
+  return `
+    <section class="current-info">
+      <div class="current-head">
+        <div>
+          <span class="tiny-label">Current info</span>
+          <strong>${esc(radarTimeLabel())}</strong>
+        </div>
+        <button class="compact" onclick="refreshRadar()">Refresh</button>
+      </div>
+      ${radarState.loading ? `<div class="empty">Checking current sources...</div>` : ""}
+      ${radarState.error ? `<div class="empty">Some sources had issues. Showing whatever did refresh.</div>` : ""}
+      ${items.length ? `
+        <div class="current-list">
+          ${items.map((item, index) => `
+            <article class="current-item">
+              <span>${esc(item.type || "Signal")} / ${esc(item.source || "source")}${item.date ? ` / ${esc(item.date)}` : ""}</span>
+              <a href="${esc(item.url || "#")}" target="_blank" rel="noreferrer">${esc(item.title || "Untitled signal")}</a>
+              <p>${esc(item.why || item.summary || "")}</p>
+              <button class="compact" onclick="adoptRadarItem(${radarState.items.indexOf(item)})">Track</button>
+            </article>
+          `).join("")}
+        </div>
+      ` : (!radarState.loading ? `<div class="empty">No fresh role or research items found. Target lanes still stay available in the deeper tracker.</div>` : "")}
+      ${sourceRows ? `<div class="source-status">${sourceRows}</div>` : ""}
+    </section>
   `;
 }
 
@@ -426,16 +485,17 @@ async function loadRadar(force = false) {
   if (!force && radarState.items.length && radarState.updatedAt) return;
   radarState = { ...radarState, loading: true };
   try {
-    const response = await fetch("/api/radar");
+    const response = await fetch(`/api/radar${force ? "?force=1" : ""}`, { cache: "no-store" });
     const radar = await response.json();
     radarState = {
       loading: false,
       updatedAt: radar.updatedAt || null,
       items: Array.isArray(radar.items) ? radar.items : [],
+      sourceStatus: Array.isArray(radar.sourceStatus) ? radar.sourceStatus : [],
       error: radar.error || null,
     };
   } catch (error) {
-    radarState = { loading: false, updatedAt: null, items: [], error: error.message };
+    radarState = { loading: false, updatedAt: null, items: [], sourceStatus: [], error: error.message };
   }
   renderMinimalDashboard();
 }
@@ -727,7 +787,7 @@ function renderDashboard() {
 }
 
 function renderMinimalDashboard() {
-  const answer = currentCareerMove();
+  const answer = currentInfoMove();
   document.getElementById("app").innerHTML = `
     <main class="one-page">
       <section class="ocean-card">
@@ -750,9 +810,11 @@ function renderMinimalDashboard() {
 
         <div class="one-actions">
           <button class="primary" onclick="gentleReset()">Smaller proof</button>
+          <button onclick="refreshRadar()">Refresh current info</button>
         </div>
 
         ${careerSignalMarkup()}
+        ${currentInfoMarkup()}
       </section>
     </main>
   `;
@@ -1198,7 +1260,7 @@ function adoptRadarItem(index) {
 }
 
 function refreshRadar() {
-  radarState = { loading: true, updatedAt: radarState.updatedAt, items: radarState.items, error: null };
+  radarState = { ...radarState, loading: true, error: null };
   render();
   loadRadar(true);
 }

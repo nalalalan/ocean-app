@@ -8,6 +8,7 @@ const radarCache = {
   updatedAt: null,
   items: [],
   error: null,
+  sourceStatus: [],
 };
 const radarRefreshMs = 1000 * 60 * 60 * 6;
 
@@ -53,6 +54,7 @@ function tagText(value) {
 
 async function fetchText(url) {
   const response = await fetch(url, {
+    signal: AbortSignal.timeout(15000),
     headers: {
       "user-agent": "Ocean career radar (personal tracker; contact via site owner)",
       "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -66,6 +68,13 @@ function isAlignedDisneyRole(item) {
   const text = `${item.title || ""} ${item.location || ""}`.toLowerCase();
   const aligned = /creative technolog|research scientist|research engineer|\br&d\b|research and development|prototype|prototyping|robotics|soft robotics|programmable matter|morphing|shape-changing|physical ai|mechatronics|animatronics|haptics|human[- ]robot|interactive technology|advanced development/i;
   const misaligned = /intern|internship|summer|lighting|theme lighting|designer sr|project hire|document control|audio|video|ride control|costume|graphic|producer|coordinator|manager|finance|marketing|public relations|culinary|retail|stage|construction|architecture|architectural|interior design|set design|scenic|merchandise|operations/i;
+  return aligned.test(text) && !misaligned.test(text);
+}
+
+function isAlignedResearchSignal(item) {
+  const text = `${item.title || ""} ${item.summary || ""}`.toLowerCase();
+  const aligned = /soft robot|soft robotic|morphing|shape-changing|shape changing|haptic|tactile|continuum robot|compliant|metamaterial|programmable matter|embodied interaction|wearable|actuat|mechanism|fabricat|origami|deployable/i;
+  const misaligned = /human-ai|human ai|language model|\bllm\b|large language|governance|misinformation|social media|recommender|policy/i;
   return aligned.test(text) && !misaligned.test(text);
 }
 
@@ -99,11 +108,11 @@ async function fetchDisneySignals() {
 }
 
 async function fetchArxivSignals() {
-  const query = encodeURIComponent('all:"soft robotics" OR all:"morphing structures" OR all:"shape-changing interfaces" OR all:"haptics" OR all:"human robot interaction"');
-  const url = `https://export.arxiv.org/api/query?search_query=${query}&start=0&max_results=6&sortBy=submittedDate&sortOrder=descending`;
+  const query = encodeURIComponent('all:"soft robotics" OR all:"morphing structures" OR all:"shape-changing interfaces" OR all:"haptics" OR all:"tactile" OR all:"continuum robot" OR all:"compliant mechanism" OR all:"programmable matter"');
+  const url = `https://export.arxiv.org/api/query?search_query=${query}&start=0&max_results=12&sortBy=submittedDate&sortOrder=descending`;
   const xml = await fetchText(url);
   const entries = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
-  return entries.slice(0, 5).map((entry) => {
+  return entries.map((entry) => {
     const title = tagText(entry.match(/<title>([\s\S]*?)<\/title>/)?.[1]);
     const summary = tagText(entry.match(/<summary>([\s\S]*?)<\/summary>/)?.[1]).slice(0, 360);
     const published = tagText(entry.match(/<published>([\s\S]*?)<\/published>/)?.[1]).slice(0, 10);
@@ -118,7 +127,7 @@ async function fetchArxivSignals() {
       summary,
       why: "Recent research signal near soft robotics, morphing structures, haptics, HRI, or shape-changing interfaces.",
     };
-  }).filter((item) => item.title && item.url);
+  }).filter((item) => item.title && item.url).filter(isAlignedResearchSignal).slice(0, 5);
 }
 
 function curatedTargetSignals() {
@@ -195,6 +204,24 @@ async function refreshRadar() {
       fetchDisneySignals(),
       fetchArxivSignals(),
     ]);
+    const sourceStatus = [
+      {
+        source: "Disney Careers",
+        ok: disney.status === "fulfilled",
+        count: disney.status === "fulfilled" ? disney.value.length : 0,
+        detail: disney.status === "fulfilled"
+          ? `${disney.value.length} aligned live roles found`
+          : disney.reason?.message || "Disney Careers fetch failed",
+      },
+      {
+        source: "arXiv",
+        ok: arxiv.status === "fulfilled",
+        count: arxiv.status === "fulfilled" ? arxiv.value.length : 0,
+        detail: arxiv.status === "fulfilled"
+          ? `${arxiv.value.length} recent research signals found`
+          : arxiv.reason?.message || "arXiv fetch failed",
+      },
+    ];
     const items = [
       ...(disney.status === "fulfilled" ? disney.value : []),
       ...curatedTargetSignals(),
@@ -202,7 +229,10 @@ async function refreshRadar() {
     ];
     radarCache.updatedAt = new Date().toISOString();
     radarCache.items = items;
-    radarCache.error = null;
+    radarCache.sourceStatus = sourceStatus;
+    radarCache.error = sourceStatus.some((row) => !row.ok)
+      ? sourceStatus.filter((row) => !row.ok).map((row) => `${row.source}: ${row.detail}`).join("; ")
+      : null;
   } catch (error) {
     radarCache.error = error.message;
   }
@@ -227,10 +257,16 @@ const server = http.createServer((req, res) => {
   }
 
   if (pathname === "/api/radar") {
+    const force = url.searchParams.get("force") === "1";
     const stale = !radarCache.updatedAt || Date.now() - new Date(radarCache.updatedAt).getTime() > radarRefreshMs;
-    (stale ? refreshRadar() : Promise.resolve(radarCache))
+    (force || stale ? refreshRadar() : Promise.resolve(radarCache))
       .then((radar) => sendJson(res, radar))
-      .catch((error) => sendJson(res, { updatedAt: radarCache.updatedAt, items: radarCache.items, error: error.message }, 500));
+      .catch((error) => sendJson(res, {
+        updatedAt: radarCache.updatedAt,
+        items: radarCache.items,
+        sourceStatus: radarCache.sourceStatus,
+        error: error.message,
+      }, 500));
     return;
   }
 
