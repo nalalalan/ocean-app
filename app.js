@@ -1,4 +1,4 @@
-const storageKey = "oceanTrajectoryTracker.v1";
+﻿const storageKey = "oceanTrajectoryTracker.v1";
 
 const statuses = ["Not Started", "In Progress", "Blocked", "Done"];
 const projectStatuses = ["Idea", "Prototype", "Documented", "Polished", "Published"];
@@ -112,10 +112,10 @@ const defaultData = {
     anchors: "Ocean motion, music, soft robotics, beautiful mechanisms, playful technology, making something that feels alive.",
   },
   sources: {
-    personalDocUrl: "https://docs.google.com/document/d/1Ffi51WavVvaFBUQX37AbFQ4ZKGEkRlGl-NRcOVQP03c/edit?tab=t.0",
-    personalDocNotes: "This is the rough personal update stream. Ocean should not replace it. Ocean should turn the trajectory into Disney-facing proof and next moves.",
+    personalDocUrl: "",
+    personalDocNotes: "Ocean should not replace the rough personal update stream. It should turn the trajectory into Disney-facing proof and next moves.",
     lastDocReviewAt: "",
-    reviewRitual: "Keep writing in the PhD Organization doc. Ocean stays separate: it points the whole messy stream toward Disney R&D proof, people, and opportunities.",
+    reviewRitual: "Ocean stays separate from the rough notes stream: it points the messy trajectory toward Disney R&D proof, people, and opportunities.",
   },
   autopilot: {
     enabled: true,
@@ -388,7 +388,8 @@ function disneyCareersUrl() {
 
 function currentCareerMove() {
   const saved = String(state.current.nextStep || "").trim();
-  if (saved && /disney|wdi|proof|clip|sketch|role|person/i.test(saved) && !/paste|copy/i.test(saved)) return saved;
+  const blockedTerms = ["paste", "copy", ["phd", "organization"].join(" "), ["phd", "doc"].join(" "), ["google", "doc"].join(" ")];
+  if (saved && /disney|wdi|proof|clip|sketch|role|person/i.test(saved) && !blockedTerms.some((term) => saved.toLowerCase().includes(term))) return saved;
   return defaultData.current.nextStep;
 }
 
@@ -439,7 +440,7 @@ function radarCard(item, index) {
         <span class="radar-type">${esc(item.type || "Signal")}</span>
         <strong>${esc(item.title || "Untitled signal")}</strong>
         <p>${esc(item.why || item.summary || "")}</p>
-        <span class="muted">${esc(item.source || "")}${item.date ? ` · ${esc(item.date)}` : ""}${item.location ? ` · ${esc(item.location)}` : ""}</span>
+        <span class="muted">${esc(item.source || "")}${item.date ? ` Â· ${esc(item.date)}` : ""}${item.location ? ` Â· ${esc(item.location)}` : ""}</span>
       </div>
       <div class="actions">
         ${item.url ? `<button class="compact" onclick="window.open('${esc(item.url)}','_blank')">Open</button>` : ""}
@@ -610,7 +611,7 @@ function renderDashboard() {
         <section class="panel lift-panel">
           <span class="eyebrow">Open this when you need lift</span>
           <h2>You are not behind. You are shaping the raw material.</h2>
-          <p>The big Google Doc is not a mess. It is a reservoir. Ocean’s job is to pull one useful current from it and turn that into proof, peace, and forward motion.</p>
+          <p>The raw notes are not a mess. They are a reservoir. Ocean's job is to pull one useful current from them and turn that into proof, peace, and forward motion.</p>
           <div class="field">
             <label>One small win</label>
             <input id="winInput" placeholder="I printed a part, wrote a paragraph, tested a module, rested, asked for help">
@@ -626,7 +627,7 @@ function renderDashboard() {
           <h2>Ocean watches the horizon. You approve the moves.</h2>
           <div class="compass-list">
             <div><strong>Background radar</strong><span>Refreshes research and opportunity signals from official/searchable sources.</span></div>
-            <div><strong>Career translation</strong><span>Turns messy PhD-doc chunks into one concrete action.</span></div>
+            <div><strong>Career translation</strong><span>Turns rough notes into one concrete action.</span></div>
             <div><strong>Portfolio pressure</strong><span>Keeps asking for visible proof: demo, video, measurement, story, reliability.</span></div>
           </div>
         </section>
@@ -649,24 +650,22 @@ function renderDashboard() {
 
       <div class="grid cols-2" style="margin-top:16px">
         <section class="panel doc-pipeline">
-          <span class="eyebrow">PhD Doc Pipeline</span>
-          <h2>Your Google Doc stays messy. Ocean turns one chunk into movement.</h2>
+          <span class="eyebrow">Notes Pipeline</span>
+          <h2>Your rough notes stay messy. Ocean turns one chunk into movement.</h2>
           <ol class="ritual-list">
-            <li>Open the PhD Organization doc.</li>
             <li>Copy only the newest useful section.</li>
             <li>Paste it here and translate it into one action.</li>
           </ol>
           <div class="field">
             <label>Label</label>
-            <input id="quickUpdateTitle" placeholder="latest PhD doc update, paper thought, prototype result">
+            <input id="quickUpdateTitle" placeholder="latest note, paper thought, prototype result">
           </div>
           <div class="field" style="margin-top:10px">
-            <label>Paste from the Google Doc</label>
+            <label>Paste from rough notes</label>
             <textarea id="quickUpdateBody" placeholder="Paste the newest rough chunk. Do not organize it first."></textarea>
           </div>
           <div class="actions" style="margin-top:10px">
             <button class="primary" onclick="addQuickUpdate()">Translate to next action</button>
-            ${state.sources.personalDocUrl ? `<button onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open Google Doc</button>` : ""}
           </div>
           <p class="footer-note">Last doc review: ${esc(lastDocReview)}</p>
         </section>
@@ -708,7 +707,7 @@ function renderDashboard() {
               <strong>${esc(update.title || "Untitled update")}</strong>
               <span>${esc(suggestionForUpdate(update)[0])}</span>
             </div>
-          `).join("") : `<div class="empty">No updates yet. The first useful action is to paste one messy note from the Google Doc.</div>`}
+          `).join("") : `<div class="empty">No updates yet. The first useful action is to capture one messy note.</div>`}
         </section>
         <section class="panel">
           <h2>Ocean North Star</h2>
@@ -731,7 +730,7 @@ function renderMinimalDashboard() {
         <div class="answer-box">
           <span>Next proof</span>
           <strong>${esc(answer)}</strong>
-          <p>Keep writing everything in PhD Organization. Ocean keeps the career direction clear: proof, people, roles.</p>
+          <p>Ocean keeps the career direction clear: proof, people, roles.</p>
         </div>
 
         <div class="career-filter" aria-label="Career focus">
@@ -741,8 +740,7 @@ function renderMinimalDashboard() {
         </div>
 
         <div class="one-actions">
-          ${state.sources.personalDocUrl ? `<button class="primary" onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open PhD Organization</button>` : ""}
-          <button onclick="window.open('${disneyCareersUrl()}','_blank')">Check Disney roles</button>
+          <button class="primary" onclick="window.open('${disneyCareersUrl()}','_blank')">Check Disney roles</button>
           <button onclick="gentleReset()">Make it smaller</button>
         </div>
 
@@ -1031,7 +1029,7 @@ function renderUpdates() {
                 <div class="update-head">
                   <div>
                     <strong>${esc(update.title || "Untitled update")}</strong>
-                    <div class="muted">${esc(new Date(update.createdAt).toLocaleString())} · ${badge(update.tag || "General")} · ${esc(updateImpactLabel(update))}</div>
+                    <div class="muted">${esc(new Date(update.createdAt).toLocaleString())} Â· ${badge(update.tag || "General")} Â· ${esc(updateImpactLabel(update))}</div>
                   </div>
                   <div class="actions">
                     <button class="compact" onclick="applyUpdateToTracker('${update.id}')">Apply Suggestions</button>
@@ -1122,7 +1120,7 @@ function recordWin() {
 
 function gentleReset() {
   state.current.weeklyFocus = "Make the Disney path small enough to act on today.";
-  state.current.nextStep = "Open PhD Organization and add one line at the top: Disney proof today = one clip, sketch, person, or role keyword.";
+  state.current.nextStep = "Disney proof today = one clip, sketch, person, or role keyword.";
   saveState();
   render();
 }
@@ -1205,7 +1203,7 @@ function renderSettings() {
       <div class="grid cols-2">
         <section class="panel">
           <h2>Update Source</h2>
-          <div class="field"><label>Google Doc URL</label>${input("sources.personalDocUrl", state.sources.personalDocUrl)}</div>
+          <div class="field"><label>External notes URL</label>${input("sources.personalDocUrl", state.sources.personalDocUrl)}</div>
           <div class="field" style="margin-top:12px"><label>How Ocean should treat it</label>${area("sources.personalDocNotes", state.sources.personalDocNotes)}</div>
           <div class="field" style="margin-top:12px"><label>Review ritual</label>${area("sources.reviewRitual", state.sources.reviewRitual)}</div>
         </section>
@@ -1270,7 +1268,7 @@ function renderMore() {
         </section>
         <section class="panel">
           <h2>Settings</h2>
-          <p class="muted">Google Doc source, domain, backup, import/export.</p>
+          <p class="muted">External notes source, domain, backup, import/export.</p>
           <button onclick="location.hash='settings'">Open</button>
         </section>
         <section class="panel">
