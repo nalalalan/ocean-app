@@ -1,6 +1,6 @@
-# WDI Trajectory Tracker
+# Ocean Tracker
 
-A bookmarkable personal web app for tracking progress toward a future Walt Disney Imagineering creative technologist role.
+A bookmarkable personal web app for tracking progress toward ocean-inspired morphing structures, creative technology, and R&D roles across WDI and adjacent labs.
 
 ## Run Locally
 
@@ -15,8 +15,8 @@ Open `http://localhost:3000`.
 1. Push this folder to a GitHub repo.
 2. Create a new Railway project from that repo.
 3. Railway should detect Node and run `npm start`.
-4. Add the custom domain `disney.aolabs.io` in Railway.
-5. In Porkbun DNS, point `disney.aolabs.io` to the Railway target Railway gives you.
+4. Add the custom domain `ocean.aolabs.io` in Railway.
+5. In Porkbun DNS, point `ocean.aolabs.io` to the Railway target Railway gives you.
 
 ## Data
 

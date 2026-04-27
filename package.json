@@ -1,8 +1,8 @@
 {
-  "name": "wdi-trajectory-tracker",
+  "name": "ocean-tracker",
   "version": "0.1.0",
   "private": true,
-  "description": "A personal trajectory tracker for becoming a Walt Disney Imagineering creative technologist.",
+  "description": "A personal tracker for ocean-inspired morphing structures, creative technology, and R&D career paths.",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"

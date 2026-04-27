@@ -1,4 +1,4 @@
-const storageKey = "wdiTrajectoryTracker.v1";
+const storageKey = "oceanTrajectoryTracker.v1";
 
 const statuses = ["Not Started", "In Progress", "Blocked", "Done"];
 const projectStatuses = ["Idea", "Prototype", "Documented", "Polished", "Published"];
@@ -9,19 +9,19 @@ const updateTags = ["General", "Morphing Structures", "Prototype", "Research", "
 const defaultData = {
   profile: {
     name: "",
-    targetRole: "Creative Technologist",
-    targetOrg: "Walt Disney Imagineering",
-    targetLocation: "Glendale, California",
-    subdomain: "disney.aolabs.io",
-    phd: "",
-    graduation: "",
+    targetRole: "Creative Technologist / Morphing Structures R&D",
+    targetOrg: "Ocean-inspired embodied technology labs",
+    targetLocation: "Glendale, Seattle, Bay Area, Boston, or remote/hybrid R&D",
+    subdomain: "ocean.aolabs.io",
+    phd: "PhD Mechanical Engineering, WPI, expected 2027",
+    graduation: "Expected 2027",
     cv: "",
     linkedin: "",
     portfolio: "",
-    technicalStrengths: "",
-    creativeStrengths: "",
+    technicalStrengths: "Soft robotics, metamaterials, morphing surfaces, nonlinear dynamics, HRI, pneumatic actuation, cable-driven robots, continuum robots, 3D printing, FEA, ROS2, MATLAB, Python, C/C++.",
+    creativeStrengths: "Ocean-inspired motion, musical/ensemble collaboration, interactive embodied systems, playful guest-facing technology.",
     constraints: "",
-    narrative: "I build technically sophisticated interactive experiences that make people feel something, and I can prove it with shipped prototypes.",
+    narrative: "I build ocean-inspired morphing systems: soft robotic structures, responsive surfaces, and embodied technologies that can move with life, emotion, and reliable engineering depth.",
   },
   roadmap: [
     item("Portfolio", "One polished creative technology case study", "Project page with video, story goal, tech stack, build notes", 10, "Pick one existing project to polish"),
@@ -33,17 +33,21 @@ const defaultData = {
     item("Technical", "Morphing structures controls story", "Control approach, sensing, repeatability, failure modes, and safe interaction notes", 7, "Write a control and reliability plan for one morphing prototype"),
     item("Technical", "Reliability and operations story", "Notes on robustness, safety, maintainability, testing, or deployment", 6, "Add a reliability section to a project"),
     item("Story", "Guest-experience framing", "Each portfolio piece explains what the audience feels or does", 7, "Rewrite one project intro"),
-    item("Story", "Themed entertainment literacy", "Notes from WDI talks, attraction breakdowns, or design analysis", 5, "Analyze one attraction experience"),
+    item("Story", "Experience-technology literacy", "Notes from WDI, Meta Reality Labs, Google, robotics, installation, museum, and HCI examples", 5, "Analyze one embodied experience or shape-changing system"),
     item("Research", "Publication or demo aligned with creative tech", "Conference paper, demo, poster, exhibit, or lab milestone", 8, "Map PhD work to creative-tech venues"),
-    item("Research", "Clear PhD-to-WDI narrative", "One paragraph connecting PhD work to guest-facing experiences", 6, "Draft the paragraph"),
+    item("Research", "Clear PhD-to-Ocean narrative", "One paragraph connecting soft robotics, metamaterials, and morphing surfaces to future embodied experiences", 6, "Draft the paragraph"),
     item("Networking", "Five feedback conversations", "Names, dates, notes, follow-up action", 7, "Identify five people"),
-    item("Networking", "One warm WDI-adjacent relationship", "Ongoing contact, feedback, referral potential later", 5, "Ask for portfolio feedback"),
-    item("Applications", "Role keyword map", "Current WDI/Disney role keywords copied into tracker", 4, "Use monthly scan output"),
-    item("Applications", "Tailored resume and LinkedIn", "Resume and profile aimed at creative technologist / R&D work", 4, "Paste CV and LinkedIn into Profile"),
+    item("Networking", "One warm R&D-adjacent relationship", "Ongoing contact with WDI, Meta, Google, robotics, HCI, museum tech, or interaction design people", 5, "Ask for portfolio feedback"),
+    item("Applications", "Role keyword map", "Current WDI, Meta, Google, robotics, HCI, and embodied AI keywords copied into tracker", 4, "Use monthly scan output"),
+    item("Applications", "Tailored resume and LinkedIn", "Resume and profile aimed at creative technologist, soft robotics, morphing structures, and R&D roles", 4, "Paste LinkedIn into Profile and compare against CV"),
     item("Applications", "Interview story bank", "STAR stories for prototype, collaboration, ambiguity, failure, technical depth", 4, "Write one story"),
-    item("Applications", "Apply when ready", "Shortlist of roles and tailored applications", 8, "Track WDI roles monthly"),
+    item("Applications", "Apply when ready", "Shortlist of roles and tailored applications across WDI plus adjacent R&D labs", 8, "Track target roles monthly"),
   ],
   projects: [
+    cvProject("Ocean morphing surface", "High-tech morphing structures", "A responsive surface that moves like a living wave, framed as a rigorous soft-robotics and experience-technology portfolio piece.", "Pneumatic/cable actuation, compliant mechanisms, sensing, controls, repeatability testing"),
+    cvProject("Modular cable-driven soft robotic arm", "Soft robotics / field robotics", "A soft robotic arm concept connected to terrain navigation and exploration, adaptable into an embodied character or responsive structure demo.", "Cable-driven soft robotics, modular design, Mars surface exploration context"),
+    cvProject("Pneumatically actuated Sarrus-linkage robotic material", "Metamaterials / morphing surfaces", "A tiled robotic material that can scale into shape-changing surfaces and high-tech scenic/interactive systems.", "3D printing, pneumatic actuation, Sarrus linkages, robotic materials"),
+    cvProject("Concentric tube robot actuation platform", "Continuum robotics", "A precise continuum robot platform that demonstrates mechanical design, fabrication, controls, and validation.", "Continuum robots, open-source actuation, displacement validation"),
     project("High-tech morphing structures"),
     project("Compliant mechanisms / soft robotics"),
     project("Deployable or origami structures"),
@@ -62,18 +66,42 @@ const defaultData = {
       id: crypto.randomUUID(),
       date: "",
       team: "Walt Disney Imagineering",
-      role: "Creative Technologist / R&D",
+      role: "Creative Technologist / R&D / Show systems",
       location: "Glendale, CA",
       link: "",
       keywords: "creative technology, R&D, interactive experiences, guest experience",
       fit: 0,
-      action: "Paste current posting when found",
+      action: "Track current postings and map keywords to morphing-systems portfolio",
+      status: "Watch",
+    },
+    {
+      id: crypto.randomUUID(),
+      date: "",
+      team: "Meta Reality Labs",
+      role: "Research Scientist / Hardware prototyping / HCI / Soft robotics-adjacent R&D",
+      location: "Bay Area, Seattle, Pittsburgh, or other RL sites",
+      link: "",
+      keywords: "embodied interaction, haptics, wearables, robotics, human-computer interaction, prototyping",
+      fit: 0,
+      action: "Look for roles where morphing surfaces, haptics, or soft robotic interaction are credible",
+      status: "Watch",
+    },
+    {
+      id: crypto.randomUUID(),
+      date: "",
+      team: "Google / X / DeepMind / AR hardware-adjacent teams",
+      role: "Research Engineer / Prototyping / Robotics / Interaction R&D",
+      location: "Bay Area, Seattle, Cambridge, or other R&D sites",
+      link: "",
+      keywords: "robotics, materials, human-centered AI, interactive systems, hardware prototyping, simulation",
+      fit: 0,
+      action: "Track roles that value robotics hardware plus creative HCI storytelling",
       status: "Watch",
     },
   ],
   current: {
-    weeklyFocus: "Define one high-tech morphing structures prototype that could become a strong WDI R&D portfolio piece.",
-    nextStep: "Write the morphing structure concept as: what changes shape, what drives it, how a guest experiences it, and how you will measure success.",
+    weeklyFocus: "Define one Ocean prototype: a morphing structure that moves like a living wave and demonstrates serious soft-robotics engineering.",
+    nextStep: "Write the Ocean concept as: what changes shape, what drives it, what sensing closes the loop, what someone feels, and how you will measure repeatability.",
     blockers: "",
     notes: "",
   },
@@ -90,6 +118,21 @@ function item(category, milestone, evidence, weight, nextAction) {
     weight,
     nextAction,
     due: "",
+  };
+}
+
+function cvProject(name, theme, experience, stack) {
+  return {
+    id: crypto.randomUUID(),
+    name,
+    theme,
+    experience,
+    stack,
+    evidence: "",
+    status: "Prototype",
+    impact: 7,
+    nextImprovement: "Add a short video or project page with measured behavior, failure modes, and the human/guest experience.",
+    notes: "Seeded from CV. Replace or refine this with the strongest public-safe version of the work.",
   };
 }
 
@@ -281,7 +324,7 @@ function suggestionForUpdate(update) {
   if (text.includes("resume") || text.includes("cv") || text.includes("linkedin")) {
     suggestions.push("Translate this into resume language: action verb, technical method, measurable result, and creative outcome.");
   }
-  if (text.includes("wdi") || text.includes("imagineering") || text.includes("disney") || text.includes("job")) {
+  if (text.includes("wdi") || text.includes("imagineering") || text.includes("disney") || text.includes("meta") || text.includes("google") || text.includes("job")) {
     suggestions.push("Extract role keywords and add them to Opportunities so the portfolio can mirror current job language.");
   }
 
@@ -319,8 +362,8 @@ function layout(title, subtitle, body) {
     <div class="app">
       <aside class="sidebar">
         <div class="brand">
-          <strong>WDI Tracker</strong>
-          <span>${esc(state.profile.subdomain || "trajectory.aolabs.io")}</span>
+          <strong>Ocean</strong>
+          <span>${esc(state.profile.subdomain || "ocean.aolabs.io")}</span>
         </div>
         <nav class="nav">
           ${tabs.map(([id, label]) => `<button class="${route() === id ? "active" : ""}" onclick="location.hash='${id}'">${label}</button>`).join("")}
@@ -363,7 +406,7 @@ function renderDashboard() {
     .join("");
 
   layout(
-    "Trajectory Dashboard",
+    "Ocean Dashboard",
     `${state.profile.targetOrg} ${state.profile.targetRole} target, ${state.profile.targetLocation}`,
     `
       <div class="grid cols-3">
@@ -678,7 +721,7 @@ function renderUpdates() {
         </section>
         <section class="panel">
           <h2>Morphing Structures Focus</h2>
-          <p>For WDI R&D, frame morphing structures as experience technology: shape change, emotional reveal, reliable control, guest safety, maintainability, and a clear story purpose.</p>
+          <p>Frame morphing structures as experience technology: shape change, emotional reveal, reliable control, human safety, maintainability, and a clear story purpose.</p>
           <div class="score-list">
             <div class="score-row"><strong>Mechanism</strong><span class="muted">compliant, soft robotic, origami, tensegrity, deployable</span><span></span></div>
             <div class="score-row"><strong>Actuation</strong><span class="muted">cable, pneumatic, SMA, motorized, magnetic, hydraulic</span><span></span></div>
@@ -794,7 +837,7 @@ function renderSettings() {
         <section class="panel">
           <h2>Subdomain</h2>
           <div class="field"><label>Preferred URL</label>${input("profile.subdomain", state.profile.subdomain)}</div>
-          <p class="footer-note">Current choice: disney.aolabs.io. Safer public alternatives: trajectory.aolabs.io, tracker.aolabs.io, wdi.aolabs.io.</p>
+          <p class="footer-note">Current choice: ocean.aolabs.io. Other usable options: wave.aolabs.io, morph.aolabs.io, trajectory.aolabs.io.</p>
         </section>
         <section class="panel">
           <h2>Data Backup</h2>
@@ -816,7 +859,7 @@ function exportData() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "wdi-trajectory-tracker.json";
+  link.download = "ocean-tracker.json";
   link.click();
   URL.revokeObjectURL(url);
 }
