@@ -101,8 +101,8 @@ const defaultData = {
     },
   ],
   current: {
-    weeklyFocus: "Define one Ocean prototype: a morphing structure that moves like a living wave and demonstrates serious soft-robotics engineering.",
-    nextStep: "Write the Ocean concept as: what changes shape, what drives it, what sensing closes the loop, what someone feels, and how you will measure repeatability.",
+    weeklyFocus: "Turn the PhD stream into Disney-facing proof: visible prototypes, clear mechanism stories, and a role narrative that makes WDI R&D feel reachable.",
+    nextStep: "Make one Disney-facing proof artifact: a 20-second morphing-wave clip, sketch, or note that shows mechanism, control, sensing, and why a guest would care.",
     blockers: "",
     notes: "",
   },
@@ -113,9 +113,9 @@ const defaultData = {
   },
   sources: {
     personalDocUrl: "https://docs.google.com/document/d/1Ffi51WavVvaFBUQX37AbFQ4ZKGEkRlGl-NRcOVQP03c/edit?tab=t.0",
-    personalDocNotes: "This is the rough personal update stream. Ocean should summarize it into calm next steps, not reproduce it raw.",
+    personalDocNotes: "This is the rough personal update stream. Ocean should not replace it. Ocean should turn the trajectory into Disney-facing proof and next moves.",
     lastDocReviewAt: "",
-    reviewRitual: "Open the PhD Organization doc, copy only the newest useful chunk, paste it into Ocean, then let Ocean choose one next action.",
+    reviewRitual: "Keep writing in the PhD Organization doc. Ocean stays separate: it points the whole messy stream toward Disney R&D proof, people, and opportunities.",
   },
   autopilot: {
     enabled: true,
@@ -382,6 +382,38 @@ function actionReason(update) {
   return "Because one small concrete action is better than trying to organize your whole life.";
 }
 
+function disneyCareersUrl() {
+  return "https://jobs.disneycareers.com/search-jobs?k=Imagineering%20R%26D%20creative%20technologist&l=Glendale%2C%20CA";
+}
+
+function currentCareerMove() {
+  const saved = String(state.current.nextStep || "").trim();
+  if (saved && /disney|wdi|proof|clip|sketch|role|person/i.test(saved) && !/paste|copy/i.test(saved)) return saved;
+  return defaultData.current.nextStep;
+}
+
+function careerSignal() {
+  return radarState.items.find((item) => /disney|imagineering|wdi/i.test(`${item.source} ${item.title} ${item.why}`))
+    || radarState.items.find((item) => /meta|google|arxiv|research/i.test(`${item.source} ${item.title} ${item.type}`))
+    || radarState.items[0];
+}
+
+function careerSignalMarkup() {
+  const signal = careerSignal();
+  if (radarState.loading) {
+    return `<div class="signal-line"><span>Checking Disney and R&D signals in the background.</span></div>`;
+  }
+  if (!signal) {
+    return `<div class="signal-line"><span>Career radar is quiet. The proof artifact still moves you forward.</span></div>`;
+  }
+  return `
+    <div class="signal-line">
+      <span>${esc(signal.source || signal.type || "Radar")}</span>
+      <a href="${esc(signal.url)}" target="_blank" rel="noreferrer">${esc(signal.title || "Open signal")}</a>
+    </div>
+  `;
+}
+
 async function loadRadar(force = false) {
   if (!force && radarState.items.length && radarState.updatedAt) return;
   radarState = { ...radarState, loading: true };
@@ -397,7 +429,7 @@ async function loadRadar(force = false) {
   } catch (error) {
     radarState = { loading: false, updatedAt: null, items: [], error: error.message };
   }
-  if (["dashboard", "more"].includes(route())) render();
+  renderMinimalDashboard();
 }
 
 function radarCard(item, index) {
@@ -689,30 +721,32 @@ function renderDashboard() {
 }
 
 function renderMinimalDashboard() {
-  const latest = [...state.updates].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))[0];
-  const answer = latest ? suggestionForUpdate(latest)[0] : state.current.nextStep || nextAction();
-  const reason = latest ? actionReason(latest) : "Paste one thought from the PhD doc and Ocean will turn it into a next step.";
+  const answer = currentCareerMove();
   document.getElementById("app").innerHTML = `
     <main class="one-page">
       <section class="ocean-card">
         <div class="wave-mark" aria-hidden="true"></div>
-        <p class="tiny-label">Ocean answers one question</p>
-        <h1>What do I do next?</h1>
+        <p class="tiny-label">Ocean's job</p>
+        <h1>Bring me closer to Disney R&D.</h1>
         <div class="answer-box">
-          <span>Do this</span>
+          <span>Next proof</span>
           <strong>${esc(answer)}</strong>
-          <p>${esc(reason)}</p>
+          <p>Keep writing everything in PhD Organization. Ocean keeps the career direction clear: proof, people, roles.</p>
+        </div>
+
+        <div class="career-filter" aria-label="Career focus">
+          <span>Proof</span>
+          <span>People</span>
+          <span>Roles</span>
         </div>
 
         <div class="one-actions">
-          ${state.sources.personalDocUrl ? `<button class="primary" onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open PhD Doc</button>` : ""}
+          ${state.sources.personalDocUrl ? `<button class="primary" onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open PhD Organization</button>` : ""}
+          <button onclick="window.open('${disneyCareersUrl()}','_blank')">Check Disney roles</button>
           <button onclick="gentleReset()">Make it smaller</button>
         </div>
 
-        <div class="one-capture">
-          <textarea id="quickUpdateBody" placeholder="Paste the newest messy thought from your PhD doc."></textarea>
-          <button class="primary" onclick="addQuickUpdate()">Tell me the next step</button>
-        </div>
+        ${careerSignalMarkup()}
       </section>
     </main>
   `;
@@ -1087,8 +1121,8 @@ function recordWin() {
 }
 
 function gentleReset() {
-  state.current.weeklyFocus = "Make the next Ocean step small enough to feel kind.";
-  state.current.nextStep = "Take one visible action: sketch the wave, test one module, write one sentence, or save one piece of evidence.";
+  state.current.weeklyFocus = "Make the Disney path small enough to act on today.";
+  state.current.nextStep = "Open PhD Organization and add one line at the top: Disney proof today = one clip, sketch, person, or role keyword.";
   saveState();
   render();
 }

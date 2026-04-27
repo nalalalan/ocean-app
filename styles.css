@@ -496,11 +496,52 @@ button:hover {
   margin: 0;
 }
 
+.career-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.career-filter span {
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 11px;
+}
+
 .one-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 6px;
+}
+
+.signal-line {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 5px;
+  margin-top: 8px;
+  padding-top: 14px;
+}
+
+.signal-line span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.signal-line a {
+  color: var(--blue);
+  font-weight: 760;
+  text-decoration: none;
+}
+
+.signal-line a:hover {
+  text-decoration: underline;
 }
 
 .one-capture {
