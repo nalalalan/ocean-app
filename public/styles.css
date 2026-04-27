@@ -459,20 +459,40 @@ button:hover {
 
 .ocean-card {
   display: grid;
-  gap: 16px;
-  max-width: 640px;
+  gap: 18px;
+  max-width: 680px;
   width: 100%;
 }
 
 .ocean-card h1 {
-  font-size: 42px;
+  font-size: 48px;
   line-height: 1.05;
   margin: 0;
 }
 
-.one-next {
+.answer-box {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.answer-box span {
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.answer-box strong {
+  font-size: 21px;
+  line-height: 1.25;
+}
+
+.answer-box p {
   color: var(--muted);
-  font-size: 18px;
   margin: 0;
 }
 
@@ -484,11 +504,11 @@ button:hover {
 }
 
 .one-capture {
-  border-top: 1px solid var(--line);
+  border-top: 0;
   display: grid;
   gap: 10px;
-  margin-top: 10px;
-  padding-top: 18px;
+  margin-top: 2px;
+  padding-top: 0;
 }
 
 .one-capture textarea {
