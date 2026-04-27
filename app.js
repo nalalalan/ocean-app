@@ -1,0 +1,866 @@
+const storageKey = "wdiTrajectoryTracker.v1";
+
+const statuses = ["Not Started", "In Progress", "Blocked", "Done"];
+const projectStatuses = ["Idea", "Prototype", "Documented", "Polished", "Published"];
+const networkStatuses = ["Not Started", "Contacted", "Replied", "Met", "Followed Up"];
+const opportunityStatuses = ["Watch", "Apply", "Applied", "Archived"];
+const updateTags = ["General", "Morphing Structures", "Prototype", "Research", "Portfolio", "Networking", "Opportunity", "Resume"];
+
+const defaultData = {
+  profile: {
+    name: "",
+    targetRole: "Creative Technologist",
+    targetOrg: "Walt Disney Imagineering",
+    targetLocation: "Glendale, California",
+    subdomain: "disney.aolabs.io",
+    phd: "",
+    graduation: "",
+    cv: "",
+    linkedin: "",
+    portfolio: "",
+    technicalStrengths: "",
+    creativeStrengths: "",
+    constraints: "",
+    narrative: "I build technically sophisticated interactive experiences that make people feel something, and I can prove it with shipped prototypes.",
+  },
+  roadmap: [
+    item("Portfolio", "One polished creative technology case study", "Project page with video, story goal, tech stack, build notes", 10, "Pick one existing project to polish"),
+    item("Portfolio", "Three strong project case studies", "Three finished pages or videos, each with technical breakdown", 12, "List candidate projects"),
+    item("Portfolio", "Demo reel or 90-second overview video", "Short reel showing interactive, physical, or immersive work", 8, "Collect existing clips"),
+    item("Technical", "Real-time interactive prototype", "Unity, Unreal, TouchDesigner, web, or graphics demo with interaction", 8, "Scope a small interaction demo"),
+    item("Technical", "Physical computing or sensor-based prototype", "Sensors, microcontroller, installation, or spatial interaction evidence", 8, "Choose a sensor concept"),
+    item("Technical", "Morphing structures prototype", "Actuated, compliant, deployable, soft robotic, origami, tensegrity, or shape-changing demo with measured behavior", 10, "Define one morphing mechanism and build a small proof of concept"),
+    item("Technical", "Morphing structures controls story", "Control approach, sensing, repeatability, failure modes, and safe interaction notes", 7, "Write a control and reliability plan for one morphing prototype"),
+    item("Technical", "Reliability and operations story", "Notes on robustness, safety, maintainability, testing, or deployment", 6, "Add a reliability section to a project"),
+    item("Story", "Guest-experience framing", "Each portfolio piece explains what the audience feels or does", 7, "Rewrite one project intro"),
+    item("Story", "Themed entertainment literacy", "Notes from WDI talks, attraction breakdowns, or design analysis", 5, "Analyze one attraction experience"),
+    item("Research", "Publication or demo aligned with creative tech", "Conference paper, demo, poster, exhibit, or lab milestone", 8, "Map PhD work to creative-tech venues"),
+    item("Research", "Clear PhD-to-WDI narrative", "One paragraph connecting PhD work to guest-facing experiences", 6, "Draft the paragraph"),
+    item("Networking", "Five feedback conversations", "Names, dates, notes, follow-up action", 7, "Identify five people"),
+    item("Networking", "One warm WDI-adjacent relationship", "Ongoing contact, feedback, referral potential later", 5, "Ask for portfolio feedback"),
+    item("Applications", "Role keyword map", "Current WDI/Disney role keywords copied into tracker", 4, "Use monthly scan output"),
+    item("Applications", "Tailored resume and LinkedIn", "Resume and profile aimed at creative technologist / R&D work", 4, "Paste CV and LinkedIn into Profile"),
+    item("Applications", "Interview story bank", "STAR stories for prototype, collaboration, ambiguity, failure, technical depth", 4, "Write one story"),
+    item("Applications", "Apply when ready", "Shortlist of roles and tailored applications", 8, "Track WDI roles monthly"),
+  ],
+  projects: [
+    project("High-tech morphing structures"),
+    project("Compliant mechanisms / soft robotics"),
+    project("Deployable or origami structures"),
+    project("Interactive environment"),
+    project("Real-time graphics / projection"),
+    project("Sensors / responsive space"),
+    project("Robotics / animated character"),
+    project("XR / mixed reality"),
+    project("AI for live experience"),
+    project("Physical computing"),
+    project("PhD research demo"),
+  ],
+  networking: [],
+  opportunities: [
+    {
+      id: crypto.randomUUID(),
+      date: "",
+      team: "Walt Disney Imagineering",
+      role: "Creative Technologist / R&D",
+      location: "Glendale, CA",
+      link: "",
+      keywords: "creative technology, R&D, interactive experiences, guest experience",
+      fit: 0,
+      action: "Paste current posting when found",
+      status: "Watch",
+    },
+  ],
+  current: {
+    weeklyFocus: "Define one high-tech morphing structures prototype that could become a strong WDI R&D portfolio piece.",
+    nextStep: "Write the morphing structure concept as: what changes shape, what drives it, how a guest experiences it, and how you will measure success.",
+    blockers: "",
+    notes: "",
+  },
+  updates: [],
+};
+
+function item(category, milestone, evidence, weight, nextAction) {
+  return {
+    id: crypto.randomUUID(),
+    category,
+    milestone,
+    evidence,
+    status: "Not Started",
+    weight,
+    nextAction,
+    due: "",
+  };
+}
+
+function project(theme) {
+  return {
+    id: crypto.randomUUID(),
+    name: "",
+    theme,
+    experience: "",
+    stack: "",
+    evidence: "",
+    status: "Idea",
+    impact: 0,
+    nextImprovement: "",
+    notes: "",
+  };
+}
+
+let state = loadState();
+state = migrateState(state);
+saveState();
+
+function loadState() {
+  const saved = localStorage.getItem(storageKey);
+  if (!saved) return structuredClone(defaultData);
+  try {
+    return { ...structuredClone(defaultData), ...JSON.parse(saved) };
+  } catch {
+    return structuredClone(defaultData);
+  }
+}
+
+function migrateState(data) {
+  const merged = { ...structuredClone(defaultData), ...data };
+  merged.profile = { ...structuredClone(defaultData.profile), ...(data.profile || {}) };
+  merged.current = { ...structuredClone(defaultData.current), ...(data.current || {}) };
+  merged.updates = Array.isArray(data.updates) ? data.updates : [];
+  merged.roadmap = Array.isArray(data.roadmap) ? data.roadmap : structuredClone(defaultData.roadmap);
+  merged.projects = Array.isArray(data.projects) ? data.projects : structuredClone(defaultData.projects);
+  merged.networking = Array.isArray(data.networking) ? data.networking : [];
+  merged.opportunities = Array.isArray(data.opportunities) ? data.opportunities : structuredClone(defaultData.opportunities);
+
+  ensureRoadmapItem(merged, "Morphing structures prototype", "Technical", "Actuated, compliant, deployable, soft robotic, origami, tensegrity, or shape-changing demo with measured behavior", 10, "Define one morphing mechanism and build a small proof of concept");
+  ensureRoadmapItem(merged, "Morphing structures controls story", "Technical", "Control approach, sensing, repeatability, failure modes, and safe interaction notes", 7, "Write a control and reliability plan for one morphing prototype");
+  ensureProjectTheme(merged, "High-tech morphing structures");
+  ensureProjectTheme(merged, "Compliant mechanisms / soft robotics");
+  ensureProjectTheme(merged, "Deployable or origami structures");
+  return merged;
+}
+
+function ensureRoadmapItem(data, milestone, category, evidence, weight, nextAction) {
+  if (data.roadmap.some((row) => row.milestone === milestone)) return;
+  data.roadmap.splice(5, 0, {
+    id: crypto.randomUUID(),
+    category,
+    milestone,
+    evidence,
+    status: "Not Started",
+    weight,
+    nextAction,
+    due: "",
+  });
+}
+
+function ensureProjectTheme(data, theme) {
+  if (data.projects.some((row) => row.theme === theme)) return;
+  data.projects.unshift(project(theme));
+}
+
+function saveState() {
+  localStorage.setItem(storageKey, JSON.stringify(state));
+}
+
+function scoreForStatus(status, weight) {
+  if (status === "Done") return weight;
+  if (status === "In Progress") return weight * 0.5;
+  if (status === "Blocked") return weight * 0.2;
+  return 0;
+}
+
+function totals() {
+  const total = state.roadmap.reduce((sum, row) => sum + Number(row.weight || 0), 0);
+  const earned = state.roadmap.reduce((sum, row) => sum + scoreForStatus(row.status, Number(row.weight || 0)), 0);
+  const byCategory = {};
+  for (const row of state.roadmap) {
+    byCategory[row.category] ||= { earned: 0, total: 0 };
+    byCategory[row.category].earned += scoreForStatus(row.status, Number(row.weight || 0));
+    byCategory[row.category].total += Number(row.weight || 0);
+  }
+  return { earned, total, pct: total ? Math.round((earned / total) * 100) : 0, byCategory };
+}
+
+function nextAction() {
+  const row = state.roadmap.find((candidate) => candidate.status !== "Done");
+  return row?.nextAction || "Maintain momentum and keep evidence current.";
+}
+
+function route() {
+  const hash = window.location.hash.replace("#", "");
+  return hash || "dashboard";
+}
+
+window.addEventListener("hashchange", render);
+
+function setValue(path, value) {
+  const parts = path.split(".");
+  let target = state;
+  while (parts.length > 1) target = target[parts.shift()];
+  target[parts[0]] = value;
+  saveState();
+  render();
+}
+
+function setArrayValue(arrayName, id, field, value) {
+  const row = state[arrayName].find((candidate) => candidate.id === id);
+  if (!row) return;
+  row[field] = field === "weight" || field === "impact" || field === "fit" ? Number(value || 0) : value;
+  saveState();
+  render();
+}
+
+function addRow(arrayName, template) {
+  state[arrayName].push({ id: crypto.randomUUID(), ...template });
+  saveState();
+  render();
+}
+
+function removeRow(arrayName, id) {
+  state[arrayName] = state[arrayName].filter((row) => row.id !== id);
+  saveState();
+  render();
+}
+
+function esc(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function statusClass(value) {
+  return String(value || "").toLowerCase().replaceAll(" ", "-").replaceAll("/", "");
+}
+
+function input(path, value, placeholder = "") {
+  return `<input value="${esc(value)}" placeholder="${esc(placeholder)}" onchange="setValue('${path}', this.value)">`;
+}
+
+function area(path, value, placeholder = "") {
+  return `<textarea placeholder="${esc(placeholder)}" onchange="setValue('${path}', this.value)">${esc(value)}</textarea>`;
+}
+
+function cellInput(array, row, field, placeholder = "") {
+  return `<input value="${esc(row[field])}" placeholder="${esc(placeholder)}" onchange="setArrayValue('${array}', '${row.id}', '${field}', this.value)">`;
+}
+
+function cellArea(array, row, field, placeholder = "") {
+  return `<textarea placeholder="${esc(placeholder)}" onchange="setArrayValue('${array}', '${row.id}', '${field}', this.value)">${esc(row[field])}</textarea>`;
+}
+
+function select(array, row, field, options) {
+  return `<select onchange="setArrayValue('${array}', '${row.id}', '${field}', this.value)">
+    ${options.map((option) => `<option ${row[field] === option ? "selected" : ""}>${esc(option)}</option>`).join("")}
+  </select>`;
+}
+
+function badge(value) {
+  return `<span class="pill ${statusClass(value)}">${esc(value)}</span>`;
+}
+
+function suggestionForUpdate(update) {
+  const text = `${update.title || ""} ${update.body || ""} ${update.tag || ""}`.toLowerCase();
+  const suggestions = [];
+
+  if (text.includes("morph") || text.includes("compliant") || text.includes("soft robot") || text.includes("origami") || text.includes("tensegrity") || text.includes("deployable")) {
+    suggestions.push("Turn this into a morphing-structures portfolio artifact: mechanism, actuation, sensing, control loop, measured behavior, and guest-facing story.");
+    suggestions.push("Next step: capture one diagram or short video showing the shape change, then record what input causes it and how repeatable it is.");
+  }
+  if (text.includes("screenshot") || update.image) {
+    suggestions.push("Add a one-sentence caption explaining why this screenshot matters and what decision it supports.");
+  }
+  if (text.includes("paper") || text.includes("research") || text.includes("publication")) {
+    suggestions.push("Map this to the Research roadmap: what claim, demo, or conference-ready artifact does it support?");
+  }
+  if (text.includes("project") || text.includes("prototype") || text.includes("demo")) {
+    suggestions.push("Update the Projects section with status, evidence link, and the next improvement.");
+  }
+  if (text.includes("resume") || text.includes("cv") || text.includes("linkedin")) {
+    suggestions.push("Translate this into resume language: action verb, technical method, measurable result, and creative outcome.");
+  }
+  if (text.includes("wdi") || text.includes("imagineering") || text.includes("disney") || text.includes("job")) {
+    suggestions.push("Extract role keywords and add them to Opportunities so the portfolio can mirror current job language.");
+  }
+
+  if (!suggestions.length) {
+    suggestions.push("Decide whether this belongs in Projects, Resume, Research, or Networking, then attach one concrete next action.");
+  }
+
+  return suggestions;
+}
+
+function updateImpactLabel(update) {
+  const text = `${update.title || ""} ${update.body || ""} ${update.tag || ""}`.toLowerCase();
+  if (text.includes("morph") || text.includes("prototype") || text.includes("demo")) return "Portfolio";
+  if (text.includes("paper") || text.includes("research")) return "Research";
+  if (text.includes("resume") || text.includes("linkedin") || text.includes("cv")) return "Resume";
+  if (text.includes("job") || text.includes("posting") || text.includes("opportunity")) return "Opportunity";
+  return "General";
+}
+
+function layout(title, subtitle, body) {
+  const tabs = [
+    ["dashboard", "Dashboard"],
+    ["next", "Next Steps"],
+    ["trajectory", "Trajectory"],
+    ["updates", "Updates"],
+    ["projects", "Projects"],
+    ["current", "Current Work"],
+    ["resume", "Resume"],
+    ["network", "Network"],
+    ["opportunities", "Opportunities"],
+    ["settings", "Settings"],
+  ];
+
+  document.getElementById("app").innerHTML = `
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <strong>WDI Tracker</strong>
+          <span>${esc(state.profile.subdomain || "trajectory.aolabs.io")}</span>
+        </div>
+        <nav class="nav">
+          ${tabs.map(([id, label]) => `<button class="${route() === id ? "active" : ""}" onclick="location.hash='${id}'">${label}</button>`).join("")}
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <h1>${esc(title)}</h1>
+            <p>${esc(subtitle)}</p>
+          </div>
+          <div class="actions">
+            <button onclick="location.hash='next'">Next Step</button>
+            <button class="primary" onclick="location.hash='projects'">Update Projects</button>
+          </div>
+        </header>
+        <section class="content">${body}</section>
+      </main>
+    </div>
+  `;
+}
+
+function renderDashboard() {
+  const t = totals();
+  const projectEvidence = state.projects.filter((row) => row.evidence.trim()).length;
+  const feedback = state.networking.filter((row) => row.status === "Met" || row.status === "Followed Up").length;
+  const activeOps = state.opportunities.filter((row) => row.status === "Apply" || row.status === "Applied").length;
+
+  const categoryRows = Object.entries(t.byCategory)
+    .map(([category, row]) => {
+      const pct = row.total ? Math.round((row.earned / row.total) * 100) : 0;
+      return `
+        <div class="score-row">
+          <strong>${esc(category)}</strong>
+          <div class="progress-track"><div class="progress-fill" style="--pct:${pct}%"></div></div>
+          <span>${pct}%</span>
+        </div>
+      `;
+    })
+    .join("");
+
+  layout(
+    "Trajectory Dashboard",
+    `${state.profile.targetOrg} ${state.profile.targetRole} target, ${state.profile.targetLocation}`,
+    `
+      <div class="grid cols-3">
+        <section class="panel kpi">
+          <h2>Overall Readiness</h2>
+          <div class="kpi-value">${t.pct}%</div>
+          <div class="progress-track"><div class="progress-fill" style="--pct:${t.pct}%"></div></div>
+          <p class="muted">${t.earned.toFixed(1)} of ${t.total} points earned</p>
+        </section>
+        <section class="panel kpi">
+          <h2>Portfolio Evidence</h2>
+          <div class="kpi-value">${projectEvidence}</div>
+          <p class="muted">Projects with a link, video, demo, or writeup.</p>
+        </section>
+        <section class="panel kpi">
+          <h2>Feedback Loops</h2>
+          <div class="kpi-value">${feedback}</div>
+          <p class="muted">Conversations that produced useful feedback.</p>
+        </section>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:16px">
+        <section class="panel">
+          <h2>Next Best Action</h2>
+          <p>${esc(nextAction())}</p>
+          <div class="actions">
+            <button class="primary" onclick="location.hash='next'">Work this step</button>
+            <button onclick="location.hash='trajectory'">Review roadmap</button>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Category Progress</h2>
+          <div class="score-list">${categoryRows}</div>
+        </section>
+      </div>
+
+      <div class="grid cols-3" style="margin-top:16px">
+        <section class="panel">
+          <h3>Current Project</h3>
+          <p>${esc(state.current.weeklyFocus)}</p>
+        </section>
+        <section class="panel">
+          <h3>Active Opportunities</h3>
+          <p>${activeOps} roles marked Apply or Applied.</p>
+        </section>
+        <section class="panel">
+          <h3>Profile Gap</h3>
+          <p>${state.profile.cv || state.profile.linkedin ? "Profile inputs started." : "Paste your CV or LinkedIn when ready."}</p>
+        </section>
+      </div>
+    `,
+  );
+}
+
+function renderNext() {
+  const pending = state.roadmap.filter((row) => row.status !== "Done").slice(0, 5);
+  layout(
+    "Next Steps",
+    "Keep the plan small enough to actually use.",
+    `
+      <section class="panel">
+        <h2>This Week</h2>
+        <div class="field">
+          <label>Weekly focus</label>
+          ${area("current.weeklyFocus", state.current.weeklyFocus)}
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Immediate next step</label>
+          ${area("current.nextStep", state.current.nextStep)}
+        </div>
+      </section>
+      <section class="panel" style="margin-top:16px">
+        <h2>Priority Queue</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Milestone</th><th>Status</th><th>Next Action</th><th>Due</th></tr></thead>
+            <tbody>
+              ${pending.map((row) => `
+                <tr>
+                  <td><strong>${esc(row.milestone)}</strong><br><span class="muted">${esc(row.category)}</span></td>
+                  <td>${badge(row.status)}</td>
+                  <td>${esc(row.nextAction)}</td>
+                  <td>${esc(row.due || "")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `,
+  );
+}
+
+function renderTrajectory() {
+  layout(
+    "Trajectory",
+    "The full readiness roadmap. Updating status here moves the progress score.",
+    `
+      <section class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th>Milestone</th><th>Evidence</th><th>Status</th><th>Weight</th><th>Next Action</th><th>Due</th><th></th></tr></thead>
+            <tbody>
+              ${state.roadmap.map((row) => `
+                <tr>
+                  <td>${cellInput("roadmap", row, "category")}</td>
+                  <td>${cellArea("roadmap", row, "milestone")}</td>
+                  <td>${cellArea("roadmap", row, "evidence")}</td>
+                  <td>${select("roadmap", row, "status", statuses)}</td>
+                  <td>${cellInput("roadmap", row, "weight")}</td>
+                  <td>${cellArea("roadmap", row, "nextAction")}</td>
+                  <td>${cellInput("roadmap", row, "due")}</td>
+                  <td><button class="compact danger" onclick="removeRow('roadmap','${row.id}')">Remove</button></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="primary" onclick="addRow('roadmap', {category:'Portfolio', milestone:'', evidence:'', status:'Not Started', weight:4, nextAction:'', due:''})">Add Milestone</button>
+        </div>
+      </section>
+    `,
+  );
+}
+
+function renderProjects() {
+  layout(
+    "Projects",
+    "Track proof, not intentions. Evidence links are what make this useful.",
+    `
+      <section class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Project</th><th>Theme</th><th>Audience Experience</th><th>Tech Stack</th><th>Evidence Link</th><th>Status</th><th>Impact</th><th>Next Improvement</th><th></th></tr></thead>
+            <tbody>
+              ${state.projects.map((row) => `
+                <tr>
+                  <td>${cellInput("projects", row, "name", "Project name")}</td>
+                  <td>${cellInput("projects", row, "theme")}</td>
+                  <td>${cellArea("projects", row, "experience")}</td>
+                  <td>${cellArea("projects", row, "stack")}</td>
+                  <td>${cellInput("projects", row, "evidence", "https://")}</td>
+                  <td>${select("projects", row, "status", projectStatuses)}</td>
+                  <td>${cellInput("projects", row, "impact")}</td>
+                  <td>${cellArea("projects", row, "nextImprovement")}</td>
+                  <td><button class="compact danger" onclick="removeRow('projects','${row.id}')">Remove</button></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="primary" onclick="addRow('projects', {name:'', theme:'Other', experience:'', stack:'', evidence:'', status:'Idea', impact:0, nextImprovement:'', notes:''})">Add Project</button>
+        </div>
+      </section>
+    `,
+  );
+}
+
+function renderCurrent() {
+  layout(
+    "Current Work",
+    "Use this as the daily landing page when the rest feels too large.",
+    `
+      <div class="grid cols-2">
+        <section class="panel">
+          <h2>Focus</h2>
+          <div class="field"><label>This week</label>${area("current.weeklyFocus", state.current.weeklyFocus)}</div>
+          <div class="field" style="margin-top:12px"><label>Next step</label>${area("current.nextStep", state.current.nextStep)}</div>
+        </section>
+        <section class="panel">
+          <h2>Friction</h2>
+          <div class="field"><label>Blockers</label>${area("current.blockers", state.current.blockers, "What is slowing you down?")}</div>
+          <div class="field" style="margin-top:12px"><label>Notes</label>${area("current.notes", state.current.notes)}</div>
+        </section>
+      </div>
+    `,
+  );
+}
+
+function renderResume() {
+  layout(
+    "Resume and Profile",
+    "Paste rough material here. Polish comes later.",
+    `
+      <div class="grid cols-2">
+        <section class="panel grid">
+          <div class="field"><label>Name</label>${input("profile.name", state.profile.name)}</div>
+          <div class="field"><label>Target role</label>${input("profile.targetRole", state.profile.targetRole)}</div>
+          <div class="field"><label>Target organization</label>${input("profile.targetOrg", state.profile.targetOrg)}</div>
+          <div class="field"><label>Target location</label>${input("profile.targetLocation", state.profile.targetLocation)}</div>
+          <div class="field"><label>PhD / program</label>${input("profile.phd", state.profile.phd)}</div>
+          <div class="field"><label>Graduation timeline</label>${input("profile.graduation", state.profile.graduation)}</div>
+          <div class="field"><label>LinkedIn</label>${input("profile.linkedin", state.profile.linkedin, "https://linkedin.com/in/...")}</div>
+          <div class="field"><label>Portfolio</label>${input("profile.portfolio", state.profile.portfolio, "https://...")}</div>
+        </section>
+        <section class="panel grid">
+          <div class="field"><label>Positioning narrative</label>${area("profile.narrative", state.profile.narrative)}</div>
+          <div class="field"><label>Technical strengths</label>${area("profile.technicalStrengths", state.profile.technicalStrengths)}</div>
+          <div class="field"><label>Creative strengths</label>${area("profile.creativeStrengths", state.profile.creativeStrengths)}</div>
+          <div class="field"><label>Constraints</label>${area("profile.constraints", state.profile.constraints)}</div>
+        </section>
+      </div>
+      <section class="panel" style="margin-top:16px">
+        <h2>CV Pastebin</h2>
+        ${area("profile.cv", state.profile.cv, "Paste your CV text here when ready.")}
+      </section>
+    `,
+  );
+}
+
+function renderNetwork() {
+  layout(
+    "Network",
+    "Ask for portfolio feedback first. Referrals come later.",
+    `
+      <section class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Person</th><th>Role / Org</th><th>Why Them</th><th>Date Contacted</th><th>Status</th><th>Feedback</th><th>Follow-up</th><th></th></tr></thead>
+            <tbody>
+              ${state.networking.map((row) => `
+                <tr>
+                  <td>${cellInput("networking", row, "person")}</td>
+                  <td>${cellInput("networking", row, "role")}</td>
+                  <td>${cellArea("networking", row, "why")}</td>
+                  <td>${cellInput("networking", row, "date")}</td>
+                  <td>${select("networking", row, "status", networkStatuses)}</td>
+                  <td>${cellArea("networking", row, "feedback")}</td>
+                  <td>${cellArea("networking", row, "followup")}</td>
+                  <td><button class="compact danger" onclick="removeRow('networking','${row.id}')">Remove</button></td>
+                </tr>
+              `).join("") || `<tr><td colspan="8"><div class="empty">No contacts yet. Add one person whose feedback would improve a specific project.</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="primary" onclick="addRow('networking', {person:'', role:'', why:'', date:'', status:'Not Started', feedback:'', followup:''})">Add Contact</button>
+        </div>
+      </section>
+    `,
+  );
+}
+
+function renderOpportunities() {
+  layout(
+    "Opportunities",
+    "Use monthly scans to keep current role language and openings here.",
+    `
+      <section class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Team</th><th>Role</th><th>Location</th><th>Link</th><th>Keywords</th><th>Fit</th><th>Action</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              ${state.opportunities.map((row) => `
+                <tr>
+                  <td>${cellInput("opportunities", row, "date")}</td>
+                  <td>${cellInput("opportunities", row, "team")}</td>
+                  <td>${cellInput("opportunities", row, "role")}</td>
+                  <td>${cellInput("opportunities", row, "location")}</td>
+                  <td>${cellInput("opportunities", row, "link")}</td>
+                  <td>${cellArea("opportunities", row, "keywords")}</td>
+                  <td>${cellInput("opportunities", row, "fit")}</td>
+                  <td>${cellArea("opportunities", row, "action")}</td>
+                  <td>${select("opportunities", row, "status", opportunityStatuses)}</td>
+                  <td><button class="compact danger" onclick="removeRow('opportunities','${row.id}')">Remove</button></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="primary" onclick="addRow('opportunities', {date:'', team:'', role:'', location:'', link:'', keywords:'', fit:0, action:'', status:'Watch'})">Add Opportunity</button>
+        </div>
+      </section>
+    `,
+  );
+}
+
+function renderUpdates() {
+  const sorted = [...state.updates].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  layout(
+    "Updates",
+    "Drop in random notes or screenshots. The app turns them into tracker suggestions.",
+    `
+      <div class="grid cols-2">
+        <section class="panel">
+          <h2>New Update</h2>
+          <div class="field">
+            <label>Title</label>
+            <input id="updateTitle" placeholder="Lab note, screenshot, idea, paper, prototype result">
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label>Type</label>
+            <select id="updateTag">
+              ${updateTags.map((tag) => `<option>${esc(tag)}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label>Text</label>
+            <textarea id="updateBody" placeholder="Paste thoughts, observations, links, meeting notes, job keywords, or what the screenshot shows."></textarea>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label>Screenshot or image</label>
+            <input id="updateImage" type="file" accept="image/*">
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button class="primary" onclick="addUpdate()">Save Update</button>
+          </div>
+          <p class="footer-note">Images are stored in this browser. Export JSON from Settings if you want a backup.</p>
+        </section>
+        <section class="panel">
+          <h2>Morphing Structures Focus</h2>
+          <p>For WDI R&D, frame morphing structures as experience technology: shape change, emotional reveal, reliable control, guest safety, maintainability, and a clear story purpose.</p>
+          <div class="score-list">
+            <div class="score-row"><strong>Mechanism</strong><span class="muted">compliant, soft robotic, origami, tensegrity, deployable</span><span></span></div>
+            <div class="score-row"><strong>Actuation</strong><span class="muted">cable, pneumatic, SMA, motorized, magnetic, hydraulic</span><span></span></div>
+            <div class="score-row"><strong>Sensing</strong><span class="muted">position, force, strain, vision, touch, proximity</span><span></span></div>
+            <div class="score-row"><strong>Proof</strong><span class="muted">video, measurements, failure modes, repeatability</span><span></span></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" style="margin-top:16px">
+        <h2>Update Log</h2>
+        ${sorted.length ? `
+          <div class="update-list">
+            ${sorted.map((update) => `
+              <article class="update-card">
+                <div class="update-head">
+                  <div>
+                    <strong>${esc(update.title || "Untitled update")}</strong>
+                    <div class="muted">${esc(new Date(update.createdAt).toLocaleString())} · ${badge(update.tag || "General")} · ${esc(updateImpactLabel(update))}</div>
+                  </div>
+                  <div class="actions">
+                    <button class="compact" onclick="applyUpdateToTracker('${update.id}')">Apply Suggestions</button>
+                    <button class="compact danger" onclick="removeRow('updates','${update.id}')">Remove</button>
+                  </div>
+                </div>
+                ${update.image ? `<img class="update-image" src="${update.image}" alt="Uploaded update image">` : ""}
+                ${update.body ? `<p>${esc(update.body)}</p>` : ""}
+                <div class="suggestions">
+                  <strong>Suggested next steps</strong>
+                  <ul>${suggestionForUpdate(update).map((suggestion) => `<li>${esc(suggestion)}</li>`).join("")}</ul>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        ` : `<div class="empty">No updates yet. Add any thought, screenshot, paper, prototype result, or job posting keyword.</div>`}
+      </section>
+    `,
+  );
+}
+
+async function addUpdate() {
+  const title = document.getElementById("updateTitle")?.value.trim() || "";
+  const body = document.getElementById("updateBody")?.value.trim() || "";
+  const tag = document.getElementById("updateTag")?.value || "General";
+  const file = document.getElementById("updateImage")?.files?.[0];
+
+  if (!title && !body && !file) {
+    alert("Add text, a title, or an image first.");
+    return;
+  }
+
+  const image = file ? await readImageAsDataUrl(file) : "";
+  state.updates.unshift({
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    title,
+    body,
+    tag,
+    image,
+  });
+  saveState();
+  render();
+}
+
+function readImageAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function applyUpdateToTracker(id) {
+  const update = state.updates.find((row) => row.id === id);
+  if (!update) return;
+  const suggestions = suggestionForUpdate(update);
+  const impact = updateImpactLabel(update);
+
+  state.current.weeklyFocus = update.title || `${impact} update`;
+  state.current.nextStep = suggestions[0] || "Convert this update into one concrete tracker action.";
+
+  if (impact === "Portfolio") {
+    const projectRow = state.projects.find((row) => !row.name && row.theme.includes("morph")) || state.projects[0];
+    if (projectRow) {
+      projectRow.name ||= update.title || "Morphing structures prototype";
+      projectRow.status = projectRow.status === "Idea" ? "Prototype" : projectRow.status;
+      projectRow.notes = [projectRow.notes, update.body].filter(Boolean).join("\n\n");
+      projectRow.nextImprovement = suggestions[1] || projectRow.nextImprovement;
+    }
+  }
+
+  if (impact === "Research") {
+    const row = state.roadmap.find((candidate) => candidate.milestone.includes("Publication"));
+    if (row && row.status === "Not Started") row.status = "In Progress";
+  }
+
+  if (impact === "Resume") {
+    state.profile.cv = [state.profile.cv, update.body].filter(Boolean).join("\n\n");
+  }
+
+  saveState();
+  location.hash = "dashboard";
+  render();
+}
+
+function renderSettings() {
+  layout(
+    "Settings",
+    "Backup, restore, and deployment naming.",
+    `
+      <div class="grid cols-2">
+        <section class="panel">
+          <h2>Subdomain</h2>
+          <div class="field"><label>Preferred URL</label>${input("profile.subdomain", state.profile.subdomain)}</div>
+          <p class="footer-note">Current choice: disney.aolabs.io. Safer public alternatives: trajectory.aolabs.io, tracker.aolabs.io, wdi.aolabs.io.</p>
+        </section>
+        <section class="panel">
+          <h2>Data Backup</h2>
+          <div class="actions">
+            <button class="primary" onclick="exportData()">Export JSON</button>
+            <button onclick="document.getElementById('importFile').click()">Import JSON</button>
+            <button class="danger" onclick="resetData()">Reset</button>
+          </div>
+          <input id="importFile" type="file" accept="application/json" hidden onchange="importData(this.files[0])">
+          <p class="footer-note">The app saves in this browser. Export JSON before switching browsers or devices.</p>
+        </section>
+      </div>
+    `,
+  );
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "wdi-trajectory-tracker.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+async function importData(file) {
+  if (!file) return;
+  state = migrateState(JSON.parse(await file.text()));
+  saveState();
+  render();
+}
+
+function resetData() {
+  if (!confirm("Reset tracker data in this browser?")) return;
+  state = structuredClone(defaultData);
+  saveState();
+  render();
+}
+
+function render() {
+  const views = {
+    dashboard: renderDashboard,
+    next: renderNext,
+    trajectory: renderTrajectory,
+    updates: renderUpdates,
+    projects: renderProjects,
+    current: renderCurrent,
+    resume: renderResume,
+    network: renderNetwork,
+    opportunities: renderOpportunities,
+    settings: renderSettings,
+  };
+  (views[route()] || renderDashboard)();
+}
+
+Object.assign(window, {
+  setValue,
+  setArrayValue,
+  addRow,
+  removeRow,
+  addUpdate,
+  applyUpdateToTracker,
+  exportData,
+  importData,
+  resetData,
+});
+
+render();
