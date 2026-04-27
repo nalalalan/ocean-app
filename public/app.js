@@ -382,10 +382,6 @@ function actionReason(update) {
   return "Because one small concrete action is better than trying to organize your whole life.";
 }
 
-function disneyCareersUrl() {
-  return "https://jobs.disneycareers.com/search-jobs?k=Imagineering%20R%26D%20creative%20technologist&l=Glendale%2C%20CA";
-}
-
 function currentCareerMove() {
   const saved = String(state.current.nextStep || "").trim();
   const blockedTerms = ["paste", "copy", ["phd", "organization"].join(" "), ["phd", "doc"].join(" "), ["google", "doc"].join(" ")];
@@ -393,26 +389,11 @@ function currentCareerMove() {
   return defaultData.current.nextStep;
 }
 
-function careerSignal() {
-  return radarState.items.find((item) => /disney|imagineering|wdi/i.test(`${item.source} ${item.title} ${item.why}`))
-    || radarState.items.find((item) => /meta|google|arxiv|research/i.test(`${item.source} ${item.title} ${item.type}`))
-    || radarState.items[0];
-}
-
 function careerSignalMarkup() {
-  const signal = careerSignal();
   if (radarState.loading) {
-    return `<div class="signal-line"><span>Checking Disney and R&D signals in the background.</span></div>`;
+    return `<div class="signal-line"><span>Checking for aligned WDI/R&D signals only.</span></div>`;
   }
-  if (!signal) {
-    return `<div class="signal-line"><span>Career radar is quiet. The proof artifact still moves you forward.</span></div>`;
-  }
-  return `
-    <div class="signal-line">
-      <span>${esc(signal.source || signal.type || "Radar")}</span>
-      <a href="${esc(signal.url)}" target="_blank" rel="noreferrer">${esc(signal.title || "Open signal")}</a>
-    </div>
-  `;
+  return `<div class="signal-line"><span>Role filter</span><strong>No broad job recommendations. Ocean only treats WDI R&D, creative technology, robotics, interaction, animatronics, and advanced prototyping as relevant.</strong></div>`;
 }
 
 async function loadRadar(force = false) {
@@ -740,8 +721,7 @@ function renderMinimalDashboard() {
         </div>
 
         <div class="one-actions">
-          <button class="primary" onclick="window.open('${disneyCareersUrl()}','_blank')">Check Disney roles</button>
-          <button onclick="gentleReset()">Make it smaller</button>
+          <button class="primary" onclick="gentleReset()">Smaller proof</button>
         </div>
 
         ${careerSignalMarkup()}

@@ -62,6 +62,13 @@ async function fetchText(url) {
   return response.text();
 }
 
+function isAlignedDisneyRole(item) {
+  const text = `${item.title || ""} ${item.location || ""}`.toLowerCase();
+  const aligned = /\br&d\b|research|creative technolog|technologist|prototype|prototyping|robotics|mechatronics|mechanical engineer|electrical engineer|software engineer|hardware engineer|embedded|interactive|interactivity|haptics|animatronics|show control|special effects|simulation|advanced development|research lab/i;
+  const misaligned = /lighting|theme lighting|designer sr|project hire|document control|costume|graphic|producer|coordinator|manager|finance|marketing|public relations|culinary|retail|stage|construction|architecture|architectural|interior design|set design|scenic|merchandise|operations/i;
+  return aligned.test(text) && !misaligned.test(text);
+}
+
 async function fetchDisneySignals() {
   const url = "https://jobs.disneycareers.com/search-jobs?k=imagineering%20creative%20technologist&l=Glendale%2C%20CA";
   const html = await fetchText(url);
@@ -82,12 +89,12 @@ async function fetchDisneySignals() {
         location,
         url: new URL(href, "https://jobs.disneycareers.com").toString(),
         why: brand === "Walt Disney Imagineering"
-          ? "A current WDI role signal. Use its language to tune your Ocean portfolio."
-          : "A Disney role signal that may reveal adjacent creative technology keywords.",
+          ? "Potentially aligned WDI technical R&D signal. Use its language only if it fits morphing structures, robotics, interaction, or show-control proof."
+          : "Potentially aligned Disney technical R&D signal.",
       };
     })
     .filter(Boolean)
-    .filter((item) => /imagineering|audio|video|show|ride|creative|lighting|r&d|technology|designer|engineer/i.test(`${item.title} ${item.why}`))
+    .filter(isAlignedDisneyRole)
     .slice(0, 5);
 }
 
