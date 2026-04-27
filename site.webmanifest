@@ -1,7 +1,7 @@
 {
-  "name": "WDI Trajectory Tracker",
-  "short_name": "WDI Tracker",
-  "description": "A personal trajectory tracker for creative technology, projects, resume readiness, and next steps.",
+  "name": "Ocean Tracker",
+  "short_name": "Ocean",
+  "description": "A personal tracker for ocean-inspired morphing structures, creative technology, R&D roles, projects, resume readiness, and next steps.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f6f7f9",
