@@ -680,29 +680,26 @@ function renderDashboard() {
 }
 
 function renderMinimalDashboard() {
-  layout(
-    "Ocean",
-    "",
-    `
-      <section class="minimal-home">
+  document.getElementById("app").innerHTML = `
+    <main class="one-page">
+      <section class="ocean-card">
         <div class="wave-mark" aria-hidden="true"></div>
-        <p class="tiny-label">Today</p>
-        <h2>${esc(dailySpark())}</h2>
-        <p class="minimal-next">${esc(state.current.nextStep || nextAction())}</p>
+        <p class="tiny-label">Ocean</p>
+        <h1>${esc(dailySpark())}</h1>
+        <p class="one-next">${esc(state.current.nextStep || nextAction())}</p>
 
-        <div class="minimal-actions">
+        <div class="one-actions">
           ${state.sources.personalDocUrl ? `<button class="primary" onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open PhD Doc</button>` : ""}
           <button onclick="gentleReset()">Smaller Step</button>
-          <button onclick="location.hash='more'">More</button>
         </div>
 
-        <div class="minimal-capture">
-          <textarea id="quickUpdateBody" placeholder="Optional: paste one messy thought."></textarea>
+        <div class="one-capture">
+          <textarea id="quickUpdateBody" placeholder="Paste one thought. Optional."></textarea>
           <button class="primary" onclick="addQuickUpdate()">Save</button>
         </div>
       </section>
-    `,
-  );
+    </main>
+  `;
 }
 
 function renderNext() {
@@ -1261,21 +1258,7 @@ function resetData() {
 }
 
 function render() {
-  const views = {
-    dashboard: renderMinimalDashboard,
-    northstar: renderNorthStar,
-    next: renderNext,
-    trajectory: renderTrajectory,
-    updates: renderUpdates,
-    projects: renderProjects,
-    current: renderCurrent,
-    resume: renderResume,
-    network: renderNetwork,
-    opportunities: renderOpportunities,
-    settings: renderSettings,
-    more: renderMore,
-  };
-  (views[route()] || renderDashboard)();
+  renderMinimalDashboard();
 }
 
 Object.assign(window, {
