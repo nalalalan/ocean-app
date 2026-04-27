@@ -373,6 +373,15 @@ function updateImpactLabel(update) {
   return "General";
 }
 
+function actionReason(update) {
+  const impact = updateImpactLabel(update);
+  if (impact === "Portfolio") return "Because visible proof is what makes the WDI/R&D path believable.";
+  if (impact === "Research") return "Because your research only helps your future if it becomes a clear claim, demo, or paper.";
+  if (impact === "Resume") return "Because your story needs to be legible to people who do not know you yet.";
+  if (impact === "Opportunity") return "Because role language tells you what evidence to build next.";
+  return "Because one small concrete action is better than trying to organize your whole life.";
+}
+
 async function loadRadar(force = false) {
   if (!force && radarState.items.length && radarState.updatedAt) return;
   radarState = { ...radarState, loading: true };
@@ -680,22 +689,29 @@ function renderDashboard() {
 }
 
 function renderMinimalDashboard() {
+  const latest = [...state.updates].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))[0];
+  const answer = latest ? suggestionForUpdate(latest)[0] : state.current.nextStep || nextAction();
+  const reason = latest ? actionReason(latest) : "Paste one thought from the PhD doc and Ocean will turn it into a next step.";
   document.getElementById("app").innerHTML = `
     <main class="one-page">
       <section class="ocean-card">
         <div class="wave-mark" aria-hidden="true"></div>
-        <p class="tiny-label">Ocean</p>
-        <h1>${esc(dailySpark())}</h1>
-        <p class="one-next">${esc(state.current.nextStep || nextAction())}</p>
+        <p class="tiny-label">Ocean answers one question</p>
+        <h1>What do I do next?</h1>
+        <div class="answer-box">
+          <span>Do this</span>
+          <strong>${esc(answer)}</strong>
+          <p>${esc(reason)}</p>
+        </div>
 
         <div class="one-actions">
           ${state.sources.personalDocUrl ? `<button class="primary" onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open PhD Doc</button>` : ""}
-          <button onclick="gentleReset()">Smaller Step</button>
+          <button onclick="gentleReset()">Make it smaller</button>
         </div>
 
         <div class="one-capture">
-          <textarea id="quickUpdateBody" placeholder="Paste one thought. Optional."></textarea>
-          <button class="primary" onclick="addQuickUpdate()">Save</button>
+          <textarea id="quickUpdateBody" placeholder="Paste the newest messy thought from your PhD doc."></textarea>
+          <button class="primary" onclick="addQuickUpdate()">Tell me the next step</button>
         </div>
       </section>
     </main>
