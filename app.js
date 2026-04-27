@@ -106,6 +106,11 @@ const defaultData = {
     blockers: "",
     notes: "",
   },
+  joy: {
+    lastWin: "",
+    winLog: [],
+    anchors: "Ocean motion, music, soft robotics, beautiful mechanisms, playful technology, making something that feels alive.",
+  },
   sources: {
     personalDocUrl: "https://docs.google.com/document/d/1Ffi51WavVvaFBUQX37AbFQ4ZKGEkRlGl-NRcOVQP03c/edit?tab=t.0",
     personalDocNotes: "This is the rough personal update stream. Ocean should summarize it into calm next steps, not reproduce it raw.",
@@ -188,6 +193,8 @@ function migrateState(data) {
   const merged = { ...structuredClone(defaultData), ...data };
   merged.profile = { ...structuredClone(defaultData.profile), ...(data.profile || {}) };
   merged.current = { ...structuredClone(defaultData.current), ...(data.current || {}) };
+  merged.joy = { ...structuredClone(defaultData.joy), ...(data.joy || {}) };
+  merged.joy.winLog = Array.isArray(data.joy?.winLog) ? data.joy.winLog : [];
   merged.sources = { ...structuredClone(defaultData.sources), ...(data.sources || {}) };
   merged.autopilot = { ...structuredClone(defaultData.autopilot), ...(data.autopilot || {}) };
   merged.northStar = { ...structuredClone(defaultData.northStar), ...(data.northStar || {}) };
@@ -401,6 +408,26 @@ function radarCard(item, index) {
   `;
 }
 
+function dailySpark() {
+  const sparks = [
+    "You are allowed to build something beautiful and rigorous at the same time.",
+    "The dream is not random: your work already points toward living structures, expressive robots, and impossible-feeling experiences.",
+    "A single clean demo can change how people understand you.",
+    "Your path does not need to be normal to be real.",
+    "The Ocean idea is a research program: motion, feeling, mechanism, control, and story.",
+    "Today does not need to solve your whole future. It only needs to produce one piece of proof.",
+    "Wonder is an engineering requirement here.",
+  ];
+  const day = Math.floor(Date.now() / 86400000);
+  return sparks[day % sparks.length];
+}
+
+function recentWins() {
+  return [...(state.joy.winLog || [])]
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+    .slice(0, 3);
+}
+
 function layout(title, subtitle, body) {
   const tabs = [
     ["dashboard", "Today"],
@@ -502,6 +529,7 @@ function renderDashboard() {
   const t = totals();
   const projectEvidence = state.projects.filter((row) => row.evidence.trim()).length;
   const recentUpdates = [...state.updates].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 3);
+  const wins = recentWins();
   const lastDocReview = state.sources.lastDocReviewAt ? new Date(state.sources.lastDocReviewAt).toLocaleString() : "Not reviewed yet";
   const radarItems = radarState.items.slice(0, 5);
   const categoryRows = Object.entries(t.byCategory).slice(0, 4)
@@ -526,6 +554,10 @@ function renderDashboard() {
         <h2>${esc(state.current.nextStep || nextAction())}</h2>
         <p>${esc(state.current.weeklyFocus)}</p>
         <p class="muted">You are not trying to manifest a vague dream. You are building a PhD-backed body of work around soft robotics, morphing surfaces, HRI, and emotionally legible motion. Ocean exists to keep converting that into proof.</p>
+        <div class="sparkline">
+          <span>Daily spark</span>
+          <strong>${esc(dailySpark())}</strong>
+        </div>
         <div class="actions">
           <button class="primary" onclick="location.hash='updates'">Add a messy update</button>
           <button onclick="location.hash='projects'">Touch a project</button>
@@ -533,6 +565,20 @@ function renderDashboard() {
       </section>
 
       <div class="grid cols-2" style="margin-top:16px">
+        <section class="panel lift-panel">
+          <span class="eyebrow">Open this when you need lift</span>
+          <h2>You are not behind. You are shaping the raw material.</h2>
+          <p>The big Google Doc is not a mess. It is a reservoir. Ocean’s job is to pull one useful current from it and turn that into proof, peace, and forward motion.</p>
+          <div class="field">
+            <label>One small win</label>
+            <input id="winInput" placeholder="I printed a part, wrote a paragraph, tested a module, rested, asked for help">
+          </div>
+          <div class="actions" style="margin-top:10px">
+            <button class="primary" onclick="recordWin()">Record win</button>
+            <button onclick="gentleReset()">Gentle reset</button>
+          </div>
+          ${wins.length ? `<div class="win-list">${wins.map((win) => `<div><strong>${esc(win.text)}</strong><span>${esc(new Date(win.createdAt).toLocaleDateString())}</span></div>`).join("")}</div>` : `<p class="footer-note">No wins recorded here yet. Tiny wins count.</p>`}
+        </section>
         <section class="panel autopilot-panel">
           <span class="eyebrow">Autopilot under supervision</span>
           <h2>Ocean watches the horizon. You approve the moves.</h2>
@@ -542,6 +588,9 @@ function renderDashboard() {
             <div><strong>Portfolio pressure</strong><span>Keeps asking for visible proof: demo, video, measurement, story, reliability.</span></div>
           </div>
         </section>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:16px">
         <section class="panel possibility-panel">
           <span class="eyebrow">Why the path is real</span>
           <h2>Evidence you already have</h2>
@@ -980,6 +1029,30 @@ function addQuickUpdate() {
   render();
 }
 
+function recordWin() {
+  const input = document.getElementById("winInput");
+  const text = input?.value.trim() || "";
+  if (!text) {
+    alert("Write one tiny win first.");
+    return;
+  }
+  state.joy.winLog.unshift({
+    id: crypto.randomUUID(),
+    text,
+    createdAt: new Date().toISOString(),
+  });
+  state.joy.lastWin = text;
+  saveState();
+  render();
+}
+
+function gentleReset() {
+  state.current.weeklyFocus = "Make the next Ocean step small enough to feel kind.";
+  state.current.nextStep = "Take one visible action: sketch the wave, test one module, write one sentence, or save one piece of evidence.";
+  saveState();
+  render();
+}
+
 function readImageAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1066,6 +1139,7 @@ function renderSettings() {
           <h2>Autopilot</h2>
           <div class="field"><label>Mode</label>${area("autopilot.supervision", state.autopilot.supervision)}</div>
           <div class="field" style="margin-top:12px"><label>Promise</label>${area("autopilot.promise", state.autopilot.promise)}</div>
+          <div class="field" style="margin-top:12px"><label>Joy anchors</label>${area("joy.anchors", state.joy.anchors)}</div>
         </section>
         <section class="panel">
           <h2>Subdomain</h2>
@@ -1185,6 +1259,8 @@ Object.assign(window, {
   addQuickUpdate,
   addUpdate,
   applyUpdateToTracker,
+  recordWin,
+  gentleReset,
   adoptRadarItem,
   refreshRadar,
   exportData,
