@@ -105,6 +105,10 @@ const defaultData = {
     blockers: "",
     notes: "",
   },
+  sources: {
+    personalDocUrl: "https://docs.google.com/document/d/1Ffi51WavVvaFBUQX37AbFQ4ZKGEkRlGl-NRcOVQP03c/edit?tab=t.0",
+    personalDocNotes: "This is the rough personal update stream. Ocean should summarize it into calm next steps, not reproduce it raw.",
+  },
   northStar: {
     statement: "Create embodied morphing systems that make people ask how it was possible: living surfaces, wave-like robotic materials, and soft structures that can perform, interact, and return to a calm equilibrium.",
     thesis: "A repeated-cell soft robotic material can become a high-tech shape-changing surface when mechanism design, pneumatic/cable actuation, sensing, controls, and experience design are developed together.",
@@ -176,6 +180,7 @@ function migrateState(data) {
   const merged = { ...structuredClone(defaultData), ...data };
   merged.profile = { ...structuredClone(defaultData.profile), ...(data.profile || {}) };
   merged.current = { ...structuredClone(defaultData.current), ...(data.current || {}) };
+  merged.sources = { ...structuredClone(defaultData.sources), ...(data.sources || {}) };
   merged.northStar = { ...structuredClone(defaultData.northStar), ...(data.northStar || {}) };
   merged.updates = Array.isArray(data.updates) ? data.updates : [];
   merged.roadmap = Array.isArray(data.roadmap) ? data.roadmap : structuredClone(defaultData.roadmap);
@@ -354,17 +359,11 @@ function updateImpactLabel(update) {
 
 function layout(title, subtitle, body) {
   const tabs = [
-    ["dashboard", "Dashboard"],
-    ["northstar", "North Star"],
-    ["next", "Next Steps"],
-    ["trajectory", "Trajectory"],
-    ["updates", "Updates"],
+    ["dashboard", "Today"],
+    ["updates", "Inbox"],
     ["projects", "Projects"],
-    ["current", "Current Work"],
-    ["resume", "Resume"],
-    ["network", "Network"],
-    ["opportunities", "Opportunities"],
-    ["settings", "Settings"],
+    ["northstar", "North Star"],
+    ["more", "More"],
   ];
 
   document.getElementById("app").innerHTML = `
@@ -385,8 +384,8 @@ function layout(title, subtitle, body) {
             <p>${esc(subtitle)}</p>
           </div>
           <div class="actions">
-            <button onclick="location.hash='next'">Next Step</button>
-            <button class="primary" onclick="location.hash='projects'">Update Projects</button>
+            <button onclick="location.hash='updates'">Add Update</button>
+            <button class="primary" onclick="location.hash='next'">Next Step</button>
           </div>
         </header>
         <section class="content">${body}</section>
@@ -458,10 +457,8 @@ function renderNorthStar() {
 function renderDashboard() {
   const t = totals();
   const projectEvidence = state.projects.filter((row) => row.evidence.trim()).length;
-  const feedback = state.networking.filter((row) => row.status === "Met" || row.status === "Followed Up").length;
-  const activeOps = state.opportunities.filter((row) => row.status === "Apply" || row.status === "Applied").length;
-
-  const categoryRows = Object.entries(t.byCategory)
+  const recentUpdates = [...state.updates].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 3);
+  const categoryRows = Object.entries(t.byCategory).slice(0, 4)
     .map(([category, row]) => {
       const pct = row.total ? Math.round((row.earned / row.total) * 100) : 0;
       return `
@@ -475,55 +472,59 @@ function renderDashboard() {
     .join("");
 
   layout(
-    "Ocean Dashboard",
-    `${state.profile.targetOrg} ${state.profile.targetRole} target, ${state.profile.targetLocation}`,
+    "Today",
+    "One calm place to continue. Add messy updates; let the tracker stay organized.",
     `
-      <div class="grid cols-3">
-        <section class="panel kpi">
-          <h2>Overall Readiness</h2>
-          <div class="kpi-value">${t.pct}%</div>
+      <section class="panel focus-panel">
+        <span class="eyebrow">Next right thing</span>
+        <h2>${esc(state.current.nextStep || nextAction())}</h2>
+        <p>${esc(state.current.weeklyFocus)}</p>
+        <div class="actions">
+          <button class="primary" onclick="location.hash='updates'">Add a messy update</button>
+          <button onclick="location.hash='projects'">Touch a project</button>
+        </div>
+      </section>
+
+      <div class="grid cols-2" style="margin-top:16px">
+        <section class="panel">
+          <h2>Quick Capture</h2>
+          <div class="field">
+            <label>What changed?</label>
+            <input id="quickUpdateTitle" placeholder="paper thought, prototype result, feeling, screenshot context">
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label>Messy note</label>
+            <textarea id="quickUpdateBody" placeholder="Paste from your Google Doc or write one rough update."></textarea>
+          </div>
+          <div class="actions" style="margin-top:10px">
+            <button class="primary" onclick="addQuickUpdate()">Save to Inbox</button>
+            ${state.sources.personalDocUrl ? `<button onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open Google Doc</button>` : ""}
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Progress, Quietly</h2>
+          <div class="kpi-value calm-score">${t.pct}%</div>
           <div class="progress-track"><div class="progress-fill" style="--pct:${t.pct}%"></div></div>
-          <p class="muted">${t.earned.toFixed(1)} of ${t.total} points earned</p>
-        </section>
-        <section class="panel kpi">
-          <h2>Portfolio Evidence</h2>
-          <div class="kpi-value">${projectEvidence}</div>
-          <p class="muted">Projects with a link, video, demo, or writeup.</p>
-        </section>
-        <section class="panel kpi">
-          <h2>Feedback Loops</h2>
-          <div class="kpi-value">${feedback}</div>
-          <p class="muted">Conversations that produced useful feedback.</p>
+          <p class="muted">${projectEvidence} portfolio items have evidence. Scores are secondary; proof is what matters.</p>
+          <div class="score-list compact-progress">${categoryRows}</div>
         </section>
       </div>
 
       <div class="grid cols-2" style="margin-top:16px">
         <section class="panel">
-          <h2>Next Best Action</h2>
-          <p>${esc(nextAction())}</p>
-          <div class="actions">
-            <button class="primary" onclick="location.hash='next'">Work this step</button>
-            <button onclick="location.hash='trajectory'">Review roadmap</button>
-          </div>
+          <h2>Recent Inbox</h2>
+          ${recentUpdates.length ? recentUpdates.map((update) => `
+            <div class="mini-update">
+              <strong>${esc(update.title || "Untitled update")}</strong>
+              <span>${esc(suggestionForUpdate(update)[0])}</span>
+            </div>
+          `).join("") : `<div class="empty">No updates yet. The first useful action is to paste one messy note from the Google Doc.</div>`}
         </section>
         <section class="panel">
-          <h2>Category Progress</h2>
-          <div class="score-list">${categoryRows}</div>
-        </section>
-      </div>
-
-      <div class="grid cols-3" style="margin-top:16px">
-        <section class="panel">
-          <h3>Current Project</h3>
-          <p>${esc(state.current.weeklyFocus)}</p>
-        </section>
-        <section class="panel">
-          <h3>Active Opportunities</h3>
-          <p>${activeOps} roles marked Apply or Applied.</p>
-        </section>
-        <section class="panel">
-          <h3>Profile Gap</h3>
-          <p>${state.profile.cv || state.profile.linkedin ? "Profile inputs started." : "Paste your CV or LinkedIn when ready."}</p>
+          <h2>Ocean North Star</h2>
+          <p>${esc(state.northStar.statement)}</p>
+          <button onclick="location.hash='northstar'">Read the distilled version</button>
         </section>
       </div>
     `,
@@ -855,6 +856,31 @@ async function addUpdate() {
   render();
 }
 
+function addQuickUpdate() {
+  const titleEl = document.getElementById("quickUpdateTitle");
+  const bodyEl = document.getElementById("quickUpdateBody");
+  const title = titleEl?.value.trim() || "";
+  const body = bodyEl?.value.trim() || "";
+
+  if (!title && !body) {
+    alert("Write or paste one rough thing first.");
+    return;
+  }
+
+  state.updates.unshift({
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    title,
+    body,
+    tag: "General",
+    image: "",
+  });
+  state.current.weeklyFocus = title || "New Ocean update";
+  state.current.nextStep = suggestionForUpdate(state.updates[0])[0];
+  saveState();
+  render();
+}
+
 function readImageAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -904,10 +930,17 @@ function renderSettings() {
     `
       <div class="grid cols-2">
         <section class="panel">
+          <h2>Update Source</h2>
+          <div class="field"><label>Google Doc URL</label>${input("sources.personalDocUrl", state.sources.personalDocUrl)}</div>
+          <div class="field" style="margin-top:12px"><label>How Ocean should treat it</label>${area("sources.personalDocNotes", state.sources.personalDocNotes)}</div>
+        </section>
+        <section class="panel">
           <h2>Subdomain</h2>
           <div class="field"><label>Preferred URL</label>${input("profile.subdomain", state.profile.subdomain)}</div>
           <p class="footer-note">Current choice: ocean.aolabs.io. Other usable options: wave.aolabs.io, morph.aolabs.io, trajectory.aolabs.io.</p>
         </section>
+      </div>
+      <div class="grid cols-2" style="margin-top:16px">
         <section class="panel">
           <h2>Data Backup</h2>
           <div class="actions">
@@ -917,6 +950,47 @@ function renderSettings() {
           </div>
           <input id="importFile" type="file" accept="application/json" hidden onchange="importData(this.files[0])">
           <p class="footer-note">The app saves in this browser. Export JSON before switching browsers or devices.</p>
+        </section>
+      </div>
+    `,
+  );
+}
+
+function renderMore() {
+  layout(
+    "More",
+    "The deeper tracker is still here, just out of the way.",
+    `
+      <div class="grid cols-3">
+        <section class="panel">
+          <h2>Next Steps</h2>
+          <p class="muted">A short queue of what to do next.</p>
+          <button onclick="location.hash='next'">Open</button>
+        </section>
+        <section class="panel">
+          <h2>Roadmap</h2>
+          <p class="muted">The full progress scoring system.</p>
+          <button onclick="location.hash='trajectory'">Open</button>
+        </section>
+        <section class="panel">
+          <h2>Resume</h2>
+          <p class="muted">Profile, CV pastebin, strengths, positioning.</p>
+          <button onclick="location.hash='resume'">Open</button>
+        </section>
+        <section class="panel">
+          <h2>Network</h2>
+          <p class="muted">Feedback conversations and contacts.</p>
+          <button onclick="location.hash='network'">Open</button>
+        </section>
+        <section class="panel">
+          <h2>Opportunities</h2>
+          <p class="muted">WDI, Meta, Google, NASA, labs, and role keywords.</p>
+          <button onclick="location.hash='opportunities'">Open</button>
+        </section>
+        <section class="panel">
+          <h2>Settings</h2>
+          <p class="muted">Google Doc source, domain, backup, import/export.</p>
+          <button onclick="location.hash='settings'">Open</button>
         </section>
       </div>
     `,
@@ -960,6 +1034,7 @@ function render() {
     network: renderNetwork,
     opportunities: renderOpportunities,
     settings: renderSettings,
+    more: renderMore,
   };
   (views[route()] || renderDashboard)();
 }
@@ -969,6 +1044,7 @@ Object.assign(window, {
   setArrayValue,
   addRow,
   removeRow,
+  addQuickUpdate,
   addUpdate,
   applyUpdateToTracker,
   exportData,
