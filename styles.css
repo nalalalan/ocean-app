@@ -170,6 +170,12 @@ button:hover {
   max-width: 820px;
 }
 
+.autopilot-panel,
+.possibility-panel,
+.radar-panel {
+  background: #ffffff;
+}
+
 .eyebrow {
   color: var(--blue);
   display: block;
@@ -244,6 +250,66 @@ button:hover {
 .compass-list span {
   color: var(--muted);
   font-size: 13px;
+}
+
+.proof-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.proof-list span {
+  background: var(--green-soft);
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 10px;
+}
+
+.panel-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.panel-head h2,
+.panel-head p {
+  margin-bottom: 0;
+}
+
+.radar-list {
+  display: grid;
+  gap: 10px;
+}
+
+.radar-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.radar-card strong {
+  display: block;
+  margin: 3px 0 5px;
+}
+
+.radar-card p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 6px;
+}
+
+.radar-type {
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .panel h2,
