@@ -429,6 +429,7 @@ function recentWins() {
 }
 
 function layout(title, subtitle, body) {
+  const isHome = route() === "dashboard";
   const tabs = [
     ["dashboard", "Today"],
     ["updates", "Inbox"],
@@ -452,9 +453,9 @@ function layout(title, subtitle, body) {
         <header class="topbar">
           <div>
             <h1>${esc(title)}</h1>
-            <p>${esc(subtitle)}</p>
+            ${subtitle ? `<p>${esc(subtitle)}</p>` : ""}
           </div>
-          <div class="actions">
+          <div class="actions ${isHome ? "home-actions" : ""}">
             <button onclick="location.hash='updates'">Add Update</button>
             <button class="primary" onclick="location.hash='next'">Next Step</button>
           </div>
@@ -674,6 +675,32 @@ function renderDashboard() {
           <button onclick="location.hash='northstar'">Read the distilled version</button>
         </section>
       </div>
+    `,
+  );
+}
+
+function renderMinimalDashboard() {
+  layout(
+    "Ocean",
+    "",
+    `
+      <section class="minimal-home">
+        <div class="wave-mark" aria-hidden="true"></div>
+        <p class="tiny-label">Today</p>
+        <h2>${esc(dailySpark())}</h2>
+        <p class="minimal-next">${esc(state.current.nextStep || nextAction())}</p>
+
+        <div class="minimal-actions">
+          ${state.sources.personalDocUrl ? `<button class="primary" onclick="window.open('${esc(state.sources.personalDocUrl)}','_blank')">Open PhD Doc</button>` : ""}
+          <button onclick="gentleReset()">Smaller Step</button>
+          <button onclick="location.hash='more'">More</button>
+        </div>
+
+        <div class="minimal-capture">
+          <textarea id="quickUpdateBody" placeholder="Optional: paste one messy thought."></textarea>
+          <button class="primary" onclick="addQuickUpdate()">Save</button>
+        </div>
+      </section>
     `,
   );
 }
@@ -1235,7 +1262,7 @@ function resetData() {
 
 function render() {
   const views = {
-    dashboard: renderDashboard,
+    dashboard: renderMinimalDashboard,
     northstar: renderNorthStar,
     next: renderNext,
     trajectory: renderTrajectory,
