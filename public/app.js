@@ -105,6 +105,13 @@ const defaultData = {
     blockers: "",
     notes: "",
   },
+  northStar: {
+    statement: "Create embodied morphing systems that make people ask how it was possible: living surfaces, wave-like robotic materials, and soft structures that can perform, interact, and return to a calm equilibrium.",
+    thesis: "A repeated-cell soft robotic material can become a high-tech shape-changing surface when mechanism design, pneumatic/cable actuation, sensing, controls, and experience design are developed together.",
+    emotionalCore: "The Ocean idea is not just water aesthetics. It is about motion that feels alive, intentional, gentle when needed, powerful when called on, and technically credible enough for real R&D.",
+    proofTrail: "Sarrus linkage modules, 3x3 and 10x10 array thinking, pneumatic actuation, cable-driven soft robotics, continuum robot work, wave/peristaltic demos, stiffness modeling, simulation-to-prototype comparison, and HRI framing.",
+    nearTermBets: "1. Make the cleanest wave demo possible. 2. Measure repeatability and failure modes. 3. Show one human-facing interaction. 4. Package it as a portfolio case study. 5. Map it to WDI, Meta, Google/X, robotics, HCI, and embodied AI roles.",
+  },
   updates: [],
 };
 
@@ -169,6 +176,7 @@ function migrateState(data) {
   const merged = { ...structuredClone(defaultData), ...data };
   merged.profile = { ...structuredClone(defaultData.profile), ...(data.profile || {}) };
   merged.current = { ...structuredClone(defaultData.current), ...(data.current || {}) };
+  merged.northStar = { ...structuredClone(defaultData.northStar), ...(data.northStar || {}) };
   merged.updates = Array.isArray(data.updates) ? data.updates : [];
   merged.roadmap = Array.isArray(data.roadmap) ? data.roadmap : structuredClone(defaultData.roadmap);
   merged.projects = Array.isArray(data.projects) ? data.projects : structuredClone(defaultData.projects);
@@ -347,6 +355,7 @@ function updateImpactLabel(update) {
 function layout(title, subtitle, body) {
   const tabs = [
     ["dashboard", "Dashboard"],
+    ["northstar", "North Star"],
     ["next", "Next Steps"],
     ["trajectory", "Trajectory"],
     ["updates", "Updates"],
@@ -384,6 +393,66 @@ function layout(title, subtitle, body) {
       </main>
     </div>
   `;
+}
+
+function renderNorthStar() {
+  layout(
+    "North Star",
+    "A distilled version of the PhD thread: ambition, research logic, proof, and where it points.",
+    `
+      <div class="grid cols-2">
+        <section class="panel">
+          <h2>Core Statement</h2>
+          <div class="field">
+            <label>What this is really about</label>
+            ${area("northStar.statement", state.northStar.statement)}
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Research Thesis</h2>
+          <div class="field">
+            <label>Technical claim</label>
+            ${area("northStar.thesis", state.northStar.thesis)}
+          </div>
+        </section>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:16px">
+        <section class="panel">
+          <h2>Emotional Core</h2>
+          <div class="field">
+            <label>Why Ocean matters</label>
+            ${area("northStar.emotionalCore", state.northStar.emotionalCore)}
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Proof Trail</h2>
+          <div class="field">
+            <label>Evidence already present</label>
+            ${area("northStar.proofTrail", state.northStar.proofTrail)}
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" style="margin-top:16px">
+        <h2>Near-Term Bets</h2>
+        <div class="field">
+          <label>What to turn into progress</label>
+          ${area("northStar.nearTermBets", state.northStar.nearTermBets)}
+        </div>
+      </section>
+
+      <section class="panel" style="margin-top:16px">
+        <h2>Translation To Roles</h2>
+        <div class="role-grid">
+          <div><strong>WDI / themed R&D</strong><span>living scenic systems, expressive robotics, show technology, guest-facing morphing surfaces</span></div>
+          <div><strong>Meta Reality Labs</strong><span>haptics, embodied interaction, soft wearable or tangible interfaces, human-centered prototyping</span></div>
+          <div><strong>Google / X / robotics</strong><span>robotic materials, interactive hardware, simulation, human-centered AI and physical systems</span></div>
+          <div><strong>NASA / national labs</strong><span>deployable structures, soft robotics, field systems, reliable mechanisms in constrained environments</span></div>
+        </div>
+      </section>
+    `,
+  );
 }
 
 function renderDashboard() {
@@ -881,6 +950,7 @@ function resetData() {
 function render() {
   const views = {
     dashboard: renderDashboard,
+    northstar: renderNorthStar,
     next: renderNext,
     trajectory: renderTrajectory,
     updates: renderUpdates,

@@ -4,3 +4,4 @@ node_modules/
 *.log
 outputs/
 cv_extract.txt
+phd_organization_extract.txt
