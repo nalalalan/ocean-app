@@ -10,8 +10,8 @@ let radarState = { loading: true, updatedAt: null, items: [], error: null };
 const defaultData = {
   profile: {
     name: "",
-    targetRole: "Creative Technologist / Morphing Structures R&D",
-    targetOrg: "Ocean-inspired embodied technology labs",
+    targetRole: "Creative Technologist / Research Scientist / Postdoc",
+    targetOrg: "Disney Imagineering R&D first; Disney Research and elite robotics/creative research labs if the fit is unusually strong",
     targetLocation: "Glendale, Seattle, Bay Area, Boston, or remote/hybrid R&D",
     subdomain: "ocean.aolabs.io",
     phd: "PhD Mechanical Engineering, WPI, expected 2027",
@@ -22,7 +22,7 @@ const defaultData = {
     technicalStrengths: "Soft robotics, metamaterials, morphing surfaces, nonlinear dynamics, HRI, pneumatic actuation, cable-driven robots, continuum robots, 3D printing, FEA, ROS2, MATLAB, Python, C/C++.",
     creativeStrengths: "Ocean-inspired motion, musical/ensemble collaboration, interactive embodied systems, playful guest-facing technology.",
     constraints: "",
-    narrative: "I build ocean-inspired morphing systems: soft robotic structures, responsive surfaces, and embodied technologies that can move with life, emotion, and reliable engineering depth.",
+    narrative: "I want to create programmable matter: mass-fabricated unit cells with built-in mechanisms for shape transformation, expressive interaction, and rigorous control.",
   },
   roadmap: [
     item("Portfolio", "One polished creative technology case study", "Project page with video, story goal, tech stack, build notes", 10, "Pick one existing project to polish"),
@@ -101,8 +101,8 @@ const defaultData = {
     },
   ],
   current: {
-    weeklyFocus: "Turn the PhD stream into Disney-facing proof: visible prototypes, clear mechanism stories, and a role narrative that makes WDI R&D feel reachable.",
-    nextStep: "Make one Disney-facing proof artifact: a 20-second morphing-wave clip, sketch, or note that shows mechanism, control, sensing, and why a guest would care.",
+    weeklyFocus: "Aim at Creative Technologist / Research Scientist roles by proving programmable matter, not by chasing generic jobs.",
+    nextStep: "Build one proof of programmable matter: a unit cell, printed mechanism, or small array that can transform shape and be measured.",
     blockers: "",
     notes: "",
   },
@@ -123,11 +123,11 @@ const defaultData = {
     promise: "When I open Ocean, I should feel that this path is concrete, possible, and actively supported.",
   },
   northStar: {
-    statement: "Create embodied morphing systems that make people ask how it was possible: living surfaces, wave-like robotic materials, and soft structures that can perform, interact, and return to a calm equilibrium.",
-    thesis: "A repeated-cell soft robotic material can become a high-tech shape-changing surface when mechanism design, pneumatic/cable actuation, sensing, controls, and experience design are developed together.",
-    emotionalCore: "The Ocean idea is not just water aesthetics. It is about motion that feels alive, intentional, gentle when needed, powerful when called on, and technically credible enough for real R&D.",
-    proofTrail: "Sarrus linkage modules, 3x3 and 10x10 array thinking, pneumatic actuation, cable-driven soft robotics, continuum robot work, wave/peristaltic demos, stiffness modeling, simulation-to-prototype comparison, and HRI framing.",
-    nearTermBets: "1. Make the cleanest wave demo possible. 2. Measure repeatability and failure modes. 3. Show one human-facing interaction. 4. Package it as a portfolio case study. 5. Map it to WDI, Meta, Google/X, robotics, HCI, and embodied AI roles.",
+    statement: "Create programmable matter: physical material made from many fabricated unit cells that can transform into requested shapes through built-in mechanisms, sensing, and control.",
+    thesis: "Mass-fabricated robotic cells with embedded mechanisms can scale into shape-changing matter when fabrication, mechanics, actuation, sensing, and interaction are developed together.",
+    emotionalCore: "The Ocean idea is about matter that feels alive: shape change that is beautiful, precise, repeatable, and technically credible enough for Disney R&D or elite robotics research.",
+    proofTrail: "Programmable unit cells, Sarrus linkage modules, 3x3 and 10x10 array thinking, pneumatic actuation, cable-driven soft robotics, continuum robot work, wave/peristaltic demos, stiffness modeling, simulation-to-prototype comparison, and HRI framing.",
+    nearTermBets: "1. Build the cleanest unit-cell shape-change demo possible. 2. Show scalable fabrication logic. 3. Measure repeatability and failure modes. 4. Show one human-facing interaction. 5. Package it as Creative Technologist / Research Scientist proof.",
   },
   updates: [],
 };
@@ -385,15 +385,41 @@ function actionReason(update) {
 function currentCareerMove() {
   const saved = String(state.current.nextStep || "").trim();
   const blockedTerms = ["paste", "copy", ["phd", "organization"].join(" "), ["phd", "doc"].join(" "), ["google", "doc"].join(" ")];
-  if (saved && /disney|wdi|proof|clip|sketch|role|person/i.test(saved) && !blockedTerms.some((term) => saved.toLowerCase().includes(term))) return saved;
+  const alignedMatter = /programmable|morph|matter|unit cell|shape|soft robotics|prototype|fabricat|mechanism|research scientist|creative technologist/i;
+  if (saved && alignedMatter.test(saved) && !blockedTerms.some((term) => saved.toLowerCase().includes(term))) return saved;
   return defaultData.current.nextStep;
+}
+
+function recommendedOpportunity() {
+  return radarState.items.find((item) => item.type === "Opportunity" && /creative technolog|research|r&d|robotics|morph|programmable|prototype|animatronics|haptics|mechatronics/i.test(`${item.title} ${item.why}`));
 }
 
 function careerSignalMarkup() {
   if (radarState.loading) {
-    return `<div class="signal-line"><span>Checking for aligned WDI/R&D signals only.</span></div>`;
+    return `<div class="signal-line"><span>Checking only high-fit roles.</span></div>`;
   }
-  return `<div class="signal-line"><span>Role filter</span><strong>No broad job recommendations. Ocean only treats WDI R&D, creative technology, robotics, interaction, animatronics, and advanced prototyping as relevant.</strong></div>`;
+  const opportunity = recommendedOpportunity();
+  if (!opportunity) {
+    return `<div class="signal-line"><span>No live role worth attention right now</span><strong>Only recommend Creative Technologist, Research Scientist, or postdoc paths tied to programmable matter, morphing systems, soft robotics, HRI, physical AI, or advanced prototyping.</strong></div>`;
+  }
+  return `
+    <div class="signal-line">
+      <span>Worth looking at</span>
+      <a href="${esc(opportunity.url)}" target="_blank" rel="noreferrer">${esc(opportunity.title)}</a>
+    </div>
+  `;
+}
+
+function targetLanesMarkup() {
+  const lanes = [
+    "Disney Imagineering R&D",
+    "Disney Research",
+    "Meta Reality Labs",
+    "RAI / Boston Dynamics",
+    "NASA JPL Robotics",
+    "Elite postdoc labs: MIT, CMU, Stanford, Cornell, ETH",
+  ];
+  return `<div class="target-lanes">${lanes.map((lane) => `<span>${esc(lane)}</span>`).join("")}</div>`;
 }
 
 async function loadRadar(force = false) {
@@ -707,18 +733,20 @@ function renderMinimalDashboard() {
       <section class="ocean-card">
         <div class="wave-mark" aria-hidden="true"></div>
         <p class="tiny-label">Ocean's job</p>
-        <h1>Bring me closer to Disney R&D.</h1>
+        <h1>Programmable matter. Disney R&D.</h1>
+        <div class="answer-box">
+          <span>Target</span>
+          <strong>Creative Technologist / Research Scientist</strong>
+          <p>Make physical matter take on requested shapes through fabricated unit cells, built-in mechanisms, sensing, and control.</p>
+        </div>
+
         <div class="answer-box">
           <span>Next proof</span>
           <strong>${esc(answer)}</strong>
-          <p>Ocean keeps the career direction clear: proof, people, roles.</p>
+          <p>Ocean only cares about proof that makes this career path more believable.</p>
         </div>
 
-        <div class="career-filter" aria-label="Career focus">
-          <span>Proof</span>
-          <span>People</span>
-          <span>Roles</span>
-        </div>
+        ${targetLanesMarkup()}
 
         <div class="one-actions">
           <button class="primary" onclick="gentleReset()">Smaller proof</button>
@@ -1099,8 +1127,8 @@ function recordWin() {
 }
 
 function gentleReset() {
-  state.current.weeklyFocus = "Make the Disney path small enough to act on today.";
-  state.current.nextStep = "Disney proof today = one clip, sketch, person, or role keyword.";
+  state.current.weeklyFocus = "Make the programmable-matter career path small enough to act on today.";
+  state.current.nextStep = "Smallest proof: one fabricated unit cell that changes shape, plus one measurement of what changed.";
   saveState();
   render();
 }

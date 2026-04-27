@@ -64,8 +64,8 @@ async function fetchText(url) {
 
 function isAlignedDisneyRole(item) {
   const text = `${item.title || ""} ${item.location || ""}`.toLowerCase();
-  const aligned = /\br&d\b|research|creative technolog|technologist|prototype|prototyping|robotics|mechatronics|mechanical engineer|electrical engineer|software engineer|hardware engineer|embedded|interactive|interactivity|haptics|animatronics|show control|special effects|simulation|advanced development|research lab/i;
-  const misaligned = /lighting|theme lighting|designer sr|project hire|document control|costume|graphic|producer|coordinator|manager|finance|marketing|public relations|culinary|retail|stage|construction|architecture|architectural|interior design|set design|scenic|merchandise|operations/i;
+  const aligned = /creative technolog|research scientist|research engineer|\br&d\b|research and development|prototype|prototyping|robotics|soft robotics|programmable matter|morphing|shape-changing|physical ai|mechatronics|animatronics|haptics|human[- ]robot|interactive technology|advanced development/i;
+  const misaligned = /intern|internship|summer|lighting|theme lighting|designer sr|project hire|document control|audio|video|ride control|costume|graphic|producer|coordinator|manager|finance|marketing|public relations|culinary|retail|stage|construction|architecture|architectural|interior design|set design|scenic|merchandise|operations/i;
   return aligned.test(text) && !misaligned.test(text);
 }
 
@@ -121,34 +121,70 @@ async function fetchArxivSignals() {
   }).filter((item) => item.title && item.url);
 }
 
-function staticSearchSignals() {
+function curatedTargetSignals() {
   return [
     {
-      type: "Opportunity search",
+      type: "Target lane",
+      source: "Disney Careers",
+      title: "WDI R&D / Creative Technologist / R&D Imagineer search",
+      date: "live search",
+      location: "Glendale or Disney R&D",
+      url: "https://jobs.disneycareers.com/search-jobs?k=WDI%20Research%20Development%20Creative%20Technologist",
+      why: "Primary target lane. Only worth attention when the role involves R&D, prototyping, robotics, creative technology, or physical interactive systems.",
+    },
+    {
+      type: "Target lane",
+      source: "Disney Research Studios",
+      title: "Research Scientist / Research Engineer in high-tech creative systems",
+      date: "careers page",
+      location: "Disney Research",
+      url: "https://studios.disneyresearch.com/careers/",
+      why: "Strong Disney-adjacent lane when the work touches physical simulation, robotics, interaction, fabrication, or creative tools.",
+    },
+    {
+      type: "Target lane",
       source: "Meta Careers",
-      title: "Reality Labs / haptics / embodied interaction searches",
+      title: "Reality Labs Research Scientist / Research Engineer",
       date: "live search",
-      location: "Meta",
-      url: "https://www.metacareers.com/jobs/?q=Reality%20Labs%20haptics%20robotics",
-      why: "Good adjacent path for soft robotics, haptics, embodied interaction, and hardware prototyping.",
+      location: "Reality Labs",
+      url: "https://www.metacareers.com/jobs/?q=Reality%20Labs%20robotics%20haptics%20research%20scientist",
+      why: "Only relevant when it is robotics, haptics, physical interaction, embodied AI, or hardware prototyping.",
     },
     {
-      type: "Opportunity search",
-      source: "Google Careers",
-      title: "Robotics / research engineer / HCI searches",
-      date: "live search",
-      location: "Google",
-      url: "https://www.google.com/about/careers/applications/jobs/results/?q=robotics%20research%20engineer",
-      why: "Good adjacent path for robotic systems, human-centered AI, simulation, and interaction R&D.",
+      type: "Target lane",
+      source: "RAI Institute",
+      title: "Robotics Research Scientist",
+      date: "careers page",
+      location: "Boston / Cambridge robotics research",
+      url: "https://rai-inst.com/careers/",
+      why: "Great adjacent lane for deep robotics research if the role values physical intelligence, mechanisms, or embodied systems.",
     },
     {
-      type: "Research careers",
-      source: "Google Research",
-      title: "Google Research careers overview",
-      date: "live page",
-      location: "Google Research",
-      url: "https://research.google/careers/",
-      why: "Useful for positioning your PhD as research engineering with deployable prototypes.",
+      type: "Target lane",
+      source: "NASA JPL",
+      title: "Robotics / mechanisms / autonomy research roles",
+      date: "careers page",
+      location: "JPL Robotics",
+      url: "https://www.jpl.jobs/robotics-careers",
+      why: "Relevant when the role involves robotics, mechanisms, deployable systems, autonomy, or fieldable physical prototypes.",
+    },
+    {
+      type: "Target lane",
+      source: "MIT CSAIL",
+      title: "Postdoc / research staff in robotics or programmable matter",
+      date: "jobs page",
+      location: "MIT CSAIL / Media Lab orbit",
+      url: "https://www.csail.mit.edu/about/jobs-csail",
+      why: "Relevant as a postdoc lane if it helps you become known for programmable matter, morphing systems, robotics, or HRI.",
+    },
+    {
+      type: "Target lane",
+      source: "CMU Robotics Institute",
+      title: "Postdoc / research staff in robotics, morphing systems, or HRI",
+      date: "postdoc page",
+      location: "Pittsburgh robotics research",
+      url: "https://www.ri.cmu.edu/people/postdocs/",
+      why: "Relevant only when the lab strengthens the programmable-matter or creative robotics trajectory.",
     },
   ];
 }
@@ -161,8 +197,8 @@ async function refreshRadar() {
     ]);
     const items = [
       ...(disney.status === "fulfilled" ? disney.value : []),
+      ...curatedTargetSignals(),
       ...(arxiv.status === "fulfilled" ? arxiv.value : []),
-      ...staticSearchSignals(),
     ];
     radarCache.updatedAt = new Date().toISOString();
     radarCache.items = items;
