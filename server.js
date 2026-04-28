@@ -13,7 +13,7 @@ const radarCache = {
   error: null,
   sourceStatus: [],
 };
-const radarRefreshMs = 1000 * 60 * 60 * 6;
+const radarRefreshMs = 1000 * 60 * 30;
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -112,8 +112,8 @@ async function fetchDisneySignals() {
 }
 
 async function fetchArxivSignals() {
-  const query = encodeURIComponent('all:"soft robotics" OR all:"morphing structures" OR all:"shape-changing interfaces" OR all:"haptics" OR all:"tactile" OR all:"continuum robot" OR all:"compliant mechanism" OR all:"programmable matter" OR all:"human robot interaction" OR all:"tangible interfaces" OR all:"interactive fabrication" OR all:"robotic materials" OR all:"embodied AI"');
-  const url = `https://export.arxiv.org/api/query?search_query=${query}&start=0&max_results=18&sortBy=submittedDate&sortOrder=descending`;
+  const query = encodeURIComponent('all:"soft robotics" OR all:"morphing structures" OR all:"shape-changing interfaces" OR all:"haptic interfaces" OR all:"tactile display" OR all:"continuum robot" OR all:"compliant mechanism" OR all:"programmable matter" OR all:"human robot interaction" OR all:"tangible interfaces" OR all:"interactive fabrication" OR all:"robotic materials" OR all:"embodied AI" OR all:"computational design" OR all:"digital fabrication" OR all:"animatronics"');
+  const url = `https://export.arxiv.org/api/query?search_query=${query}&start=0&max_results=28&sortBy=submittedDate&sortOrder=descending`;
   const xml = await fetchText(url);
   const entries = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
   return entries.map((entry) => {
@@ -123,6 +123,7 @@ async function fetchArxivSignals() {
     const link = entry.match(/<id>([\s\S]*?)<\/id>/)?.[1]?.trim();
     return {
       type: "Research signal",
+      board: "Research Feed",
       source: "arXiv",
       title,
       date: published,
@@ -137,7 +138,32 @@ async function fetchArxivSignals() {
 function curatedTargetSignals() {
   return [
     {
+      type: "Visual source",
+      board: "Disney",
+      source: "Walt Disney Imagineering",
+      title: "WDI project archive",
+      date: "source board",
+      location: "built worlds",
+      url: "https://sites.disney.com/waltdisneyimagineering/our-projects/",
+      image: "https://sites.disney.com/app/uploads/sites/55/2021/06/Avengers_Campus_DCA.jpg",
+      topics: ["Disney", "Imagineering", "show systems", "physical worlds"],
+      why: "A living source for how WDI turns technical systems into public experiences.",
+    },
+    {
+      type: "Visual source",
+      board: "Disney",
+      source: "Disney Research Studios",
+      title: "Disney Research publications",
+      date: "source board",
+      location: "creative R&D",
+      url: "https://studios.disneyresearch.com/publications/",
+      image: "https://studios.disneyresearch.com/app/uploads/2026/03/CANRIG-Cross-Attention-Neural-Face-Rigging-with-Variable-Local-Control-Image-400x250.png",
+      topics: ["Disney Research", "characters", "tools", "simulation"],
+      why: "Track what Disney Research is publishing across animation, geometry, interaction, tools, and creative systems.",
+    },
+    {
       type: "Target lane",
+      board: "Disney",
       source: "Disney Careers",
       title: "WDI R&D / Creative Technologist / R&D Imagineer search",
       date: "live search",
@@ -147,6 +173,7 @@ function curatedTargetSignals() {
     },
     {
       type: "Target lane",
+      board: "Disney",
       source: "Disney Research Studios",
       title: "Research Scientist / Research Engineer in high-tech creative systems",
       date: "careers page",
@@ -156,6 +183,7 @@ function curatedTargetSignals() {
     },
     {
       type: "Target lane",
+      board: "XR + Haptics",
       source: "Meta Careers",
       title: "Reality Labs Research Scientist / Research Engineer",
       date: "live search",
@@ -165,6 +193,7 @@ function curatedTargetSignals() {
     },
     {
       type: "Target lane",
+      board: "Robotics Labs",
       source: "RAI Institute",
       title: "Robotics Research Scientist",
       date: "careers page",
@@ -174,6 +203,7 @@ function curatedTargetSignals() {
     },
     {
       type: "Target lane",
+      board: "Robotics Labs",
       source: "NASA JPL",
       title: "Robotics / mechanisms / autonomy research roles",
       date: "careers page",
@@ -183,6 +213,7 @@ function curatedTargetSignals() {
     },
     {
       type: "Target lane",
+      board: "University Labs",
       source: "MIT CSAIL",
       title: "Postdoc / research staff in robotics or programmable matter",
       date: "jobs page",
@@ -192,12 +223,37 @@ function curatedTargetSignals() {
     },
     {
       type: "Target lane",
+      board: "University Labs",
       source: "CMU Robotics Institute",
       title: "Postdoc / research staff in robotics, morphing systems, or HRI",
       date: "postdoc page",
       location: "Pittsburgh robotics research",
       url: "https://www.ri.cmu.edu/people/postdocs/",
       why: "Relevant if it strengthens the broader creative R&D trajectory: robotics depth, interaction, mechanisms, perception, or fieldable prototypes.",
+    },
+    {
+      type: "Lab source",
+      board: "Tangible Interfaces",
+      source: "MIT Media Lab",
+      title: "Tangible Media: inFORM and shape displays",
+      date: "source board",
+      location: "programmable physical interfaces",
+      url: "https://www.media.mit.edu/projects/inform/overview/",
+      image: "https://dam-prod.media.mit.edu/thumb/files/Display/inform.jpg.1400x1400.jpg",
+      topics: ["tangible media", "shape display", "programmable matter", "interaction"],
+      why: "A strong adjacent lane for turning computation into physical, visible, interactive matter.",
+    },
+    {
+      type: "Lab source",
+      board: "Robotics Labs",
+      source: "CMU Robotics Institute",
+      title: "CMU Robotics Institute research feed",
+      date: "source board",
+      location: "robotics research",
+      url: "https://www.ri.cmu.edu/",
+      image: "https://www.ri.cmu.edu/app/uploads/2021/12/iris-integrstion-still-1-scaled.jpg",
+      topics: ["robotics", "field systems", "HRI", "mechanisms"],
+      why: "Useful breadth for what strong robotics work looks like across labs, systems, and prototypes.",
     },
   ];
 }
@@ -330,7 +386,7 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`Ocean tracker running on http://localhost:${port}`);
+  console.log(`Ocean board running on http://localhost:${port}`);
   refreshRadar();
 });
 
