@@ -7,6 +7,9 @@ const publicDir = path.join(__dirname, "public");
 const radarCache = {
   updatedAt: null,
   items: [],
+  learningMoves: [],
+  fieldLens: [],
+  dailyPrompt: "",
   error: null,
   sourceStatus: [],
 };
@@ -67,20 +70,20 @@ async function fetchText(url) {
 
 function isAlignedDisneyRole(item) {
   const text = `${item.title || ""} ${item.location || ""}`.toLowerCase();
-  const aligned = /creative technolog|research scientist|research engineer|\br&d\b|research and development|prototype|prototyping|robotics|soft robotics|programmable matter|morphing|shape-changing|physical ai|mechatronics|animatronics|haptics|human[- ]robot|interactive technology|advanced development/i;
-  const misaligned = /intern|internship|summer|lighting|theme lighting|designer sr|project hire|document control|audio|video|ride control|costume|graphic|producer|coordinator|manager|finance|marketing|public relations|culinary|retail|stage|construction|architecture|architectural|interior design|set design|scenic|merchandise|operations/i;
+  const aligned = /imagineering|creative technolog|research scientist|research engineer|\br&d\b|research and development|prototype|prototyping|robotics|soft robotics|programmable matter|morphing|shape-changing|physical ai|mechatronics|animatronics|haptics|human[- ]robot|interactive technology|advanced development|show system|show control|ride system|special effects|fabricat|simulation|interactive|immersive|experience technolog|tools engineer|technical director/i;
+  const misaligned = /intern|internship|summer|document control|costume|graphic|producer|coordinator|finance|marketing|public relations|culinary|retail|merchandise|operations|guest service|sales|human resources|legal|accounting/i;
   return aligned.test(text) && !misaligned.test(text);
 }
 
 function isAlignedResearchSignal(item) {
   const text = `${item.title || ""} ${item.summary || ""}`.toLowerCase();
-  const aligned = /soft robot|soft robotic|morphing|shape-changing|shape changing|haptic|tactile|continuum robot|compliant|metamaterial|programmable matter|embodied interaction|wearable|actuat|mechanism|fabricat|origami|deployable/i;
-  const misaligned = /human-ai|human ai|language model|\bllm\b|large language|governance|misinformation|social media|recommender|policy/i;
+  const aligned = /soft robot|soft robotic|morphing|shape-changing|shape changing|haptic|tactile|continuum robot|compliant|metamaterial|programmable matter|embodied interaction|wearable|actuat|mechanism|fabricat|origami|deployable|human[- ]robot|tangible interface|interactive fabrication|robotic material|physical interaction|embodied ai|animatronic|simulation|gesture|sensor|adaptive structure|design tool/i;
+  const misaligned = /governance|misinformation|social media|recommender|policy|survey of surveys|benchmark only/i;
   return aligned.test(text) && !misaligned.test(text);
 }
 
 async function fetchDisneySignals() {
-  const url = "https://jobs.disneycareers.com/search-jobs?k=imagineering%20creative%20technologist&l=Glendale%2C%20CA";
+  const url = "https://jobs.disneycareers.com/search-jobs?k=imagineering%20research%20development%20creative%20technology%20robotics%20animatronics";
   const html = await fetchText(url);
   const rows = html.match(/<tr>[\s\S]*?<\/tr>/g) || [];
   return rows
@@ -99,8 +102,8 @@ async function fetchDisneySignals() {
         location,
         url: new URL(href, "https://jobs.disneycareers.com").toString(),
         why: brand === "Walt Disney Imagineering"
-          ? "Potentially aligned WDI technical R&D signal. Use its language only if it fits morphing structures, robotics, interaction, or show-control proof."
-          : "Potentially aligned Disney technical R&D signal.",
+          ? "Potentially aligned WDI signal. Mine the language for proof: prototypes, systems, interaction, reliability, show technology, tools, or physical experiences."
+          : "Potentially aligned Disney technical/creative R&D signal. Check whether it teaches what to learn or build next.",
       };
     })
     .filter(Boolean)
@@ -109,8 +112,8 @@ async function fetchDisneySignals() {
 }
 
 async function fetchArxivSignals() {
-  const query = encodeURIComponent('all:"soft robotics" OR all:"morphing structures" OR all:"shape-changing interfaces" OR all:"haptics" OR all:"tactile" OR all:"continuum robot" OR all:"compliant mechanism" OR all:"programmable matter"');
-  const url = `https://export.arxiv.org/api/query?search_query=${query}&start=0&max_results=12&sortBy=submittedDate&sortOrder=descending`;
+  const query = encodeURIComponent('all:"soft robotics" OR all:"morphing structures" OR all:"shape-changing interfaces" OR all:"haptics" OR all:"tactile" OR all:"continuum robot" OR all:"compliant mechanism" OR all:"programmable matter" OR all:"human robot interaction" OR all:"tangible interfaces" OR all:"interactive fabrication" OR all:"robotic materials" OR all:"embodied AI"');
+  const url = `https://export.arxiv.org/api/query?search_query=${query}&start=0&max_results=18&sortBy=submittedDate&sortOrder=descending`;
   const xml = await fetchText(url);
   const entries = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
   return entries.map((entry) => {
@@ -126,7 +129,7 @@ async function fetchArxivSignals() {
       location: "Research",
       url: link,
       summary,
-      why: "Recent research signal near soft robotics, morphing structures, haptics, HRI, or shape-changing interfaces.",
+      why: "Recent research signal near robotics, morphing structures, haptics, HRI, tangible interfaces, fabrication, or embodied systems.",
     };
   }).filter((item) => item.title && item.url).filter(isAlignedResearchSignal).slice(0, 5);
 }
@@ -140,7 +143,7 @@ function curatedTargetSignals() {
       date: "live search",
       location: "Glendale or Disney R&D",
       url: "https://jobs.disneycareers.com/search-jobs?k=WDI%20Research%20Development%20Creative%20Technologist",
-      why: "Primary target lane. Only worth attention when the role involves R&D, prototyping, robotics, creative technology, or physical interactive systems.",
+      why: "Primary target lane. Watch for anything involving R&D, prototyping, robotics, animatronics, show systems, creative tools, or physical interaction.",
     },
     {
       type: "Target lane",
@@ -149,7 +152,7 @@ function curatedTargetSignals() {
       date: "careers page",
       location: "Disney Research",
       url: "https://studios.disneyresearch.com/careers/",
-      why: "Strong Disney-adjacent lane when the work touches physical simulation, robotics, interaction, fabrication, or creative tools.",
+      why: "Study how technical research turns into characters, tools, environments, visual systems, simulation, robotics, and audience-facing invention.",
     },
     {
       type: "Target lane",
@@ -158,7 +161,7 @@ function curatedTargetSignals() {
       date: "live search",
       location: "Reality Labs",
       url: "https://www.metacareers.com/jobs/?q=Reality%20Labs%20robotics%20haptics%20research%20scientist",
-      why: "Only relevant when it is robotics, haptics, physical interaction, embodied AI, or hardware prototyping.",
+      why: "Relevant when it teaches haptics, embodied interaction, sensors, wearables, spatial computing, hardware prototyping, or human-centered R&D.",
     },
     {
       type: "Target lane",
@@ -167,7 +170,7 @@ function curatedTargetSignals() {
       date: "careers page",
       location: "Boston / Cambridge robotics research",
       url: "https://rai-inst.com/careers/",
-      why: "Great adjacent lane for deep robotics research if the role values physical intelligence, mechanisms, or embodied systems.",
+      why: "Good adjacent lane for deep robotics if the work sharpens physical intelligence, mechanisms, learning, or reliable embodied systems.",
     },
     {
       type: "Target lane",
@@ -176,7 +179,7 @@ function curatedTargetSignals() {
       date: "careers page",
       location: "JPL Robotics",
       url: "https://www.jpl.jobs/robotics-careers",
-      why: "Relevant when the role involves robotics, mechanisms, deployable systems, autonomy, or fieldable physical prototypes.",
+      why: "Useful for mechanisms, deployable structures, robotics, autonomy, field systems, and the discipline of building things that must work.",
     },
     {
       type: "Target lane",
@@ -185,7 +188,7 @@ function curatedTargetSignals() {
       date: "jobs page",
       location: "MIT CSAIL / Media Lab orbit",
       url: "https://www.csail.mit.edu/about/jobs-csail",
-      why: "Relevant as a postdoc lane if it helps you become known for programmable matter, morphing systems, robotics, or HRI.",
+      why: "Relevant when a lab can make you stronger at robotics, HRI, fabrication, materials, AI for physical systems, or unusual interfaces.",
     },
     {
       type: "Target lane",
@@ -194,9 +197,38 @@ function curatedTargetSignals() {
       date: "postdoc page",
       location: "Pittsburgh robotics research",
       url: "https://www.ri.cmu.edu/people/postdocs/",
-      why: "Relevant only when the lab strengthens the programmable-matter or creative robotics trajectory.",
+      why: "Relevant if it strengthens the broader creative R&D trajectory: robotics depth, interaction, mechanisms, perception, or fieldable prototypes.",
     },
   ];
+}
+
+function learningMoves() {
+  return [
+    "Pick one signal and extract the nouns: tools, mechanisms, audiences, constraints, materials, sensors, and proof.",
+    "Build one visible proof per week: a prototype clip, a diagram, a measurement, a teardown, or a mini case study.",
+    "Study outside the obvious lane. Animatronics, show control, projection, fabrication, haptics, spatial computing, and robotics can all feed the same career direction.",
+    "Translate every interesting role or paper into one skill to learn and one artifact to build.",
+  ];
+}
+
+function fieldLens() {
+  return [
+    "Disney/WDI: creative technology, animatronics, show systems, guest experience, tools, reliability.",
+    "Research labs: robotics, HRI, haptics, fabrication, simulation, materials, tangible interfaces.",
+    "Portfolio: short videos, measured behavior, story of the audience experience, failure modes, and build notes.",
+    "Daily move: learn one thing, make one thing clearer, or collect one signal worth acting on.",
+  ];
+}
+
+function dailyPrompt() {
+  const prompts = [
+    "What would be amazing if it existed, and what is the smallest visible proof of it?",
+    "What did a serious lab or creative technology team publish that you can learn from today?",
+    "What part of your work could become more legible to Disney Imagineering or a top R&D lab?",
+    "What would you build if the goal was wonder plus technical credibility?",
+  ];
+  const day = Math.floor(Date.now() / 86400000);
+  return prompts[day % prompts.length];
 }
 
 async function refreshRadar() {
@@ -230,12 +262,18 @@ async function refreshRadar() {
     ];
     radarCache.updatedAt = new Date().toISOString();
     radarCache.items = items;
+    radarCache.learningMoves = learningMoves();
+    radarCache.fieldLens = fieldLens();
+    radarCache.dailyPrompt = dailyPrompt();
     radarCache.sourceStatus = sourceStatus;
     radarCache.error = sourceStatus.some((row) => !row.ok)
       ? sourceStatus.filter((row) => !row.ok).map((row) => `${row.source}: ${row.detail}`).join("; ")
       : null;
   } catch (error) {
     radarCache.error = error.message;
+    radarCache.learningMoves = learningMoves();
+    radarCache.fieldLens = fieldLens();
+    radarCache.dailyPrompt = dailyPrompt();
   }
   return radarCache;
 }
@@ -265,6 +303,9 @@ const server = http.createServer((req, res) => {
       .catch((error) => sendJson(res, {
         updatedAt: radarCache.updatedAt,
         items: radarCache.items,
+        learningMoves: radarCache.learningMoves,
+        fieldLens: radarCache.fieldLens,
+        dailyPrompt: radarCache.dailyPrompt,
         sourceStatus: radarCache.sourceStatus,
         error: error.message,
       }, 500));

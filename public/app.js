@@ -5,13 +5,13 @@ const projectStatuses = ["Idea", "Prototype", "Documented", "Polished", "Publish
 const networkStatuses = ["Not Started", "Contacted", "Replied", "Met", "Followed Up"];
 const opportunityStatuses = ["Watch", "Apply", "Applied", "Archived"];
 const updateTags = ["General", "Morphing Structures", "Prototype", "Research", "Portfolio", "Networking", "Opportunity", "Resume"];
-let radarState = { loading: true, updatedAt: null, items: [], sourceStatus: [], error: null };
+let radarState = { loading: true, updatedAt: null, items: [], learningMoves: [], fieldLens: [], dailyPrompt: "", sourceStatus: [], error: null };
 
 const defaultData = {
   profile: {
     name: "",
     targetRole: "Creative Technologist / Research Scientist / Postdoc",
-    targetOrg: "Disney Imagineering R&D first; Disney Research and elite robotics/creative research labs if the fit is unusually strong",
+    targetOrg: "Disney Imagineering and creative R&D first; Disney Research, robotics labs, HCI labs, and any place building amazing physical/digital systems if the fit is strong",
     targetLocation: "Glendale, Seattle, Bay Area, Boston, or remote/hybrid R&D",
     subdomain: "ocean.aolabs.io",
     phd: "PhD Mechanical Engineering, WPI, expected 2027",
@@ -22,7 +22,7 @@ const defaultData = {
     technicalStrengths: "Soft robotics, metamaterials, morphing surfaces, nonlinear dynamics, HRI, pneumatic actuation, cable-driven robots, continuum robots, 3D printing, FEA, ROS2, MATLAB, Python, C/C++.",
     creativeStrengths: "Ocean-inspired motion, musical/ensemble collaboration, interactive embodied systems, playful guest-facing technology.",
     constraints: "",
-    narrative: "I want to create programmable matter: mass-fabricated unit cells with built-in mechanisms for shape transformation, expressive interaction, and rigorous control.",
+    narrative: "I want to work on amazing creative R&D: morphing matter, robotics, haptics, animatronics, interactive environments, tools, and physical systems that feel alive.",
   },
   roadmap: [
     item("Portfolio", "One polished creative technology case study", "Project page with video, story goal, tech stack, build notes", 10, "Pick one existing project to polish"),
@@ -101,8 +101,8 @@ const defaultData = {
     },
   ],
   current: {
-    weeklyFocus: "Aim at Creative Technologist / Research Scientist roles by proving programmable matter, not by chasing generic jobs.",
-    nextStep: "Build one proof of programmable matter: a unit cell, printed mechanism, or small array that can transform shape and be measured.",
+    weeklyFocus: "Aim at Creative Technologist / Research Scientist roles by learning broadly and turning that learning into visible proof.",
+    nextStep: "Pick one amazing signal, learn from it, and turn it into one small prototype, diagram, measurement, or portfolio note.",
     blockers: "",
     notes: "",
   },
@@ -123,11 +123,11 @@ const defaultData = {
     promise: "When I open Ocean, I should feel that this path is concrete, possible, and actively supported.",
   },
   northStar: {
-    statement: "Create programmable matter: physical material made from many fabricated unit cells that can transform into requested shapes through built-in mechanisms, sensing, and control.",
-    thesis: "Mass-fabricated robotic cells with embedded mechanisms can scale into shape-changing matter when fabrication, mechanics, actuation, sensing, and interaction are developed together.",
-    emotionalCore: "The Ocean idea is about matter that feels alive: shape change that is beautiful, precise, repeatable, and technically credible enough for Disney R&D or elite robotics research.",
-    proofTrail: "Programmable unit cells, Sarrus linkage modules, 3x3 and 10x10 array thinking, pneumatic actuation, cable-driven soft robotics, continuum robot work, wave/peristaltic demos, stiffness modeling, simulation-to-prototype comparison, and HRI framing.",
-    nearTermBets: "1. Build the cleanest unit-cell shape-change demo possible. 2. Show scalable fabrication logic. 3. Measure repeatability and failure modes. 4. Show one human-facing interaction. 5. Package it as Creative Technologist / Research Scientist proof.",
+    statement: "Work on amazing creative R&D: physical systems, robotics, morphing matter, haptics, animatronics, interactive tools, and experiences that feel alive.",
+    thesis: "A strong creative technologist/researcher can move between mechanism, software, fabrication, sensing, control, story, and audience experience.",
+    emotionalCore: "Ocean is about keeping the path alive: learning from serious labs, building small proofs, and becoming credible enough for Disney/WDI or another ambitious R&D home.",
+    proofTrail: "Soft robotics, Sarrus linkage modules, cable-driven systems, continuum robots, wave/peristaltic motion, fabrication, HRI, controls, interactive prototypes, and any new frontier worth learning.",
+    nearTermBets: "1. Study current R&D signals. 2. Pick one small proof. 3. Build or document it. 4. Measure or explain what changed. 5. Package it as Creative Technologist / Research Scientist evidence.",
   },
   updates: [],
 };
@@ -385,13 +385,13 @@ function actionReason(update) {
 function currentCareerMove() {
   const saved = String(state.current.nextStep || "").trim();
   const blockedTerms = ["paste", "copy", ["phd", "organization"].join(" "), ["phd", "doc"].join(" "), ["google", "doc"].join(" ")];
-  const alignedMatter = /programmable|morph|matter|unit cell|shape|soft robotics|prototype|fabricat|mechanism|research scientist|creative technologist/i;
-  if (saved && alignedMatter.test(saved) && !blockedTerms.some((term) => saved.toLowerCase().includes(term))) return saved;
+  const alignedCareer = /amazing|creative|r&d|research|technologist|imagineering|disney|robot|morph|matter|haptic|animatronic|interactive|prototype|fabricat|mechanism|tool|lab|learn|build|proof/i;
+  if (saved && alignedCareer.test(saved) && !blockedTerms.some((term) => saved.toLowerCase().includes(term))) return saved;
   return defaultData.current.nextStep;
 }
 
 function recommendedOpportunity() {
-  return radarState.items.find((item) => item.type === "Opportunity" && /creative technolog|research|r&d|robotics|morph|programmable|prototype|animatronics|haptics|mechatronics/i.test(`${item.title} ${item.why}`));
+  return radarState.items.find((item) => item.type === "Opportunity" && /creative technolog|research|r&d|robotics|morph|programmable|prototype|animatronics|haptics|mechatronics|show system|interactive|fabrication|simulation/i.test(`${item.title} ${item.why}`));
 }
 
 function currentSignal() {
@@ -408,7 +408,7 @@ function liveItems() {
 function currentInfoMove() {
   if (radarState.loading) return "Checking current roles and research signals now.";
   const signal = currentSignal();
-  if (!signal) return currentCareerMove();
+  if (!signal) return radarState.dailyPrompt || currentCareerMove();
   if (signal.type === "Research signal") {
     return `Use this current research signal as a keyword check: ${signal.title}`;
   }
@@ -426,7 +426,7 @@ function careerSignalMarkup() {
   }
   const opportunity = recommendedOpportunity();
   if (!opportunity) {
-    return `<div class="signal-line"><span>No high-fit live role found</span><strong>Do not pivot randomly. Keep building programmable matter proof unless a role clearly asks for R&D, prototyping, robotics, physical interaction, haptics, or advanced mechanisms.</strong></div>`;
+    return `<div class="signal-line"><span>No high-fit live role found</span><strong>Do not pivot randomly. Keep learning and building proof unless a signal clearly points to R&D, prototyping, robotics, interaction, haptics, fabrication, tools, or show technology.</strong></div>`;
   }
   return `
     <div class="signal-line">
@@ -438,6 +438,8 @@ function careerSignalMarkup() {
 
 function currentInfoMarkup() {
   const items = liveItems().slice(0, 3);
+  const moves = (radarState.learningMoves || []).slice(0, 3);
+  const lenses = (radarState.fieldLens || []).slice(0, 4);
   const sourceRows = (radarState.sourceStatus || []).map((row) => `
     <span class="${row.ok ? "ok" : "issue"}">${esc(row.source)}: ${esc(row.detail || "")}</span>
   `).join("");
@@ -464,6 +466,17 @@ function currentInfoMarkup() {
           `).join("")}
         </div>
       ` : (!radarState.loading ? `<div class="empty">No fresh role or research items found. Target lanes still stay available in the deeper tracker.</div>` : "")}
+      ${moves.length ? `
+        <div class="learning-moves">
+          <strong>Learning moves</strong>
+          ${moves.map((move) => `<span>${esc(move)}</span>`).join("")}
+        </div>
+      ` : ""}
+      ${lenses.length ? `
+        <div class="field-lens">
+          ${lenses.map((lens) => `<span>${esc(lens)}</span>`).join("")}
+        </div>
+      ` : ""}
       ${sourceRows ? `<div class="source-status">${sourceRows}</div>` : ""}
     </section>
   `;
@@ -491,11 +504,14 @@ async function loadRadar(force = false) {
       loading: false,
       updatedAt: radar.updatedAt || null,
       items: Array.isArray(radar.items) ? radar.items : [],
+      learningMoves: Array.isArray(radar.learningMoves) ? radar.learningMoves : [],
+      fieldLens: Array.isArray(radar.fieldLens) ? radar.fieldLens : [],
+      dailyPrompt: radar.dailyPrompt || "",
       sourceStatus: Array.isArray(radar.sourceStatus) ? radar.sourceStatus : [],
       error: radar.error || null,
     };
   } catch (error) {
-    radarState = { loading: false, updatedAt: null, items: [], sourceStatus: [], error: error.message };
+    radarState = { loading: false, updatedAt: null, items: [], learningMoves: [], fieldLens: [], dailyPrompt: "", sourceStatus: [], error: error.message };
   }
   renderMinimalDashboard();
 }
@@ -519,13 +535,13 @@ function radarCard(item, index) {
 
 function dailySpark() {
   const sparks = [
-    "You are allowed to build something beautiful and rigorous at the same time.",
-    "The dream is not random: your work already points toward living structures, expressive robots, and impossible-feeling experiences.",
-    "A single clean demo can change how people understand you.",
-    "Your path does not need to be normal to be real.",
-    "The Ocean idea is a research program: motion, feeling, mechanism, control, and story.",
-    "Today does not need to solve your whole future. It only needs to produce one piece of proof.",
-    "Wonder is an engineering requirement here.",
+    "Learn one serious thing. Build one visible proof.",
+    "Amazing work is allowed to be rigorous, strange, useful, and emotionally clear.",
+    "A single clean demo can change how people understand your trajectory.",
+    "You do not need a normal path. You need evidence, taste, and repetition.",
+    "The lane is broader than morphing matter: robotics, tools, haptics, animatronics, interaction, and physical systems all count.",
+    "Today does not need to solve your future. It needs to produce one useful signal.",
+    "Wonder is an engineering requirement here, but proof is what makes it believable.",
   ];
   const day = Math.floor(Date.now() / 86400000);
   return sparks[day % sparks.length];
@@ -578,7 +594,7 @@ function layout(title, subtitle, body) {
 function renderNorthStar() {
   layout(
     "North Star",
-    "A distilled version of the PhD thread: ambition, research logic, proof, and where it points.",
+    "Ambition, learning direction, proof, and where it points.",
     `
       <div class="grid cols-2">
         <section class="panel">
@@ -657,13 +673,13 @@ function renderDashboard() {
 
   layout(
     "Today",
-    "One calm place to continue. Add messy updates; let the tracker stay organized.",
+    "Current signals, learning, and proof.",
     `
       <section class="panel focus-panel">
         <span class="eyebrow">This is possible</span>
         <h2>${esc(state.current.nextStep || nextAction())}</h2>
         <p>${esc(state.current.weeklyFocus)}</p>
-        <p class="muted">You are not trying to manifest a vague dream. You are building a PhD-backed body of work around soft robotics, morphing surfaces, HRI, and emotionally legible motion. Ocean exists to keep converting that into proof.</p>
+        <p class="muted">Ocean keeps the path practical: learn from current labs and roles, then convert that signal into one visible proof.</p>
         <div class="sparkline">
           <span>Daily spark</span>
           <strong>${esc(dailySpark())}</strong>
@@ -677,8 +693,8 @@ function renderDashboard() {
       <div class="grid cols-2" style="margin-top:16px">
         <section class="panel lift-panel">
           <span class="eyebrow">Open this when you need lift</span>
-          <h2>You are not behind. You are shaping the raw material.</h2>
-          <p>The raw notes are not a mess. They are a reservoir. Ocean's job is to pull one useful current from them and turn that into proof, peace, and forward motion.</p>
+          <h2>Keep the dream attached to evidence.</h2>
+          <p>When the path feels too large, the next move is small: study one signal, build one proof, make one project easier to understand.</p>
           <div class="field">
             <label>One small win</label>
             <input id="winInput" placeholder="I printed a part, wrote a paragraph, tested a module, rested, asked for help">
@@ -695,7 +711,7 @@ function renderDashboard() {
           <div class="compass-list">
             <div><strong>Background radar</strong><span>Refreshes research and opportunity signals from official/searchable sources.</span></div>
             <div><strong>Career translation</strong><span>Turns rough notes into one concrete action.</span></div>
-            <div><strong>Portfolio pressure</strong><span>Keeps asking for visible proof: demo, video, measurement, story, reliability.</span></div>
+            <div><strong>Portfolio pressure</strong><span>Keeps asking for visible proof: demo, video, measurement, story, reliability, and what the audience feels.</span></div>
           </div>
         </section>
       </div>
@@ -740,9 +756,9 @@ function renderDashboard() {
         <section class="panel">
           <h2>Career Compass</h2>
           <div class="compass-list">
-            <div><strong>Dream role</strong><span>WDI creative technologist / R&D for living scenic and morphing systems.</span></div>
-            <div><strong>Adjacent paths</strong><span>Meta Reality Labs, Google/X, robotics labs, NASA/national labs, HCI and embodied AI teams.</span></div>
-            <div><strong>Technical bet</strong><span>Ocean-inspired morphing structures with real sensing, control, repeatability, and human-facing story.</span></div>
+            <div><strong>Dream role</strong><span>Creative technologist / R&D for ambitious physical and digital experiences.</span></div>
+            <div><strong>Adjacent paths</strong><span>Disney/WDI, Disney Research, Reality Labs, Google/X, robotics labs, NASA/national labs, HCI, embodied AI, museums, and interactive studios.</span></div>
+            <div><strong>Technical bet</strong><span>Build taste plus proof: mechanisms, sensing, control, fabrication, software, story, and reliability.</span></div>
           </div>
         </section>
       </div>
@@ -788,6 +804,7 @@ function renderDashboard() {
 
 function renderMinimalDashboard() {
   const answer = currentInfoMove();
+  const prompt = radarState.dailyPrompt || "What would be amazing if it existed, and what is the smallest visible proof of it?";
   document.getElementById("app").innerHTML = `
     <main class="one-page">
       <section class="ocean-card">
@@ -797,13 +814,13 @@ function renderMinimalDashboard() {
         <div class="answer-box">
           <span>Target</span>
           <strong>Creative Technologist / Research Scientist</strong>
-          <p>Find ambitious creative R&D worth learning for: morphing matter, robotics, physical interaction, strange interfaces, or any frontier technology that feels alive.</p>
+          <p>Find ambitious creative R&D worth learning for: Disney/WDI, labs, robotics, physical interaction, haptics, animatronics, tools, morphing matter, and other frontier systems that feel alive.</p>
         </div>
 
         <div class="answer-box">
-          <span>Next proof</span>
+          <span>Today</span>
           <strong>${esc(answer)}</strong>
-          <p>Ocean only cares about proof that makes this career path more believable.</p>
+          <p>${esc(prompt)}</p>
         </div>
 
         ${targetLanesMarkup()}
@@ -1079,13 +1096,13 @@ function renderUpdates() {
           <p class="footer-note">Images are stored in this browser. Export JSON from Settings if you want a backup.</p>
         </section>
         <section class="panel">
-          <h2>Morphing Structures Focus</h2>
-          <p>Frame morphing structures as experience technology: shape change, emotional reveal, reliable control, human safety, maintainability, and a clear story purpose.</p>
+          <h2>Creative R&D Focus</h2>
+          <p>Use morphing structures as one strong lane, not the whole world. Also watch robotics, haptics, tools, animatronics, physical interfaces, interactive environments, fabrication, and simulation.</p>
           <div class="score-list">
-            <div class="score-row"><strong>Mechanism</strong><span class="muted">compliant, soft robotic, origami, tensegrity, deployable</span><span></span></div>
-            <div class="score-row"><strong>Actuation</strong><span class="muted">cable, pneumatic, SMA, motorized, magnetic, hydraulic</span><span></span></div>
-            <div class="score-row"><strong>Sensing</strong><span class="muted">position, force, strain, vision, touch, proximity</span><span></span></div>
-            <div class="score-row"><strong>Proof</strong><span class="muted">video, measurements, failure modes, repeatability</span><span></span></div>
+            <div class="score-row"><strong>Physical</strong><span class="muted">mechanisms, robotics, actuation, materials, fabrication</span><span></span></div>
+            <div class="score-row"><strong>Interactive</strong><span class="muted">sensors, haptics, tools, interfaces, spatial systems</span><span></span></div>
+            <div class="score-row"><strong>Experience</strong><span class="muted">audience feeling, story purpose, play, surprise, clarity</span><span></span></div>
+            <div class="score-row"><strong>Proof</strong><span class="muted">video, measurements, failure modes, repeatability, notes</span><span></span></div>
           </div>
         </section>
       </div>
@@ -1189,8 +1206,8 @@ function recordWin() {
 }
 
 function gentleReset() {
-  state.current.weeklyFocus = "Make the programmable-matter career path small enough to act on today.";
-  state.current.nextStep = "Smallest proof: one fabricated unit cell that changes shape, plus one measurement of what changed.";
+  state.current.weeklyFocus = "Make the creative R&D path small enough to act on today.";
+  state.current.nextStep = "Smallest proof: study one serious signal, then make one tiny artifact, sketch, measurement, or prototype from it.";
   saveState();
   render();
 }

@@ -2,7 +2,7 @@
   "name": "ocean-tracker",
   "version": "0.1.0",
   "private": true,
-  "description": "A personal tracker for ocean-inspired morphing structures, creative technology, and R&D career paths.",
+  "description": "A personal learning radar for creative technology and R&D career paths.",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"

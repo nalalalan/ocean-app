@@ -642,6 +642,33 @@ button:hover {
   padding-top: 10px;
 }
 
+.learning-moves {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 7px;
+  padding-top: 10px;
+}
+
+.learning-moves strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.learning-moves span,
+.field-lens span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.field-lens {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+}
+
 .source-status span {
   border-radius: 999px;
   font-size: 12px;
