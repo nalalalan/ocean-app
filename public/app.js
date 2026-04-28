@@ -1,7 +1,6 @@
 const app = document.getElementById("app");
 
 const savedKey = "ocean.saved.v2";
-const filters = ["All", "Disney", "Robotics", "Tangible", "Haptics", "Soft Robotics"];
 const palette = ["#64d8ff", "#7ee2b8", "#f5c45f", "#ca9cff", "#ff8da1", "#8fb7ff", "#76e6dd"];
 
 const sourceImages = {
@@ -29,7 +28,7 @@ const seedItems = [
     board: "Disney",
     kind: "video",
     videoId: "IuQPrGLo0QM",
-    image: sourceImages.wdiCulture,
+    image: yt("IuQPrGLo0QM"),
     url: "https://disneyparksblog.com/disney-experiences/stories-in-motion-we-call-it-imagineering-episode-3-debuts/",
     summary: "Robotics, characters, control, motion, and the studio logic behind machines that feel alive.",
     tags: ["Disney", "robotics", "animatronics", "characters"],
@@ -54,7 +53,7 @@ const seedItems = [
     board: "Disney",
     kind: "video",
     videoId: "uof_fMbGyIM",
-    image: sourceImages.wdiWebslingers,
+    image: yt("uof_fMbGyIM"),
     url: "https://thewaltdisneycompany.com/we-call-it-imagineering-disney-youtube-series/",
     summary: "A direct lane into how Disney frames creative technology, systems, and the people who build experiences.",
     tags: ["Disney", "creative technology", "WDI", "process"],
@@ -67,7 +66,7 @@ const seedItems = [
     board: "Disney",
     kind: "video",
     videoId: "1e1R2vUORGI",
-    image: sourceImages.wdiNeverland,
+    image: yt("1e1R2vUORGI"),
     url: "https://www.youtube.com/watch?v=1e1R2vUORGI",
     summary: "Physical characters, motion design, timing, mechanisms, and the hard engineering hidden inside performance.",
     tags: ["Disney", "animatronics", "mechanisms", "performance"],
@@ -104,7 +103,7 @@ const seedItems = [
     board: "Disney",
     kind: "video",
     videoId: "Ag9I-EstzXY",
-    image: sourceImages.wdiCampus,
+    image: yt("Ag9I-EstzXY"),
     url: "https://www.youtube.com/watch?v=Ag9I-EstzXY",
     summary: "A useful outside view into Disney robotics: characters, believability, constraints, and interaction.",
     tags: ["Disney", "robotics", "characters", "R&D"],
@@ -165,7 +164,7 @@ const seedItems = [
     board: "Tangible",
     kind: "video",
     videoId: "lvtfD_rJ2hE",
-    image: sourceImages.mitInform,
+    image: yt("lvtfD_rJ2hE"),
     url: "https://www.media.mit.edu/projects/inform/overview/",
     summary: "A dynamic shape display: computation made physical, visible, responsive, and strange.",
     tags: ["programmable matter", "shape display", "tangible media", "interaction"],
@@ -263,7 +262,6 @@ const seedItems = [
 ];
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
-let activeFilter = "All";
 let selectedId = new URLSearchParams(location.search).get("item");
 let actionNote = "";
 let savedIds = loadSaved();
@@ -368,16 +366,18 @@ function normalizeRemoteItem(item, index) {
     tags: tags.length ? tags.slice(0, 5) : inferTags(item),
     shape: index % 7 === 0 ? "wide" : "standard",
     live: true,
+    originalImage: hasOriginalImage,
     showInWall: hasOriginalImage || isStrongOpportunity,
   };
 }
 
 function allItems() {
   const seedKeys = new Set(seedItems.map((item) => `${item.url || ""}|${item.title}`.toLowerCase()));
+  const usedImages = new Set();
   const imageCounts = new Map();
   const remote = (radar.items || [])
     .map(normalizeRemoteItem)
-    .filter((item) => item.showInWall)
+    .filter((item) => item.showInWall && item.originalImage)
     .filter((item) => {
       const key = `${item.url || ""}|${item.title}`.toLowerCase();
       if (seedKeys.has(key)) return false;
@@ -390,9 +390,13 @@ function allItems() {
     .slice(0, 6);
   const seen = new Set();
   return [...seedItems, ...remote].filter((item) => {
+    if (!item.image && !item.videoId) return false;
     const key = `${item.url || ""}|${item.title}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
+    const imageKey = item.image || "";
+    if (imageKey && usedImages.has(imageKey)) return false;
+    if (imageKey) usedImages.add(imageKey);
     return true;
   }).map((item, index) => ({
     ...item,
@@ -402,14 +406,7 @@ function allItems() {
 }
 
 function visibleItems() {
-  const items = allItems();
-  return items.filter((item) => {
-    if (activeFilter !== "All") {
-      const boardText = `${item.board} ${item.tags?.join(" ")}`.toLowerCase();
-      if (!boardText.includes(activeFilter.toLowerCase())) return false;
-    }
-    return true;
-  });
+  return allItems();
 }
 
 function findItem(id) {
@@ -542,23 +539,10 @@ function formatUpdated(value) {
   return Number.isNaN(date.getTime()) ? "updated" : date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
-function renderFilters() {
-  return filters.map((filter) => `
-    <button class="filter-chip ${activeFilter === filter ? "is-active" : ""}" data-action="filter" data-filter="${esc(filter)}">
-      ${esc(filter)}
-    </button>
-  `).join("");
-}
-
 function render() {
   const items = visibleItems();
   app.innerHTML = `
     <main class="media-app ${selectedId ? "has-detail" : ""}">
-      <header class="media-toolbar">
-        <button class="brand" data-action="home" aria-label="Ocean home">Ocean</button>
-        <nav class="filter-strip" aria-label="Media filters">${renderFilters()}</nav>
-        <button class="refresh" data-action="refresh">${radar.loading ? "refreshing" : formatUpdated(radar.updatedAt)}</button>
-      </header>
       <section class="media-wall" aria-label="Ocean media results">
         ${items.map((item, index) => renderTile(item, index)).join("")}
       </section>
@@ -579,13 +563,6 @@ function openItem(id) {
 function closeDetail() {
   selectedId = null;
   actionNote = "";
-  history.replaceState(null, "", location.pathname);
-  render();
-}
-
-function setFilter(filter) {
-  activeFilter = filter;
-  selectedId = null;
   history.replaceState(null, "", location.pathname);
   render();
 }
@@ -637,7 +614,6 @@ async function loadRadar(force = false) {
 }
 
 function home() {
-  activeFilter = "All";
   selectedId = null;
   actionNote = "";
   history.replaceState(null, "", location.pathname);
@@ -651,7 +627,6 @@ document.addEventListener("click", (event) => {
   const action = target.dataset.action;
   if (action === "open") openItem(target.dataset.id);
   if (action === "close") closeDetail();
-  if (action === "filter") setFilter(target.dataset.filter);
   if (action === "save") toggleSave(target.dataset.id);
   if (action === "share") shareItem(target.dataset.id);
   if (action === "refresh") loadRadar(true);
