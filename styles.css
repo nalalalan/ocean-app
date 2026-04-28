@@ -42,7 +42,7 @@ a {
 
 .media-app {
   min-height: 100vh;
-  padding: 8px;
+  padding: 0;
   background:
     radial-gradient(circle at 12% 6%, rgba(100, 216, 255, 0.2), transparent 24%),
     radial-gradient(circle at 88% 0%, rgba(126, 226, 184, 0.16), transparent 28%),
@@ -118,10 +118,11 @@ a {
 .media-wall {
   display: grid;
   grid-auto-flow: dense;
-  grid-auto-rows: 8px;
-  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-  gap: 6px;
-  min-height: calc(100vh - 16px);
+  grid-auto-rows: 9px;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+  min-height: 100vh;
+  padding: 8px;
 }
 
 .media-card {
@@ -247,7 +248,7 @@ a {
   position: absolute;
   z-index: 3;
   inset: auto 0 0;
-  height: 46%;
+  height: 58%;
   background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.82));
   pointer-events: none;
 }
@@ -255,18 +256,18 @@ a {
 .media-label {
   position: absolute;
   z-index: 5;
-  left: 11px;
-  right: 11px;
-  bottom: 10px;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
   display: grid;
-  gap: 4px;
+  gap: 6px;
   pointer-events: none;
 }
 
 .media-label span {
   overflow: hidden;
   color: rgba(226, 232, 240, 0.9);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 850;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -277,7 +278,7 @@ a {
   display: -webkit-box;
   overflow: hidden;
   color: #ffffff;
-  font-size: 17px;
+  font-size: 22px;
   line-height: 1.04;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
   -webkit-box-orient: vertical;
@@ -285,13 +286,13 @@ a {
 }
 
 .shape-hero .media-label strong {
-  font-size: 25px;
+  font-size: 31px;
 }
 
 .detail-panel {
   position: fixed;
   z-index: 60;
-  top: 74px;
+  top: 8px;
   right: 8px;
   bottom: 8px;
   width: min(520px, 42vw);
@@ -477,86 +478,55 @@ a {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .media-app {
     padding: 0;
   }
 
-  .media-toolbar {
-    top: 0;
-    grid-template-columns: auto 1fr;
-    gap: 7px;
-    margin-bottom: 4px;
-    padding: 8px 7px;
-    border-width: 0 0 1px;
-    border-radius: 0;
-  }
-
-  .brand,
-  .refresh {
-    min-height: 42px;
-    font-size: 15px;
-  }
-
-  .refresh {
-    display: none;
-  }
-
-  .filter-strip {
-    grid-column: 1 / -1;
-    padding-bottom: 1px;
-  }
-
-  .filter-chip {
-    min-height: 39px;
-    padding: 0 13px;
-    font-size: 14px;
-  }
-
   .media-wall {
-    grid-auto-rows: 1px;
+    grid-auto-rows: 4px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-    padding: 0 6px 8px;
+    gap: 8px;
+    padding: 6px;
   }
 
   .shape-small {
-    grid-row: span 32;
+    grid-row: span 30;
   }
 
   .shape-standard {
-    grid-row: span 36;
+    grid-row: span 34;
   }
 
   .shape-tall {
-    grid-row: span 45;
+    grid-row: span 44;
   }
 
   .shape-wide,
   .shape-hero {
     grid-column: span 2;
-    grid-row: span 46;
+    grid-row: span 43;
   }
 
   .media-label {
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    gap: 5px;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    gap: 6px;
   }
 
   .media-label span {
-    font-size: 12px;
+    font-size: 15px;
   }
 
   .media-label strong {
-    font-size: 19px;
+    font-size: 24px;
     line-height: 1.08;
     -webkit-line-clamp: 3;
   }
 
   .shape-hero .media-label strong {
-    font-size: 24px;
+    font-size: 31px;
   }
 
   .video-badge,
