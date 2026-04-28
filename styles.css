@@ -17,6 +17,12 @@ body {
   background: var(--bg);
 }
 
+html.detail-open,
+body.detail-open {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   color: var(--text);
@@ -47,6 +53,12 @@ a {
     radial-gradient(circle at 12% 6%, rgba(100, 216, 255, 0.2), transparent 24%),
     radial-gradient(circle at 88% 0%, rgba(126, 226, 184, 0.16), transparent 28%),
     linear-gradient(135deg, #03060b 0%, #06111d 50%, #03060b 100%);
+}
+
+.media-app.has-detail {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .media-toolbar {
@@ -305,6 +317,7 @@ a {
   background: rgba(5, 9, 15, 0.92);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.58);
   backdrop-filter: blur(20px);
+  overscroll-behavior: contain;
 }
 
 .detail-top {
@@ -491,71 +504,164 @@ a {
   }
 
   .shape-small {
-    grid-row: span 30;
+    grid-row: span 36;
   }
 
   .shape-standard {
-    grid-row: span 34;
+    grid-row: span 44;
   }
 
   .shape-tall {
-    grid-row: span 44;
+    grid-row: span 58;
   }
 
   .shape-wide,
   .shape-hero {
     grid-column: span 2;
-    grid-row: span 43;
+    grid-row: span 62;
   }
 
   .media-label {
-    left: 14px;
-    right: 14px;
-    bottom: 14px;
-    gap: 6px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    gap: 8px;
   }
 
   .media-label span {
-    font-size: 15px;
+    font-size: 18px;
+    line-height: 1;
   }
 
   .media-label strong {
-    font-size: 24px;
-    line-height: 1.08;
+    font-size: clamp(30px, 7.4vw, 42px);
+    line-height: 1;
     -webkit-line-clamp: 3;
   }
 
   .shape-hero .media-label strong {
-    font-size: 31px;
+    font-size: clamp(40px, 10vw, 58px);
   }
 
   .video-badge,
   .saved-dot {
-    font-size: 12px;
+    font-size: 15px;
+    padding: 7px 10px;
   }
 
   .detail-panel {
-    top: auto;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100%;
-    height: 82vh;
-    grid-template-rows: auto minmax(190px, 0.75fr) auto auto auto minmax(160px, 1fr);
-    border-radius: 14px 14px 0 0;
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    border-radius: 0;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
+  .detail-top {
+    position: sticky;
+    z-index: 12;
+    top: 0;
+    margin: -10px -10px 10px;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(5, 9, 15, 0.94);
+    backdrop-filter: blur(18px);
+  }
+
+  .icon-button {
+    width: 58px;
+    height: 58px;
+    font-size: 30px;
+  }
+
+  .detail-top span,
+  .similar-head {
+    font-size: 16px;
+  }
+
+  .detail-top strong {
+    font-size: clamp(28px, 7vw, 42px);
+    white-space: normal;
+  }
+
+  .detail-media {
+    min-height: 54vh;
+    margin-bottom: 16px;
   }
 
   .detail-copy p {
-    font-size: 17px;
+    max-width: 20ch;
+    font-size: 28px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .detail-copy {
+    gap: 14px;
+    max-width: calc(100vw - 20px);
+    min-width: 0;
   }
 
   .action-pill,
   .tag-row span {
-    font-size: 14px;
+    min-height: 54px;
+    font-size: 18px;
   }
 
-  .detail-top strong {
-    white-space: normal;
+  .tag-row span {
+    max-width: none;
+    padding: 9px 12px;
+  }
+
+  .detail-actions {
+    gap: 10px;
+    margin: 14px 0;
+    max-width: calc(100vw - 20px);
+    min-width: 0;
+  }
+
+  .similar-head {
+    margin: 16px 0 10px;
+  }
+
+  .similar-grid {
+    grid-auto-rows: 4px;
+    gap: 8px;
+    overflow: visible;
+    padding: 0 0 24px;
+    max-width: calc(100vw - 20px);
+    min-width: 0;
+  }
+
+  .similar-grid .media-card {
+    grid-row: span 42;
+  }
+
+  .similar-grid .shape-wide,
+  .similar-grid .shape-hero {
+    grid-row: span 54;
+  }
+
+  .similar-grid .shape-tall {
+    grid-row: span 52;
+  }
+
+  .similar-grid .media-label span {
+    font-size: 16px;
+  }
+
+  .similar-grid .media-label strong {
+    font-size: clamp(25px, 6.2vw, 34px);
   }
 
   .source-warning {

@@ -541,6 +541,8 @@ function formatUpdated(value) {
 
 function render() {
   const items = visibleItems();
+  document.documentElement.classList.toggle("detail-open", Boolean(selectedId));
+  document.body.classList.toggle("detail-open", Boolean(selectedId));
   app.innerHTML = `
     <main class="media-app ${selectedId ? "has-detail" : ""}">
       <section class="media-wall" aria-label="Ocean media results">
