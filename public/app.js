@@ -1,7 +1,7 @@
 const app = document.getElementById("app");
 
 const savedKey = "ocean.saved.v2";
-const filters = ["All", "Disney", "Robotics", "Tangible", "Haptics", "Soft Robotics", "Labs", "Saved"];
+const filters = ["All", "Disney", "Robotics", "Tangible", "Haptics", "Soft Robotics"];
 const palette = ["#64d8ff", "#7ee2b8", "#f5c45f", "#ca9cff", "#ff8da1", "#8fb7ff", "#76e6dd"];
 
 const sourceImages = {
@@ -29,7 +29,7 @@ const seedItems = [
     board: "Disney",
     kind: "video",
     videoId: "IuQPrGLo0QM",
-    image: yt("IuQPrGLo0QM"),
+    image: sourceImages.wdiCulture,
     url: "https://disneyparksblog.com/disney-experiences/stories-in-motion-we-call-it-imagineering-episode-3-debuts/",
     summary: "Robotics, characters, control, motion, and the studio logic behind machines that feel alive.",
     tags: ["Disney", "robotics", "animatronics", "characters"],
@@ -54,7 +54,7 @@ const seedItems = [
     board: "Disney",
     kind: "video",
     videoId: "uof_fMbGyIM",
-    image: yt("uof_fMbGyIM"),
+    image: sourceImages.wdiWebslingers,
     url: "https://thewaltdisneycompany.com/we-call-it-imagineering-disney-youtube-series/",
     summary: "A direct lane into how Disney frames creative technology, systems, and the people who build experiences.",
     tags: ["Disney", "creative technology", "WDI", "process"],
@@ -67,7 +67,7 @@ const seedItems = [
     board: "Disney",
     kind: "video",
     videoId: "1e1R2vUORGI",
-    image: yt("1e1R2vUORGI"),
+    image: sourceImages.wdiNeverland,
     url: "https://www.youtube.com/watch?v=1e1R2vUORGI",
     summary: "Physical characters, motion design, timing, mechanisms, and the hard engineering hidden inside performance.",
     tags: ["Disney", "animatronics", "mechanisms", "performance"],
@@ -104,7 +104,7 @@ const seedItems = [
     board: "Disney",
     kind: "video",
     videoId: "Ag9I-EstzXY",
-    image: yt("Ag9I-EstzXY"),
+    image: sourceImages.wdiCampus,
     url: "https://www.youtube.com/watch?v=Ag9I-EstzXY",
     summary: "A useful outside view into Disney robotics: characters, believability, constraints, and interaction.",
     tags: ["Disney", "robotics", "characters", "R&D"],
@@ -165,7 +165,7 @@ const seedItems = [
     board: "Tangible",
     kind: "video",
     videoId: "lvtfD_rJ2hE",
-    image: yt("lvtfD_rJ2hE"),
+    image: sourceImages.mitInform,
     url: "https://www.media.mit.edu/projects/inform/overview/",
     summary: "A dynamic shape display: computation made physical, visible, responsive, and strange.",
     tags: ["programmable matter", "shape display", "tangible media", "interaction"],
@@ -264,7 +264,6 @@ const seedItems = [
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let activeFilter = "All";
-let query = "";
 let selectedId = new URLSearchParams(location.search).get("item");
 let actionNote = "";
 let savedIds = loadSaved();
@@ -348,6 +347,14 @@ function normalizeRemoteItem(item, index) {
   if (text.includes("soft robot") || text.includes("material")) board = "Soft Robotics";
   if (text.includes("robot") && !text.includes("soft robot")) board = "Robotics";
   if (text.includes("tangible") || text.includes("shape")) board = "Tangible";
+  const hasOriginalImage = Boolean(item.image);
+  const isStrongOpportunity = (
+    text.includes("disney careers")
+    || text.includes("imagineering")
+    || text.includes("creative technolog")
+    || text.includes("research scientist")
+    || text.includes("research engineer")
+  );
   return {
     id: `live-${slug(title)}-${index}`,
     title,
@@ -361,13 +368,28 @@ function normalizeRemoteItem(item, index) {
     tags: tags.length ? tags.slice(0, 5) : inferTags(item),
     shape: index % 7 === 0 ? "wide" : "standard",
     live: true,
+    showInWall: hasOriginalImage || isStrongOpportunity,
   };
 }
 
 function allItems() {
-  const remote = (radar.items || []).map(normalizeRemoteItem);
+  const seedKeys = new Set(seedItems.map((item) => `${item.url || ""}|${item.title}`.toLowerCase()));
+  const imageCounts = new Map();
+  const remote = (radar.items || [])
+    .map(normalizeRemoteItem)
+    .filter((item) => item.showInWall)
+    .filter((item) => {
+      const key = `${item.url || ""}|${item.title}`.toLowerCase();
+      if (seedKeys.has(key)) return false;
+      const imageKey = item.image || "";
+      const prior = imageCounts.get(imageKey) || 0;
+      if (imageKey && prior >= 1) return false;
+      imageCounts.set(imageKey, prior + 1);
+      return true;
+    })
+    .slice(0, 6);
   const seen = new Set();
-  return [...remote, ...seedItems].filter((item) => {
+  return [...seedItems, ...remote].filter((item) => {
     const key = `${item.url || ""}|${item.title}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
@@ -381,15 +403,12 @@ function allItems() {
 
 function visibleItems() {
   const items = allItems();
-  const q = query.trim().toLowerCase();
   return items.filter((item) => {
-    if (activeFilter === "Saved" && !savedIds.has(item.id)) return false;
-    if (activeFilter !== "All" && activeFilter !== "Saved") {
+    if (activeFilter !== "All") {
       const boardText = `${item.board} ${item.tags?.join(" ")}`.toLowerCase();
       if (!boardText.includes(activeFilter.toLowerCase())) return false;
     }
-    if (!q) return true;
-    return `${item.title} ${item.source} ${item.board} ${item.summary} ${(item.tags || []).join(" ")}`.toLowerCase().includes(q);
+    return true;
   });
 }
 
@@ -404,12 +423,12 @@ function mediaMarkup(item, mode = "tile") {
     ? `<img src="${esc(image)}" alt="" loading="${mode === "tile" ? "lazy" : "eager"}" onerror="this.remove();">`
     : fallback;
   if (!item.videoId) return poster;
+  if (mode === "tile") return `${poster}<span class="video-badge">video</span>`;
   const controls = mode === "detail" ? "1" : "0";
   const src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${encodeURIComponent(item.videoId)}&controls=${controls}&modestbranding=1&rel=0&iv_load_policy=3`;
   return `
     ${poster}
     <iframe class="video-frame" src="${src}" title="${esc(item.title)}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-    ${mode === "tile" ? '<span class="video-badge">video</span><span class="tap-shield" aria-hidden="true"></span>' : ""}
   `;
 }
 
@@ -537,10 +556,6 @@ function render() {
     <main class="media-app ${selectedId ? "has-detail" : ""}">
       <header class="media-toolbar">
         <button class="brand" data-action="home" aria-label="Ocean home">Ocean</button>
-        <label class="search-box">
-          <span>search</span>
-          <input value="${esc(query)}" data-action="query" placeholder="Disney robotics, haptics, soft robotics...">
-        </label>
         <nav class="filter-strip" aria-label="Media filters">${renderFilters()}</nav>
         <button class="refresh" data-action="refresh">${radar.loading ? "refreshing" : formatUpdated(radar.updatedAt)}</button>
       </header>
@@ -623,7 +638,6 @@ async function loadRadar(force = false) {
 
 function home() {
   activeFilter = "All";
-  query = "";
   selectedId = null;
   actionNote = "";
   history.replaceState(null, "", location.pathname);
@@ -642,17 +656,6 @@ document.addEventListener("click", (event) => {
   if (action === "share") shareItem(target.dataset.id);
   if (action === "refresh") loadRadar(true);
   if (action === "home") home();
-});
-
-document.addEventListener("input", (event) => {
-  if (event.target.dataset.action !== "query") return;
-  query = event.target.value;
-  render();
-  const input = document.querySelector("[data-action='query']");
-  if (input) {
-    input.focus();
-    input.setSelectionRange(query.length, query.length);
-  }
 });
 
 document.addEventListener("keydown", (event) => {
