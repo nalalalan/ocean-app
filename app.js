@@ -1,55 +1,89 @@
 const app = document.getElementById("app");
 
-const palette = ["#74d4ff", "#80e0b1", "#f6c15b", "#d49dff", "#ff8fa3", "#9fb8ff", "#6fe6dd"];
+const savedKey = "ocean.saved.v2";
+const filters = ["All", "Disney", "Robotics", "Tangible", "Haptics", "Soft Robotics", "Labs", "Saved"];
+const palette = ["#64d8ff", "#7ee2b8", "#f5c45f", "#ca9cff", "#ff8da1", "#8fb7ff", "#76e6dd"];
 
 const sourceImages = {
   wdiCampus: "https://sites.disney.com/app/uploads/sites/55/2021/06/Avengers_Campus_DCA.jpg",
   wdiNeverland: "https://sites.disney.com/app/uploads/sites/55/2024/06/TDS_Neverland_01-scaled.jpg",
   wdiWebslingers: "https://sites.disney.com/app/uploads/sites/55/2021/06/AC_Webslingers_Art.jpg",
   wdiCulture: "https://sites.disney.com/app/uploads/sites/55/2019/10/WDAPL_2018_June_08_0342_FIX.jpg",
-  disneyResearchRig: "https://studios.disneyresearch.com/app/uploads/2026/03/CANRIG-Cross-Attention-Neural-Face-Rigging-with-Variable-Local-Control-Image-400x250.png",
-  disneyResearchMotion: "https://studios.disneyresearch.com/app/uploads/2025/12/Shaping-Strands-with-Neural-Style-Transfer-Image-400x250.jpg",
-  disneyResearchAvatar: "https://studios.disneyresearch.com/app/uploads/2026/04/FastGHA-Generalized-Few-Shot-3D-Gaussian-Head-Avatars-with-Real-Time-Animation--400x250.png",
+  disneyRig: "https://studios.disneyresearch.com/app/uploads/2026/03/CANRIG-Cross-Attention-Neural-Face-Rigging-with-Variable-Local-Control-Image-400x250.png",
+  disneyAvatar: "https://studios.disneyresearch.com/app/uploads/2026/04/FastGHA-Generalized-Few-Shot-3D-Gaussian-Head-Avatars-with-Real-Time-Animation--400x250.png",
+  disneyMotion: "https://studios.disneyresearch.com/app/uploads/2025/12/Shaping-Strands-with-Neural-Style-Transfer-Image-400x250.jpg",
+  disneyDiffusion: "https://studios.disneyresearch.com/app/uploads/2026/04/HIGS-History-Guided-Sampling-for-Diffusion-Models-Image-400x250.jpg",
   mitInform: "https://dam-prod.media.mit.edu/thumb/files/Display/inform.jpg.1400x1400.jpg",
   cmuRobotics: "https://www.ri.cmu.edu/app/uploads/2021/12/iris-integrstion-still-1-scaled.jpg",
 };
 
+function yt(id) {
+  return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+}
+
 const seedItems = [
+  {
+    id: "wdi-robotics-video",
+    title: "WDI robotics episode",
+    source: "Walt Disney Imagineering",
+    board: "Disney",
+    kind: "video",
+    videoId: "IuQPrGLo0QM",
+    image: yt("IuQPrGLo0QM"),
+    url: "https://disneyparksblog.com/disney-experiences/stories-in-motion-we-call-it-imagineering-episode-3-debuts/",
+    summary: "Robotics, characters, control, motion, and the studio logic behind machines that feel alive.",
+    tags: ["Disney", "robotics", "animatronics", "characters"],
+    shape: "hero",
+  },
   {
     id: "wdi-projects",
     title: "WDI project archive",
     source: "Walt Disney Imagineering",
     board: "Disney",
     kind: "built worlds",
-    url: "https://sites.disney.com/waltdisneyimagineering/our-projects/",
     image: sourceImages.wdiCampus,
-    summary: "Attractions, physical storytelling, show systems, environments, character work, and public-scale invention.",
+    url: "https://sites.disney.com/waltdisneyimagineering/our-projects/",
+    summary: "A source board for attractions, show systems, physical storytelling, ride media, and public-scale invention.",
     tags: ["Disney", "Imagineering", "show systems", "physical worlds"],
-    size: "feature",
+    shape: "wide",
   },
   {
-    id: "wdi-culture",
-    title: "Inside Imagineering",
-    source: "Walt Disney Imagineering",
+    id: "imagineering-series",
+    title: "We Call It Imagineering",
+    source: "The Walt Disney Company",
     board: "Disney",
-    kind: "creative engineering",
-    url: "https://sites.disney.com/waltdisneyimagineering/our-culture/",
-    image: sourceImages.wdiCulture,
-    summary: "The people, culture, and creative-technical language behind WDI work.",
-    tags: ["Disney", "creative technology", "R&D", "teams"],
-    size: "wide",
+    kind: "video",
+    videoId: "uof_fMbGyIM",
+    image: yt("uof_fMbGyIM"),
+    url: "https://thewaltdisneycompany.com/we-call-it-imagineering-disney-youtube-series/",
+    summary: "A direct lane into how Disney frames creative technology, systems, and the people who build experiences.",
+    tags: ["Disney", "creative technology", "WDI", "process"],
+    shape: "tall",
+  },
+  {
+    id: "animatronics-video",
+    title: "Audio-Animatronics",
+    source: "Disney Parks",
+    board: "Disney",
+    kind: "video",
+    videoId: "1e1R2vUORGI",
+    image: yt("1e1R2vUORGI"),
+    url: "https://www.youtube.com/watch?v=1e1R2vUORGI",
+    summary: "Physical characters, motion design, timing, mechanisms, and the hard engineering hidden inside performance.",
+    tags: ["Disney", "animatronics", "mechanisms", "performance"],
+    shape: "standard",
   },
   {
     id: "wdi-neverland",
     title: "Fantasy Springs / Never Land",
     source: "Walt Disney Imagineering",
     board: "Disney",
-    kind: "immersive worlds",
-    url: "https://sites.disney.com/waltdisneyimagineering/our-projects/",
+    kind: "immersive world",
     image: sourceImages.wdiNeverland,
+    url: "https://sites.disney.com/waltdisneyimagineering/our-projects/",
     summary: "Large-scale scenic systems, environmental design, and the technical work that disappears into wonder.",
     tags: ["Disney", "immersive design", "worldbuilding", "experience"],
-    size: "tall",
+    shape: "tall",
   },
   {
     id: "wdi-webslingers",
@@ -57,165 +91,195 @@ const seedItems = [
     source: "Walt Disney Imagineering",
     board: "Disney",
     kind: "interactive attraction",
-    url: "https://sites.disney.com/waltdisneyimagineering/our-projects/",
     image: sourceImages.wdiWebslingers,
-    summary: "Gesture, sensing, ride media, interaction design, and guest-facing technical systems.",
+    url: "https://sites.disney.com/waltdisneyimagineering/our-projects/",
+    summary: "Gesture, sensing, media, interaction design, and guest-facing technical systems.",
     tags: ["Disney", "interaction", "sensing", "show tech"],
-    size: "wide",
+    shape: "wide",
   },
   {
-    id: "disney-research-publications",
+    id: "disney-robotics-talk",
+    title: "Disney robotics conversation",
+    source: "TechCrunch Sessions",
+    board: "Disney",
+    kind: "video",
+    videoId: "Ag9I-EstzXY",
+    image: yt("Ag9I-EstzXY"),
+    url: "https://www.youtube.com/watch?v=Ag9I-EstzXY",
+    summary: "A useful outside view into Disney robotics: characters, believability, constraints, and interaction.",
+    tags: ["Disney", "robotics", "characters", "R&D"],
+    shape: "standard",
+  },
+  {
+    id: "disney-publications",
     title: "Disney Research publications",
     source: "Disney Research Studios",
     board: "Disney Research",
     kind: "research feed",
+    image: sourceImages.disneyRig,
     url: "https://studios.disneyresearch.com/publications/",
-    image: sourceImages.disneyResearchRig,
     summary: "Characters, animation, geometry, simulation, creative tools, and visual systems from a real studio research lab.",
     tags: ["Disney Research", "characters", "tools", "simulation"],
-    size: "feature",
+    shape: "hero",
   },
   {
-    id: "disney-research-motion",
-    title: "Precise motion control",
-    source: "Disney Research Studios",
-    board: "Disney Research",
-    kind: "motion systems",
-    url: "https://studios.disneyresearch.com/publications/",
-    image: sourceImages.disneyResearchMotion,
-    summary: "Motion models and control ideas that connect animation, robotics, timing, and expressive physical behavior.",
-    tags: ["motion", "control", "characters", "simulation"],
-    size: "standard",
-  },
-  {
-    id: "disney-research-avatars",
+    id: "disney-avatar",
     title: "Real-time animated avatars",
     source: "Disney Research Studios",
     board: "Disney Research",
-    kind: "characters",
+    kind: "paper",
+    image: sourceImages.disneyAvatar,
     url: "https://studios.disneyresearch.com/publications/",
-    image: sourceImages.disneyResearchAvatar,
-    summary: "A reminder that creative R&D can be faces, performance, tools, robotics, graphics, or something between them.",
+    summary: "A reminder that creative R&D can be faces, performance, tools, graphics, robotics, or a weird overlap.",
     tags: ["avatars", "animation", "tools", "performance"],
-    size: "standard",
+    shape: "standard",
   },
   {
-    id: "mit-inform",
+    id: "disney-motion",
+    title: "Expressive motion systems",
+    source: "Disney Research Studios",
+    board: "Disney Research",
+    kind: "paper",
+    image: sourceImages.disneyMotion,
+    url: "https://studios.disneyresearch.com/publications/",
+    summary: "Motion, timing, simulation, and control ideas that can translate into physical characters and interfaces.",
+    tags: ["motion", "control", "simulation", "characters"],
+    shape: "standard",
+  },
+  {
+    id: "disney-generative",
+    title: "Creative generation tools",
+    source: "Disney Research Studios",
+    board: "Disney Research",
+    kind: "paper",
+    image: sourceImages.disneyDiffusion,
+    url: "https://studios.disneyresearch.com/publications/",
+    summary: "Study how serious labs turn generative tools into production-quality creative systems.",
+    tags: ["tools", "generation", "creative systems", "research"],
+    shape: "wide",
+  },
+  {
+    id: "mit-inform-video",
     title: "inFORM shape display",
     source: "MIT Media Lab",
-    board: "Tangible Interfaces",
-    kind: "programmable matter",
+    board: "Tangible",
+    kind: "video",
+    videoId: "lvtfD_rJ2hE",
+    image: yt("lvtfD_rJ2hE"),
     url: "https://www.media.mit.edu/projects/inform/overview/",
-    image: sourceImages.mitInform,
-    summary: "A physical display that changes shape. This is the exact kind of weird bridge between code, matter, and interaction worth studying.",
+    summary: "A dynamic shape display: computation made physical, visible, responsive, and strange.",
     tags: ["programmable matter", "shape display", "tangible media", "interaction"],
-    size: "feature",
+    shape: "hero",
   },
   {
-    id: "tangible-media",
+    id: "mit-inform-image",
     title: "Tangible Media Group",
     source: "MIT Media Lab",
-    board: "Tangible Interfaces",
+    board: "Tangible",
     kind: "lab",
-    url: "https://tangible.media.mit.edu/",
     image: sourceImages.mitInform,
-    summary: "A lab orbit for shape displays, interfaces, materials, and computationally expressive physical things.",
+    url: "https://tangible.media.mit.edu/",
+    summary: "A lab orbit for shape displays, materials, interfaces, and physical-digital systems.",
     tags: ["MIT", "interfaces", "materials", "design"],
-    size: "wide",
+    shape: "wide",
   },
   {
     id: "cmu-ri",
     title: "CMU Robotics Institute",
     source: "Carnegie Mellon University",
-    board: "Robotics Labs",
-    kind: "robotics lab",
-    url: "https://www.ri.cmu.edu/",
+    board: "Robotics",
+    kind: "lab",
     image: sourceImages.cmuRobotics,
-    summary: "A broad robotics feed for mechanisms, HRI, perception, field robots, manipulation, and applied research taste.",
+    url: "https://www.ri.cmu.edu/",
+    summary: "A broad robotics feed: mechanisms, HRI, manipulation, perception, field robots, and applied research taste.",
     tags: ["robotics", "HRI", "mechanisms", "research"],
-    size: "feature",
+    shape: "wide",
+  },
+  {
+    id: "rai-institute",
+    title: "Physical intelligence",
+    source: "The AI Institute",
+    board: "Robotics",
+    kind: "lab",
+    url: "https://rai-inst.com/",
+    summary: "Robot learning, manipulation, physical intelligence, and the discipline of building systems that touch reality.",
+    tags: ["robotics", "embodied AI", "learning", "systems"],
+    shape: "standard",
+  },
+  {
+    id: "jpl-robotics",
+    title: "JPL robotics",
+    source: "NASA JPL",
+    board: "Robotics",
+    kind: "field systems",
+    url: "https://www.jpl.nasa.gov/robotics-at-jpl/",
+    summary: "Robots that survive messy reality: mechanisms, sensing, autonomy, testing, constraints, and reliability.",
+    tags: ["robotics", "field systems", "autonomy", "mechanisms"],
+    shape: "standard",
   },
   {
     id: "stanford-charm",
     title: "Stanford CHARM Lab",
     source: "Stanford",
     board: "Haptics",
-    kind: "human-robot interaction",
+    kind: "lab",
     url: "https://charm.stanford.edu/",
     summary: "Haptics, physical interaction, touch, robot-human interfaces, and systems that make interaction feel real.",
     tags: ["haptics", "HRI", "touch", "interfaces"],
-    size: "standard",
+    shape: "tall",
   },
   {
     id: "harvard-wyss",
-    title: "Wyss soft robotic systems",
+    title: "Soft robotic exosuit",
     source: "Harvard Wyss Institute",
     board: "Soft Robotics",
-    kind: "bioinspired systems",
+    kind: "soft robotics",
     url: "https://wyss.harvard.edu/technology/soft-robotic-exosuit/",
     summary: "Soft structures, wearable assistance, fabric-like actuation, and bioinspired design discipline.",
     tags: ["soft robotics", "wearables", "actuation", "bioinspired"],
-    size: "standard",
+    shape: "standard",
   },
   {
-    id: "jpl-robotics",
-    title: "JPL robotics",
-    source: "NASA JPL",
-    board: "Robotics Labs",
-    kind: "field systems",
-    url: "https://www.jpl.nasa.gov/robotics-at-jpl/",
-    summary: "Robots that survive messy reality: mechanisms, sensing, autonomy, testing, constraints, and reliability.",
-    tags: ["robotics", "field systems", "autonomy", "mechanisms"],
-    size: "wide",
-  },
-  {
-    id: "rai-institute",
-    title: "RAI Institute",
-    source: "The AI Institute",
-    board: "Robotics Labs",
-    kind: "physical intelligence",
-    url: "https://rai-inst.com/",
-    summary: "A serious adjacent lane for learning embodied intelligence, robot learning, manipulation, and real-world systems.",
-    tags: ["robotics", "embodied AI", "learning", "systems"],
-    size: "standard",
-  },
-  {
-    id: "meta-reality-labs",
+    id: "meta-rl",
     title: "Reality Labs research",
     source: "Meta",
-    board: "XR + Haptics",
+    board: "Haptics",
     kind: "interfaces",
     url: "https://www.metacareers.com/jobs/?q=Reality%20Labs%20robotics%20haptics%20research%20scientist",
-    summary: "Useful for spatial computing, haptics, wearables, sensing, and human-centered hardware research.",
+    summary: "Spatial computing, haptics, wearables, sensing, and human-centered hardware research.",
     tags: ["XR", "haptics", "wearables", "interfaces"],
-    size: "standard",
+    shape: "wide",
   },
   {
-    id: "learn-by-building",
-    title: "Build the thing you wish existed",
+    id: "portfolio-proof",
+    title: "Make one visible proof",
     source: "Ocean lens",
-    board: "Making",
-    kind: "practice",
-    summary: "One tiny prototype. One short clip. One measurement. One clearer page. Keep turning curiosity into visible artifacts.",
-    tags: ["portfolio", "learning", "prototype", "practice"],
-    size: "wide",
+    board: "Labs",
+    kind: "build prompt",
+    summary: "One tiny prototype. One short clip. One measurement. One clearer page. Turn curiosity into evidence.",
+    tags: ["portfolio", "prototype", "research scientist", "practice"],
+    shape: "standard",
   },
 ];
 
-let radar = {
-  updatedAt: null,
-  items: [],
-  sourceStatus: [],
-  error: null,
-  loading: true,
-};
+let radar = { updatedAt: null, items: [], error: null, loading: true };
+let activeFilter = "All";
+let query = "";
+let selectedId = new URLSearchParams(location.search).get("item");
+let actionNote = "";
+let savedIds = loadSaved();
 
-let boardStack = [{
-  title: "Ocean",
-  subtitle: "Disney Imagineering, research labs, robotics, haptics, soft materials, tangible interfaces, and other work worth learning.",
-  filter: "All",
-  focusId: null,
-}];
+function loadSaved() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(savedKey) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function persistSaved() {
+  localStorage.setItem(savedKey, JSON.stringify([...savedIds]));
+}
 
 function esc(value) {
   return String(value ?? "")
@@ -226,20 +290,16 @@ function esc(value) {
 }
 
 function slug(value) {
-  return String(value || "item")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 70) || "item";
+  return String(value || "item").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 70) || "item";
 }
 
-function pickAccent(item, index) {
-  if (item.accent) return item.accent;
+function accentFor(item, index) {
   const text = `${item.board || ""} ${item.source || ""} ${item.title || ""}`.toLowerCase();
-  if (text.includes("disney")) return "#86e7d4";
-  if (text.includes("robot")) return "#75baff";
-  if (text.includes("haptic") || text.includes("tactile")) return "#f2c263";
-  if (text.includes("soft") || text.includes("material")) return "#ff9fb2";
+  if (text.includes("disney")) return "#75f0d0";
+  if (text.includes("robot")) return "#73b8ff";
+  if (text.includes("haptic") || text.includes("tactile")) return "#f5c45f";
+  if (text.includes("soft") || text.includes("material")) return "#ff91a8";
+  if (text.includes("tangible")) return "#b69cff";
   return palette[index % palette.length];
 }
 
@@ -268,17 +328,26 @@ function inferTags(item) {
   return tags.slice(0, 5);
 }
 
+function imageForLiveItem(item, index) {
+  const text = `${item.source || ""} ${item.title || ""}`.toLowerCase();
+  if (text.includes("disney research")) return [sourceImages.disneyRig, sourceImages.disneyAvatar, sourceImages.disneyMotion, sourceImages.disneyDiffusion][index % 4];
+  if (text.includes("disney") || text.includes("imagineering")) return [sourceImages.wdiCampus, sourceImages.wdiWebslingers, sourceImages.wdiNeverland, sourceImages.wdiCulture][index % 4];
+  if (text.includes("mit") || text.includes("tangible") || text.includes("shape")) return sourceImages.mitInform;
+  if (text.includes("cmu") || text.includes("robot")) return sourceImages.cmuRobotics;
+  return [sourceImages.mitInform, sourceImages.cmuRobotics, sourceImages.disneyRig, sourceImages.wdiCulture][index % 4];
+}
+
 function normalizeRemoteItem(item, index) {
-  const title = item.title || "Untitled signal";
-  const source = item.source || item.type || "Live source";
   const tags = Array.isArray(item.topics) ? item.topics : inferTags(item);
+  const title = item.title || "Live research signal";
+  const source = item.source || item.type || "Live source";
   const text = `${source} ${title} ${tags.join(" ")}`.toLowerCase();
-  let board = item.board || "Research Feed";
+  let board = item.board || "Labs";
   if (text.includes("disney") || text.includes("wdi")) board = "Disney";
-  if (text.includes("arxiv")) board = "Research Feed";
   if (text.includes("haptic") || text.includes("tactile")) board = "Haptics";
   if (text.includes("soft robot") || text.includes("material")) board = "Soft Robotics";
-  if (text.includes("robot") && !text.includes("soft robot")) board = "Robotics Labs";
+  if (text.includes("robot") && !text.includes("soft robot")) board = "Robotics";
+  if (text.includes("tangible") || text.includes("shape")) board = "Tangible";
   return {
     id: `live-${slug(title)}-${index}`,
     title,
@@ -286,23 +355,13 @@ function normalizeRemoteItem(item, index) {
     board,
     kind: item.type || "live signal",
     date: item.date || "",
-    location: item.location || "",
     url: item.url || "",
     image: item.image || imageForLiveItem(item, index),
     summary: item.summary || item.why || "Fresh signal from the live Ocean feed.",
     tags: tags.length ? tags.slice(0, 5) : inferTags(item),
-    size: index % 5 === 0 ? "wide" : "standard",
+    shape: index % 7 === 0 ? "wide" : "standard",
     live: true,
   };
-}
-
-function imageForLiveItem(item, index) {
-  const text = `${item.source || ""} ${item.title || ""}`.toLowerCase();
-  if (text.includes("disney research")) return [sourceImages.disneyResearchRig, sourceImages.disneyResearchAvatar, sourceImages.disneyResearchMotion][index % 3];
-  if (text.includes("disney") || text.includes("imagineering")) return [sourceImages.wdiCampus, sourceImages.wdiWebslingers, sourceImages.wdiNeverland][index % 3];
-  if (text.includes("mit") || text.includes("tangible")) return sourceImages.mitInform;
-  if (text.includes("cmu") || text.includes("robot")) return sourceImages.cmuRobotics;
-  return "";
 }
 
 function allItems() {
@@ -315,241 +374,241 @@ function allItems() {
     return true;
   }).map((item, index) => ({
     ...item,
-    accent: pickAccent(item, index),
+    accent: item.accent || accentFor(item, index),
+    saved: savedIds.has(item.id),
   }));
 }
 
-function currentBoard() {
-  return boardStack[boardStack.length - 1];
-}
-
-function filteredItems() {
-  const board = currentBoard();
+function visibleItems() {
   const items = allItems();
-  if (board.items) return board.items;
-  if (!board.filter || board.filter === "All") return items;
+  const q = query.trim().toLowerCase();
   return items.filter((item) => {
-    const haystack = `${item.board} ${item.source} ${item.title} ${(item.tags || []).join(" ")}`.toLowerCase();
-    return haystack.includes(board.filter.toLowerCase());
+    if (activeFilter === "Saved" && !savedIds.has(item.id)) return false;
+    if (activeFilter !== "All" && activeFilter !== "Saved") {
+      const boardText = `${item.board} ${item.tags?.join(" ")}`.toLowerCase();
+      if (!boardText.includes(activeFilter.toLowerCase())) return false;
+    }
+    if (!q) return true;
+    return `${item.title} ${item.source} ${item.board} ${item.summary} ${(item.tags || []).join(" ")}`.toLowerCase().includes(q);
   });
 }
 
 function findItem(id) {
-  return allItems().find((item) => item.id === id) || boardStack.flatMap((board) => board.items || []).find((item) => item.id === id);
+  return allItems().find((item) => item.id === id);
 }
 
-function overlapScore(a, b) {
-  const aTags = new Set([a.board, ...(a.tags || [])].map((tag) => String(tag).toLowerCase()));
-  const bTags = [b.board, ...(b.tags || [])].map((tag) => String(tag).toLowerCase());
-  return bTags.reduce((score, tag) => score + (aTags.has(tag) ? 1 : 0), 0);
-}
-
-function lensCards(item) {
-  const baseTags = item.tags || [];
-  return [
-    {
-      id: `lens-mechanisms-${item.id}`,
-      title: `${item.title}: mechanisms`,
-      source: "Ocean lens",
-      board: item.board,
-      kind: "study path",
-      summary: "Look for actuators, sensors, constraints, controls, fabrication choices, and what makes the system reliable.",
-      tags: ["mechanisms", "controls", ...baseTags].slice(0, 5),
-      size: "standard",
-      accent: "#f2c263",
-    },
-    {
-      id: `lens-portfolio-${item.id}`,
-      title: `${item.title}: portfolio angle`,
-      source: "Ocean lens",
-      board: "Making",
-      kind: "build prompt",
-      summary: "Turn the idea into a small visible artifact: a clip, a prototype, a teardown, a measurement, or a clean one-page note.",
-      tags: ["portfolio", "prototype", ...baseTags].slice(0, 5),
-      size: "wide",
-      accent: "#80e0b1",
-    },
-    {
-      id: `lens-people-${item.id}`,
-      title: `${item.title}: who does this work`,
-      source: "Ocean lens",
-      board: item.board,
-      kind: "career map",
-      summary: "Map the roles around it: research scientist, creative technologist, show systems engineer, technical artist, roboticist, designer.",
-      tags: ["career", "roles", ...baseTags].slice(0, 5),
-      size: "standard",
-      accent: "#d49dff",
-    },
-  ];
-}
-
-function relatedBoard(item) {
-  const items = allItems()
-    .filter((candidate) => candidate.id !== item.id)
-    .map((candidate) => ({ candidate, score: overlapScore(item, candidate) }))
-    .sort((a, b) => b.score - a.score)
-    .map((row) => row.candidate);
-  return [...lensCards(item), ...items].slice(0, 18);
-}
-
-function formatUpdated(value) {
-  if (!value) return radar.loading ? "refreshing" : "local board";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "updated";
-  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-}
-
-function tileMedia(item, index) {
-  const fallback = `<div class="generated-art" aria-hidden="true"><span>${esc((item.board || item.source || "Ocean").slice(0, 2).toUpperCase())}</span></div>`;
-  if (!item.image) return fallback;
-  return `<img src="${esc(item.image)}" alt="" loading="lazy" onerror="if (this.parentElement) this.parentElement.classList.add('media-failed'); this.remove();">`;
-}
-
-function renderTags(tags = []) {
-  return tags.slice(0, 4).map((tag) => `<span>${esc(tag)}</span>`).join("");
-}
-
-function renderTile(item, index) {
-  const size = item.size || (index % 9 === 0 ? "wide" : index % 7 === 0 ? "tall" : "standard");
-  const date = item.date ? `<span>${esc(item.date)}</span>` : "";
-  const sourceLink = item.url
-    ? `<a class="source-link" href="${esc(item.url)}" target="_blank" rel="noopener">source</a>`
-    : "";
+function mediaMarkup(item, mode = "tile") {
+  const image = item.image || "";
+  const fallback = `<div class="generated-media"><span>${esc((item.board || item.source || "O").slice(0, 2).toUpperCase())}</span></div>`;
+  const poster = image
+    ? `<img src="${esc(image)}" alt="" loading="${mode === "tile" ? "lazy" : "eager"}" onerror="this.remove();">`
+    : fallback;
+  if (!item.videoId) return poster;
+  const controls = mode === "detail" ? "1" : "0";
+  const src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${encodeURIComponent(item.videoId)}&controls=${controls}&modestbranding=1&rel=0&iv_load_policy=3`;
   return `
-    <article class="tile tile-${esc(size)}" data-action="open" data-id="${esc(item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)}">
-      <div class="tile-media">
-        ${tileMedia(item, index)}
-        <div class="tile-wash"></div>
-        <div class="tile-kind">${esc(item.kind || item.board || "signal")}</div>
+    ${poster}
+    <iframe class="video-frame" src="${src}" title="${esc(item.title)}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    ${mode === "tile" ? '<span class="video-badge">video</span><span class="tap-shield" aria-hidden="true"></span>' : ""}
+  `;
+}
+
+function shapeFor(item, index) {
+  if (item.shape) return item.shape;
+  if (item.videoId) return index % 2 ? "wide" : "hero";
+  return ["standard", "tall", "wide", "standard", "small"][index % 5];
+}
+
+function renderTile(item, index, compact = false) {
+  return `
+    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)}">
+      <div class="media-frame">${mediaMarkup(item)}</div>
+      <div class="media-gradient"></div>
+      <div class="media-label">
+        <span>${esc(item.source)}</span>
+        <strong>${esc(item.title)}</strong>
       </div>
-      <div class="tile-body">
-        <div class="tile-source">
-          <span>${esc(item.source || "Ocean")}</span>
-          ${date}
-        </div>
-        <h2>${esc(item.title)}</h2>
-        <p>${esc(item.summary || "")}</p>
-        <div class="tile-bottom">
-          <div class="tag-row">${renderTags(item.tags)}</div>
-          ${sourceLink}
-        </div>
-      </div>
+      ${savedIds.has(item.id) ? '<div class="saved-dot">saved</div>' : ""}
     </article>
   `;
 }
 
-function renderFocus(item) {
+function overlapScore(a, b) {
+  const aTags = new Set([a.board, ...(a.tags || [])].map((tag) => String(tag).toLowerCase()));
+  return [b.board, ...(b.tags || [])].reduce((score, tag) => score + (aTags.has(String(tag).toLowerCase()) ? 1 : 0), 0);
+}
+
+function buildPromptsFor(item) {
+  const tags = item.tags || [];
+  return [
+    {
+      id: `prompt-build-${item.id}`,
+      title: "Build a tiny proof",
+      source: "Ocean lens",
+      board: item.board,
+      kind: "build prompt",
+      summary: `Make a 20-second artifact inspired by ${item.title}: one mechanism, one motion, one measurement, or one diagram.`,
+      tags: ["prototype", "portfolio", ...tags].slice(0, 5),
+      shape: "standard",
+      accent: "#7ee2b8",
+    },
+    {
+      id: `prompt-study-${item.id}`,
+      title: "Steal the vocabulary",
+      source: "Ocean lens",
+      board: item.board,
+      kind: "study prompt",
+      summary: "Extract the serious nouns: mechanism, sensor, rig, audience, constraint, failure mode, control loop, pipeline.",
+      tags: ["research scientist", "language", ...tags].slice(0, 5),
+      shape: "standard",
+      accent: "#f5c45f",
+    },
+  ];
+}
+
+function similarItems(item) {
+  const ranked = allItems()
+    .filter((candidate) => candidate.id !== item.id)
+    .map((candidate) => ({ candidate, score: overlapScore(item, candidate) }))
+    .sort((a, b) => b.score - a.score)
+    .map((row) => row.candidate);
+  return [...ranked.slice(0, 12), ...buildPromptsFor(item)].slice(0, 14);
+}
+
+function tagRow(tags = []) {
+  return tags.slice(0, 5).map((tag) => `<span>${esc(tag)}</span>`).join("");
+}
+
+function selectedItem() {
+  return selectedId ? findItem(selectedId) : null;
+}
+
+function renderDetail(item) {
+  if (!item) return "";
+  const related = similarItems(item);
   const source = item.url
-    ? `<a class="focus-source" href="${esc(item.url)}" target="_blank" rel="noopener">Open source</a>`
+    ? `<a class="action-pill primary" href="${esc(item.url)}" target="_blank" rel="noopener">source</a>`
     : "";
   return `
-    <section class="focus-card" style="--accent:${esc(item.accent || "#74d4ff")}">
-      <div class="focus-media">
-        ${tileMedia(item, 0)}
+    <aside class="detail-panel" aria-label="Selected media" style="--accent:${esc(item.accent)}">
+      <div class="detail-top">
+        <button class="icon-button" data-action="close" aria-label="Close">x</button>
+        <div>
+          <span>${esc(item.source)}</span>
+          <strong>${esc(item.title)}</strong>
+        </div>
       </div>
-      <div class="focus-copy">
-        <div class="eyebrow">${esc(item.source || item.board || "Ocean")}</div>
-        <h1>${esc(item.title)}</h1>
+      <div class="detail-media">${mediaMarkup(item, "detail")}</div>
+      <div class="detail-copy">
         <p>${esc(item.summary || "")}</p>
-        <div class="tag-row">${renderTags(item.tags)}</div>
-        ${source}
+        <div class="tag-row">${tagRow(item.tags)}</div>
       </div>
-    </section>
+      <div class="detail-actions">
+        ${source}
+        <button class="action-pill" data-action="save" data-id="${esc(item.id)}">${savedIds.has(item.id) ? "saved" : "save"}</button>
+        <button class="action-pill" data-action="share" data-id="${esc(item.id)}">share</button>
+      </div>
+      ${actionNote ? `<div class="action-note">${esc(actionNote)}</div>` : ""}
+      <div class="similar-head">similar</div>
+      <section class="similar-grid">
+        ${related.map((entry, index) => renderTile(entry, index, true)).join("")}
+      </section>
+    </aside>
   `;
 }
 
-function renderBoardNav() {
-  const filters = ["All", "Disney", "Disney Research", "Robotics", "Haptics", "Soft Robotics", "Tangible", "Making"];
-  return filters.map((filter) => {
-    const active = currentBoard().filter === filter && boardStack.length === 1;
-    return `<button class="nav-chip ${active ? "is-active" : ""}" data-action="filter" data-filter="${esc(filter)}">${esc(filter)}</button>`;
-  }).join("");
+function formatUpdated(value) {
+  if (!value) return radar.loading ? "refreshing" : "offline";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "updated" : date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
-function renderBreadcrumbs() {
-  return boardStack.map((board, index) => {
-    const isLast = index === boardStack.length - 1;
-    return `<button class="crumb ${isLast ? "is-current" : ""}" data-action="jump" data-index="${index}">${esc(board.title)}</button>`;
-  }).join("");
+function renderFilters() {
+  return filters.map((filter) => `
+    <button class="filter-chip ${activeFilter === filter ? "is-active" : ""}" data-action="filter" data-filter="${esc(filter)}">
+      ${esc(filter)}
+    </button>
+  `).join("");
 }
 
 function render() {
-  const board = currentBoard();
-  const focus = board.focusId ? findItem(board.focusId) : null;
-  const items = filteredItems();
+  const items = visibleItems();
   app.innerHTML = `
-    <main class="ocean-shell">
-      <header class="topbar">
-        <div class="brand-block">
-          <button class="brand-mark" data-action="home" aria-label="Ocean home">O</button>
-          <div>
-            <div class="brand-title">ocean.aolabs.io</div>
-            <div class="crumb-row">${renderBreadcrumbs()}</div>
-          </div>
-        </div>
-        <nav class="filter-row" aria-label="Boards">
-          ${renderBoardNav()}
-        </nav>
-        <div class="top-actions">
-          <span class="update-pill">${esc(formatUpdated(radar.updatedAt))}</span>
-          <button class="refresh-button" data-action="refresh">${radar.loading ? "Refreshing" : "Refresh"}</button>
-        </div>
+    <main class="media-app ${selectedId ? "has-detail" : ""}">
+      <header class="media-toolbar">
+        <button class="brand" data-action="home" aria-label="Ocean home">Ocean</button>
+        <label class="search-box">
+          <span>search</span>
+          <input value="${esc(query)}" data-action="query" placeholder="Disney robotics, haptics, soft robotics...">
+        </label>
+        <nav class="filter-strip" aria-label="Media filters">${renderFilters()}</nav>
+        <button class="refresh" data-action="refresh">${radar.loading ? "refreshing" : formatUpdated(radar.updatedAt)}</button>
       </header>
-
-      <section class="board-heading">
-        <div>
-          <p class="eyebrow">${esc(board.filter || focus?.board || "Ocean")}</p>
-          <h1>${esc(board.title)}</h1>
-        </div>
-        <p>${esc(board.subtitle || "Visual sources for learning what is possible in creative R&D.")}</p>
+      <section class="media-wall" aria-label="Ocean media results">
+        ${items.map((item, index) => renderTile(item, index)).join("")}
       </section>
-
-      ${focus ? renderFocus(focus) : ""}
-
-      <section class="mosaic" aria-label="Research board">
-        ${items.map(renderTile).join("")}
-      </section>
-
-      ${radar.error ? `<div class="feed-note">Some live sources are rate-limited right now. The curated board is still available.</div>` : ""}
+      ${items.length === 0 ? '<section class="empty-state">Nothing saved or matched yet.</section>' : ""}
+      ${radar.error ? '<div class="source-warning">Live sources are partly rate-limited; curated media is still loaded.</div>' : ""}
+      ${renderDetail(selectedItem())}
     </main>
   `;
 }
 
-function openTile(id) {
-  const item = findItem(id);
-  if (!item) return;
-  boardStack.push({
-    title: item.title,
-    subtitle: item.summary || "Related sources and next things to study.",
-    filter: item.board || "All",
-    focusId: item.id,
-    items: relatedBoard(item),
-  });
+function openItem(id) {
+  selectedId = id;
+  actionNote = "";
+  history.replaceState(null, "", `?item=${encodeURIComponent(id)}`);
   render();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function closeDetail() {
+  selectedId = null;
+  actionNote = "";
+  history.replaceState(null, "", location.pathname);
+  render();
 }
 
 function setFilter(filter) {
-  boardStack = [{
-    title: filter === "All" ? "Ocean" : filter,
-    subtitle: filter === "All"
-      ? "Disney Imagineering, research labs, robotics, haptics, soft materials, tangible interfaces, and other work worth learning."
-      : `A focused board for ${filter.toLowerCase()} signals.`,
-    filter,
-    focusId: null,
-  }];
+  activeFilter = filter;
+  selectedId = null;
+  history.replaceState(null, "", location.pathname);
   render();
 }
 
-function jumpTo(index) {
-  const target = Number(index);
-  if (Number.isNaN(target)) return;
-  boardStack = boardStack.slice(0, Math.max(1, target + 1));
+function toggleSave(id) {
+  if (savedIds.has(id)) {
+    savedIds.delete(id);
+    actionNote = "Removed from saved.";
+  } else {
+    savedIds.add(id);
+    actionNote = "Saved locally.";
+  }
+  persistSaved();
+  render();
+}
+
+async function shareItem(id) {
+  const item = findItem(id);
+  if (!item) return;
+  const url = item.url || location.href;
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: item.title, text: item.summary || item.source, url });
+      actionNote = "Shared.";
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      actionNote = "Source link copied.";
+    } else {
+      actionNote = url;
+    }
+  } catch {
+    actionNote = "Share cancelled.";
+  }
   render();
 }
 
 async function loadRadar(force = false) {
-  radar.loading = true;
+  radar = { ...radar, loading: true };
   render();
   try {
     const response = await fetch(`/api/radar${force ? "?force=1" : ""}`, { cache: "no-store" });
@@ -563,13 +622,11 @@ async function loadRadar(force = false) {
 }
 
 function home() {
-  boardStack = [boardStack[0]];
-  boardStack[0] = {
-    title: "Ocean",
-    subtitle: "Disney Imagineering, research labs, robotics, haptics, soft materials, tangible interfaces, and other work worth learning.",
-    filter: "All",
-    focusId: null,
-  };
+  activeFilter = "All";
+  query = "";
+  selectedId = null;
+  actionNote = "";
+  history.replaceState(null, "", location.pathname);
   render();
 }
 
@@ -578,19 +635,36 @@ document.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   if (!target) return;
   const action = target.dataset.action;
-  if (action === "open") openTile(target.dataset.id);
+  if (action === "open") openItem(target.dataset.id);
+  if (action === "close") closeDetail();
   if (action === "filter") setFilter(target.dataset.filter);
-  if (action === "jump") jumpTo(target.dataset.index);
-  if (action === "home") home();
+  if (action === "save") toggleSave(target.dataset.id);
+  if (action === "share") shareItem(target.dataset.id);
   if (action === "refresh") loadRadar(true);
+  if (action === "home") home();
+});
+
+document.addEventListener("input", (event) => {
+  if (event.target.dataset.action !== "query") return;
+  query = event.target.value;
+  render();
+  const input = document.querySelector("[data-action='query']");
+  if (input) {
+    input.focus();
+    input.setSelectionRange(query.length, query.length);
+  }
 });
 
 document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && selectedId) {
+    closeDetail();
+    return;
+  }
   const target = event.target.closest("[data-action='open']");
   if (!target) return;
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
-    openTile(target.dataset.id);
+    openItem(target.dataset.id);
   }
 });
 
