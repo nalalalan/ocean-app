@@ -1,6 +1,5 @@
 const app = document.getElementById("app");
 
-const savedKey = "ocean.saved.v2";
 const palette = ["#64d8ff", "#7ee2b8", "#f5c45f", "#ca9cff", "#ff8da1", "#8fb7ff", "#76e6dd"];
 
 const sourceImages = {
@@ -264,20 +263,6 @@ const seedItems = [
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
 let transitionId = selectedId;
-let actionNote = "";
-let savedIds = loadSaved();
-
-function loadSaved() {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(savedKey) || "[]"));
-  } catch {
-    return new Set();
-  }
-}
-
-function persistSaved() {
-  localStorage.setItem(savedKey, JSON.stringify([...savedIds]));
-}
 
 function esc(value) {
   return String(value ?? "")
@@ -402,7 +387,6 @@ function allItems() {
   }).map((item, index) => ({
     ...item,
     accent: item.accent || accentFor(item, index),
-    saved: savedIds.has(item.id),
   }));
 }
 
@@ -446,7 +430,6 @@ function renderTile(item, index, compact = false) {
         <span>${esc(item.source)}</span>
         <strong>${esc(item.title)}</strong>
       </div>
-      ${savedIds.has(item.id) ? '<div class="saved-dot">saved</div>' : ""}
     </article>
   `;
 }
@@ -485,7 +468,6 @@ function renderDetail(item) {
           <span>${esc(item.source)}</span>
           <strong>${esc(item.title)}</strong>
         </div>
-        <button class="icon-button more-button" data-action="more" aria-label="More">...</button>
       </div>
       <div class="detail-media"${transitionStyle}>${mediaMarkup(item, "detail")}</div>
       <div class="result-info">
@@ -497,8 +479,6 @@ function renderDetail(item) {
       </div>
       <div class="detail-actions">
         <button class="action-pill" data-action="share" data-id="${esc(item.id)}">Share</button>
-        <button class="action-pill" data-action="save" data-id="${esc(item.id)}">${savedIds.has(item.id) ? "Saved" : "Save"}</button>
-        <button class="action-pill" data-action="more" data-id="${esc(item.id)}">More</button>
       </div>
       <section class="similar-grid">
         ${related.map((entry, index) => renderTile(entry, index, true)).join("")}
@@ -522,56 +502,59 @@ function render() {
       <section class="media-wall" aria-label="Ocean media results">
         ${items.map((item, index) => renderTile(item, index)).join("")}
       </section>
-      ${items.length === 0 ? '<section class="empty-state">Nothing saved or matched yet.</section>' : ""}
+      ${items.length === 0 ? '<section class="empty-state">Nothing loaded yet.</section>' : ""}
       ${radar.error ? '<div class="source-warning">Live sources are partly rate-limited; curated media is still loaded.</div>' : ""}
       ${renderDetail(selectedItem())}
     </main>
   `;
 }
 
-function withTransition(update) {
-  if (!document.startViewTransition) {
-    update();
-    return;
-  }
-  const transition = document.startViewTransition(update);
-  transition.finished.finally(() => {
-    transitionId = selectedId;
+function animateFocusFrom(startRect) {
+  requestAnimationFrame(() => {
+    const media = document.querySelector(".detail-media");
+    const panel = document.querySelector(".detail-panel");
+    if (!media || !startRect) return;
+    const endRect = media.getBoundingClientRect();
+    if (!endRect.width || !endRect.height) return;
+    media.animate([
+      {
+        transformOrigin: "top left",
+        transform: `translate(${startRect.left - endRect.left}px, ${startRect.top - endRect.top}px) scale(${startRect.width / endRect.width}, ${startRect.height / endRect.height})`,
+        borderRadius: "7px",
+      },
+      {
+        transformOrigin: "top left",
+        transform: "translate(0, 0) scale(1)",
+        borderRadius: getComputedStyle(media).borderRadius,
+      },
+    ], {
+      duration: 340,
+      easing: "cubic-bezier(0.2, 0, 0, 1)",
+    });
+    panel?.animate([
+      { opacity: 0.72 },
+      { opacity: 1 },
+    ], {
+      duration: 220,
+      easing: "ease-out",
+    });
   });
 }
 
 function openItem(id) {
   transitionId = id;
   const activeTile = document.querySelector(`[data-id="${CSS.escape(id)}"]`);
-  if (activeTile) activeTile.style.viewTransitionName = "ocean-focus";
-  withTransition(() => {
-    selectedId = id;
-    actionNote = "";
-    history.replaceState(null, "", `?item=${encodeURIComponent(id)}`);
-    render();
-  });
+  const startRect = activeTile?.getBoundingClientRect();
+  selectedId = id;
+  history.replaceState(null, "", `?item=${encodeURIComponent(id)}`);
+  render();
+  animateFocusFrom(startRect);
 }
 
 function closeDetail() {
-  const closingId = selectedId;
-  transitionId = closingId;
-  withTransition(() => {
-    selectedId = null;
-    actionNote = "";
-    history.replaceState(null, "", location.pathname);
-    render();
-  });
-}
-
-function toggleSave(id) {
-  if (savedIds.has(id)) {
-    savedIds.delete(id);
-    actionNote = "Removed from saved.";
-  } else {
-    savedIds.add(id);
-    actionNote = "Saved locally.";
-  }
-  persistSaved();
+  transitionId = selectedId;
+  selectedId = null;
+  history.replaceState(null, "", location.pathname);
   render();
 }
 
@@ -582,15 +565,13 @@ async function shareItem(id) {
   try {
     if (navigator.share) {
       await navigator.share({ title: item.title, text: item.summary || item.source, url });
-      actionNote = "Shared.";
     } else if (navigator.clipboard) {
       await navigator.clipboard.writeText(url);
-      actionNote = "Source link copied.";
     } else {
-      actionNote = url;
+      location.href = url;
     }
   } catch {
-    actionNote = "Share cancelled.";
+    return;
   }
   render();
 }
@@ -611,7 +592,6 @@ async function loadRadar(force = false) {
 
 function home() {
   selectedId = null;
-  actionNote = "";
   history.replaceState(null, "", location.pathname);
   render();
 }
@@ -623,9 +603,7 @@ document.addEventListener("click", (event) => {
   const action = target.dataset.action;
   if (action === "open") openItem(target.dataset.id);
   if (action === "close") closeDetail();
-  if (action === "save") toggleSave(target.dataset.id);
   if (action === "share") shareItem(target.dataset.id);
-  if (action === "more") render();
   if (action === "refresh") loadRadar(true);
   if (action === "home") home();
 });
