@@ -130,9 +130,9 @@ a {
 .media-wall {
   display: grid;
   grid-auto-flow: dense;
-  grid-auto-rows: 9px;
+  grid-auto-rows: 4px;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 8px;
+  gap: 6px;
   min-height: 100vh;
   padding: 8px;
 }
@@ -161,25 +161,25 @@ a {
 }
 
 .shape-small {
-  grid-row: span 20;
+  grid-row: span 10;
 }
 
 .shape-standard {
-  grid-row: span 30;
+  grid-row: span 14;
 }
 
 .shape-tall {
-  grid-row: span 42;
+  grid-row: span 18;
 }
 
 .shape-wide {
   grid-column: span 2;
-  grid-row: span 30;
+  grid-row: span 14;
 }
 
 .shape-hero {
   grid-column: span 2;
-  grid-row: span 50;
+  grid-row: span 22;
 }
 
 .media-frame,
@@ -201,6 +201,18 @@ a {
   height: 100%;
   border: 0;
   object-fit: cover;
+}
+
+.media-backdrop {
+  filter: blur(16px) saturate(1.12);
+  opacity: 0.58;
+  transform: scale(1.08);
+}
+
+.media-frame .media-primary,
+.detail-media .media-primary {
+  object-fit: contain;
+  z-index: 2;
 }
 
 .video-frame {
@@ -260,7 +272,7 @@ a {
   position: absolute;
   z-index: 3;
   inset: auto 0 0;
-  height: 58%;
+  height: 62%;
   background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.82));
   pointer-events: none;
 }
@@ -384,6 +396,10 @@ a {
 }
 
 .detail-media img {
+  object-fit: contain;
+}
+
+.detail-media .media-backdrop {
   object-fit: cover;
 }
 
@@ -410,6 +426,10 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.focus-flyer .media-primary {
+  object-fit: contain;
 }
 
 .result-info {
@@ -594,48 +614,48 @@ a {
   .media-wall {
     grid-auto-rows: 4px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 5px;
     padding: 6px;
   }
 
   .shape-small {
-    grid-row: span 36;
+    grid-row: span 9;
   }
 
   .shape-standard {
-    grid-row: span 44;
+    grid-row: span 12;
   }
 
   .shape-tall {
-    grid-row: span 58;
+    grid-row: span 16;
   }
 
   .shape-wide,
   .shape-hero {
     grid-column: span 1;
-    grid-row: span 58;
+    grid-row: span 16;
   }
 
   .media-label {
     left: 16px;
     right: 16px;
     bottom: 16px;
-    gap: 9px;
+    gap: 5px;
   }
 
   .media-label span {
-    font-size: 19px;
+    font-size: 11px;
     line-height: 1;
   }
 
   .media-label strong {
-    font-size: clamp(36px, 9vw, 50px);
+    font-size: clamp(18px, 4.9vw, 24px);
     line-height: 1;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
   }
 
   .shape-hero .media-label strong {
-    font-size: clamp(36px, 9vw, 50px);
+    font-size: clamp(18px, 4.9vw, 24px);
   }
 
   .video-badge,
@@ -751,31 +771,31 @@ a {
 
   .similar-grid {
     grid-auto-rows: 4px;
-    gap: 10px;
+    gap: 6px;
     overflow: visible;
     padding: 0 0 24px;
   }
 
   .similar-grid .media-card {
-    grid-row: span 42;
+    grid-row: span 12;
   }
 
   .similar-grid .shape-wide,
   .similar-grid .shape-hero {
     grid-column: span 1;
-    grid-row: span 54;
+    grid-row: span 16;
   }
 
   .similar-grid .shape-tall {
-    grid-row: span 52;
+    grid-row: span 16;
   }
 
   .similar-grid .media-label span {
-    font-size: 18px;
+    font-size: 11px;
   }
 
   .similar-grid .media-label strong {
-    font-size: clamp(30px, 7.2vw, 42px);
+    font-size: clamp(18px, 4.9vw, 24px);
   }
 
   .source-warning {

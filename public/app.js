@@ -417,11 +417,14 @@ function allItems() {
     })
     .slice(0, 80);
   const seen = new Set();
+  const seenTitles = new Set();
   return [...seedItems, ...remote].filter((item) => {
     if (!item.image && !item.videoId) return false;
     const key = `${item.url || ""}|${item.title}`.toLowerCase();
-    if (seen.has(key)) return false;
+    const titleKey = slug(item.title);
+    if (seen.has(key) || seenTitles.has(titleKey)) return false;
     seen.add(key);
+    seenTitles.add(titleKey);
     const imageKey = item.image || "";
     const imagePrior = usedImages.get(imageKey) || 0;
     if (imageKey && imagePrior >= 2) return false;
@@ -470,7 +473,10 @@ function mediaMarkup(item, mode = "tile") {
   const image = item.image || "";
   const fallback = `<div class="generated-media"><span>${esc((item.board || item.source || "O").slice(0, 2).toUpperCase())}</span></div>`;
   const poster = image
-    ? `<img src="${esc(image)}" alt="" loading="${mode === "tile" ? "lazy" : "eager"}" onerror="this.remove();">`
+    ? `
+      <img class="media-backdrop" src="${esc(image)}" alt="" loading="${mode === "tile" ? "lazy" : "eager"}" onerror="this.remove();">
+      <img class="media-primary" src="${esc(image)}" alt="" loading="${mode === "tile" ? "lazy" : "eager"}" onerror="this.remove();">
+    `
     : fallback;
   if (!item.videoId) return poster;
   if (mode === "tile" || mode === "detail") return `${poster}<span class="video-badge">video</span>`;
