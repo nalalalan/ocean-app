@@ -994,6 +994,18 @@ function pageVariantItem(item, index, page) {
   };
 }
 
+function contentKey(item) {
+  return `${item.url || ""}|${item.title || ""}|${item.image || ""}`.toLowerCase();
+}
+
+function pushSpacedItem(output, item, page, minDistance = 16) {
+  const recent = output.slice(Math.max(0, output.length - minDistance));
+  const key = contentKey(item);
+  if (recent.some((entry) => contentKey(entry) === key)) return false;
+  output.push(pageVariantItem(item, output.length, page));
+  return true;
+}
+
 function visibleItems() {
   const baseItems = allItems();
   if (baseItems.length === 0) return [];
@@ -1001,14 +1013,19 @@ function visibleItems() {
   const output = [];
   const firstOrder = pageOrder(baseItems.length, 0);
   for (const orderedIndex of firstOrder) {
-    output.push(pageVariantItem(baseItems[orderedIndex], output.length, 0));
+    pushSpacedItem(output, baseItems[orderedIndex], 0, 0);
     if (output.length >= targetCount) return output;
   }
   for (let page = 1; output.length < targetCount; page += 1) {
     const order = pageOrder(baseItems.length, page);
+    let addedThisPage = 0;
     for (const orderedIndex of order) {
-      output.push(pageVariantItem(baseItems[orderedIndex], output.length, page));
+      if (pushSpacedItem(output, baseItems[orderedIndex], page)) addedThisPage += 1;
       if (output.length >= targetCount) break;
+    }
+    if (addedThisPage === 0) {
+      const fallback = baseItems[order[0]];
+      output.push(pageVariantItem(fallback, output.length, page));
     }
   }
   return output;
@@ -1074,6 +1091,54 @@ function renderTile(item, index, compact = false) {
   `;
 }
 
+function ratioValue(item, index) {
+  const [wide, tall] = tileRatioFor(item, index).split("/").map((part) => Number(part.trim()));
+  if (!Number.isFinite(wide) || !Number.isFinite(tall) || tall === 0) return 1;
+  return wide / tall;
+}
+
+function wallColumnCount() {
+  const width = window.innerWidth || 1200;
+  if (width <= 1200) return 2;
+  const detailWidth = selectedId ? Math.min(536, width * 0.42 + 24) : 0;
+  const available = Math.max(360, width - detailWidth);
+  return Math.max(2, Math.floor(available / 340));
+}
+
+function chooseColumn(columns, item) {
+  const key = contentKey(item);
+  const ranked = columns
+    .map((column, index) => ({ column, index }))
+    .sort((a, b) => a.column.height - b.column.height);
+  return ranked.find(({ column }) => {
+    const recent = column.items.slice(-12);
+    return !recent.some((entry) => contentKey(entry.item) === key);
+  }) || ranked[0];
+}
+
+function packColumns(items, count) {
+  const columns = Array.from({ length: count }, () => ({ height: 0, items: [] }));
+  items.forEach((item, index) => {
+    const target = chooseColumn(columns, item);
+    target.column.items.push({ item, index });
+    target.column.height += 1 / ratioValue(item, index);
+  });
+  return columns;
+}
+
+function renderColumns(items, className, compact = false, count = wallColumnCount()) {
+  const columns = packColumns(items, count);
+  return `
+    <section class="${className}" aria-label="Ocean media results" style="--column-count:${columns.length}">
+      ${columns.map((column) => `
+        <div class="media-column">
+          ${column.items.map(({ item, index }) => renderTile(item, index, compact)).join("")}
+        </div>
+      `).join("")}
+    </section>
+  `;
+}
+
 function updateTileRatioFromImage(image) {
   if (!image?.naturalWidth || !image?.naturalHeight) return;
   const card = image.closest?.(".media-card");
@@ -1113,13 +1178,18 @@ function focusedItems(item) {
   const output = [];
   const firstTake = Math.min(targetCount, baseItems.length);
   for (let index = 0; index < firstTake; index += 1) {
-    output.push(pageVariantItem(baseItems[index], output.length, 0));
+    pushSpacedItem(output, baseItems[index], 0, 0);
   }
   for (let page = 1; output.length < targetCount; page += 1) {
     const order = pageOrder(baseItems.length, page + 13);
+    let addedThisPage = 0;
     for (const orderedIndex of order) {
-      output.push(pageVariantItem(baseItems[orderedIndex], output.length, page));
+      if (pushSpacedItem(output, baseItems[orderedIndex], page)) addedThisPage += 1;
       if (output.length >= targetCount) break;
+    }
+    if (addedThisPage === 0) {
+      const fallback = baseItems[order[0]];
+      output.push(pageVariantItem(fallback, output.length, page));
     }
   }
   return output;
@@ -1156,9 +1226,7 @@ function renderDetail(item) {
       <div class="detail-actions">
         <button class="action-pill" data-action="share" data-id="${esc(item.id)}">Share</button>
       </div>
-      <section class="similar-grid">
-        ${related.map((entry, index) => renderTile(entry, index, true)).join("")}
-      </section>
+      ${renderColumns(related, "similar-grid", true, 2)}
     </aside>
   `;
 }
@@ -1193,9 +1261,7 @@ function render() {
   document.body.classList.toggle("detail-open", Boolean(selectedId));
   app.innerHTML = `
     <main class="media-app ${selectedId ? "has-detail" : ""}">
-      <section class="media-wall" aria-label="Ocean media results">
-        ${items.map((item, index) => renderTile(item, index)).join("")}
-      </section>
+      ${renderColumns(items, "media-wall")}
       ${items.length === 0 ? '<section class="empty-state">Nothing loaded yet.</section>' : ""}
       ${radar.error ? '<div class="source-warning">Live sources are partly rate-limited; curated media is still loaded.</div>' : ""}
       ${renderDetail(selectedItem())}
