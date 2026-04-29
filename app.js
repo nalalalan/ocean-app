@@ -980,7 +980,31 @@ const researchExpansionItems = [
 const staticItems = [...seedItems, ...inspirationItems, ...researchExpansionItems];
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
-let selectedId = new URLSearchParams(location.search).get("item");
+
+function isBrowserReload() {
+  const navigationEntry = performance.getEntriesByType?.("navigation")?.[0];
+  if (navigationEntry?.type) return navigationEntry.type === "reload";
+  return performance.navigation?.type === 1;
+}
+
+function removeItemParamFromUrl() {
+  const params = new URLSearchParams(location.search);
+  params.delete("item");
+  const nextSearch = params.toString();
+  const nextUrl = `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash || ""}`;
+  history.replaceState(null, "", nextUrl);
+}
+
+function initialSelectedId() {
+  const id = new URLSearchParams(location.search).get("item");
+  if (id && isBrowserReload()) {
+    removeItemParamFromUrl();
+    return null;
+  }
+  return id;
+}
+
+let selectedId = initialSelectedId();
 let loadingMoreFeed = false;
 let loadingMoreDetail = false;
 const initialFeedPageCount = 4;
