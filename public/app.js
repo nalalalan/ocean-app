@@ -262,9 +262,33 @@ const seedItems = [
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
-let feedPageCount = 6;
 let loadingMoreFeed = false;
+const initialFeedPageCount = 6;
 const feedPageSize = 18;
+let feedPageCount = initialFeedPageCount;
+let feedSessionSeed = makeFeedSeed();
+
+function makeFeedSeed() {
+  if (globalThis.crypto?.getRandomValues) {
+    const values = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(values);
+    return values[0];
+  }
+  return Math.floor(Date.now() % 2147483647);
+}
+
+function mixNumber(value) {
+  let mixed = value >>> 0;
+  mixed ^= mixed << 13;
+  mixed ^= mixed >>> 17;
+  mixed ^= mixed << 5;
+  return mixed >>> 0;
+}
+
+function refreshFeedLayout() {
+  feedSessionSeed = makeFeedSeed();
+  feedPageCount = initialFeedPageCount;
+}
 
 function esc(value) {
   return String(value ?? "")
@@ -394,7 +418,7 @@ function allItems() {
 
 function pageOrder(length, page) {
   return Array.from({ length }, (_, index) => index)
-    .sort((a, b) => ((a * 37 + page * 19) % 101) - ((b * 37 + page * 19) % 101));
+    .sort((a, b) => mixNumber(a * 1009 + page * 9176 + feedSessionSeed) - mixNumber(b * 1009 + page * 9176 + feedSessionSeed));
 }
 
 function pageVariantItem(item, index, page) {
@@ -648,14 +672,15 @@ async function shareItem(id) {
   render();
 }
 
-async function loadRadar(force = false) {
+async function loadRadar(force = false, reshuffle = false) {
+  if (reshuffle) refreshFeedLayout();
   radar = { ...radar, loading: true };
   render();
   try {
     const response = await fetch(`/api/radar${force ? "?force=1" : ""}`, { cache: "no-store" });
     if (!response.ok) throw new Error(`Radar returned ${response.status}`);
     const data = await response.json();
-    feedPageCount = Math.max(feedPageCount, 6);
+    feedPageCount = Math.max(feedPageCount, initialFeedPageCount);
     radar = { ...data, loading: false };
   } catch (error) {
     radar = { ...radar, loading: false, error: error.message };
@@ -677,7 +702,7 @@ document.addEventListener("click", (event) => {
   if (action === "open") openItem(target.dataset.id, target);
   if (action === "close") closeDetail();
   if (action === "share") shareItem(target.dataset.id);
-  if (action === "refresh") loadRadar(true);
+  if (action === "refresh") loadRadar(true, true);
   if (action === "home") home();
 });
 
@@ -698,5 +723,5 @@ window.addEventListener("scroll", extendFeedIfNeeded, { passive: true });
 window.addEventListener("resize", extendFeedIfNeeded);
 
 render();
-loadRadar();
+loadRadar(true, true);
 setInterval(() => loadRadar(true), 1000 * 60 * 30);
