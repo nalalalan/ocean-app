@@ -28,6 +28,21 @@ const sourceImages = {
   selfBuryingSeed: "https://engineering.berkeley.edu/wp-content/uploads/2025/11/Self-burying1.gif",
   droneSeed: "https://engineering.berkeley.edu/wp-content/uploads/2025/11/Drone.gif",
   seedGermination: "https://engineering.berkeley.edu/wp-content/uploads/2025/11/Seed_06-1-400x530.jpg",
+  morphingSkinProject: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/68e9d16965dae60265da9daf/1762409841080/morphingskin.jpg?format=1500w",
+  morphingTrussProject: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/t/690c328e03d8727c4c7b62ee/1762407054309/metatruss_feature_03.png?format=1500w",
+  compliantWearable: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/683ddd5efd1bc35a8caea5cc/1772519640066/wearable+1.JPG?format=1500w",
+  thermorphProject: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/5fc1dde2f81c9a2a0ce5f89e/1645918833655/01.jpg?format=1500w",
+  sustainflatable: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/643ee8628a6092511d2bfa84/1731171067654/sustainflatable.jpg?format=1500w",
+  recompfig: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/t/626f47d8500f0529b6e7cf25/1651460071660/ReCompFig_kinematic_display_4.png?format=1500w",
+  pneumesh: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/628d2a2f08f9bc038c770f08/1653714945326/Screen+Shot+2022-05-28+at+1.14.52+AM.jpg?format=1500w",
+  underwaterBeads: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/6217c46d00e83412216f512b/1645918689929/underwater_morphing_beads_thumbnail.jpg?format=1500w",
+  simulearn: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/5fde6aa0f5f6422656473d77/1645918854935/simuLearn-web-17.jpg?format=1500w",
+  electrodermis: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/5fc20f46bc819f1cf4201749/1645918933977/ElectroDermis01.jpg?format=1500w",
+  epomemory: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/6444b75cc6ed9c0cbde7f4e4/1682225185661/Wearable+controller.png?format=1500w",
+  northwesternTouch: "https://news.northwestern.edu/assets/Stories/2025/03/Backhand-resize__FocusFillMaxWyIwLjAwIiwiMC4wMCIsMTIwMCw2MzBd.jpg",
+  ucsbHaptic: "https://news.ucsb.edu/sites/default/files/2025-11/haptic-graphics-opt.jpg",
+  bristolEmg: "https://www.bristol.ac.uk/media-library/sites/news/2025/october/gymnast-main%20article%20image.jpg",
+  nvidiaRoboticsWeek: "https://blogs.nvidia.com/wp-content/uploads/2026/04/robotics-tech-blog-nrw-rolling-blog-1280x680-1.jpg",
   mitInform: "https://dam-prod.media.mit.edu/thumb/files/Display/inform.jpg.1400x1400.jpg",
   cmuRobotics: "https://www.ri.cmu.edu/app/uploads/2021/12/iris-integrstion-still-1-scaled.jpg",
 };
@@ -790,7 +805,179 @@ const inspirationItems = [
   },
 ];
 
-const staticItems = [...seedItems, ...inspirationItems];
+const researchExpansionItems = [
+  {
+    id: "nvidia-physical-ai-week-2026",
+    title: "Physical AI robot wave",
+    source: "NVIDIA Robotics Week",
+    board: "Robotics",
+    kind: "2026 video",
+    image: sourceImages.nvidiaRoboticsWeek,
+    videoUrl: "https://blogs.nvidia.com/wp-content/uploads/2026/04/GTC26-Robots_16x9_v3-2-1.mp4",
+    url: "https://blogs.nvidia.com/blog/national-robotics-week-2026/",
+    summary: "A moving source tile for the 2026 physical AI wave: robot foundation models, simulation, humanoids, and robots leaving demos for real environments.",
+    tags: ["physical AI", "robotics", "2026", "video"],
+    shape: "wide",
+  },
+  {
+    id: "morphingskin-project",
+    title: "MorphingSkin platform",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "UIST 2025",
+    image: sourceImages.morphingSkinProject,
+    url: "https://morphingmatter.org/projects/morphingskin",
+    summary: "A skin-like surface with hydraulic actuators for force, shape, optical change, weight shift, robot skins, wearables, and tangible displays.",
+    tags: ["MorphingSkin", "hydraulic actuators", "UIST", "2025"],
+    shape: "hero",
+  },
+  {
+    id: "morphing-truss-ai",
+    title: "Morphing truss design with AI",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "2025 robot",
+    image: sourceImages.morphingTrussProject,
+    url: "https://morphingmatter.org/projects/morphing-truss",
+    summary: "AI-assisted variable-geometry truss robots: helmets, walkers, grippers, tentacles, and the idea that structure can be computation.",
+    tags: ["MetaTruss", "morphing robot", "AI design", "2025"],
+    shape: "wide",
+  },
+  {
+    id: "compliant-metastructure-wearable",
+    title: "Compliant wearable metastructure",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "2025 project",
+    image: sourceImages.compliantWearable,
+    url: "https://morphingmatter.org/projects/compliant-metastructures",
+    summary: "Reconfigurable compliant structures that shift stiffness and support body movement. Study it as a bridge from mechanism to wearable experience.",
+    tags: ["compliant mechanisms", "wearables", "metastructures"],
+    shape: "tall",
+  },
+  {
+    id: "northwestern-touch-device",
+    title: "Wearable touch that stretches skin",
+    source: "Northwestern Engineering",
+    board: "Haptics",
+    kind: "2025 research",
+    image: sourceImages.northwesternTouch,
+    url: "https://news.northwestern.edu/stories/2025/03/feeling-the-future-new-wearable-device-mimics-the-complexity-of-human-touch",
+    summary: "A compact wearable haptic actuator that can poke, stretch, vibrate, slide, and twist skin. This is the kind of interface detail worth obsessing over.",
+    tags: ["haptics", "wearables", "touch", "2025"],
+    shape: "wide",
+  },
+  {
+    id: "ucsb-optotactile-display",
+    title: "Graphics you can see and feel",
+    source: "UC Santa Barbara",
+    board: "Haptics",
+    kind: "2025 display",
+    image: sourceImages.ucsbHaptic,
+    url: "https://news.ucsb.edu/2025/022254/new-haptic-display-technology-creates-3d-graphics-you-can-see-and-feel",
+    summary: "Optically addressed haptic pixels turn light into tactile bumps, making graphics physical without wiring every pixel.",
+    tags: ["haptic display", "tactile graphics", "optotactile", "2025"],
+    shape: "wide",
+  },
+  {
+    id: "bristol-emg-soft-robot",
+    title: "Electro-morphing gel robot",
+    source: "University of Bristol",
+    board: "Soft Robotics",
+    kind: "2025 breakthrough",
+    image: sourceImages.bristolEmg,
+    url: "https://www.bristol.ac.uk/news/2025/october/soft-robotics-breakthrough.html",
+    summary: "A soft morphing robot moved by electric fields. Watch this for wireless soft actuation, body morphing, and strange locomotion.",
+    tags: ["soft robotics", "morphing matter", "electric fields", "2025"],
+    shape: "hero",
+  },
+  {
+    id: "sustainflatable-morphing-interface",
+    title: "Sustainflatable morphing interfaces",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "pneumatic interface",
+    image: sourceImages.sustainflatable,
+    url: "https://morphingmatter.org/projects/sustainflatable",
+    summary: "Pneumatic morphing interfaces that harvest, store, and reuse ambient energy. Useful for thinking about low-power physical interaction.",
+    tags: ["pneumatics", "sustainable design", "morphing interface"],
+    shape: "standard",
+  },
+  {
+    id: "recompfig-kinematic-display",
+    title: "Reconfigurable kinematic devices",
+    source: "Morphing Matter Lab",
+    board: "Tangible",
+    kind: "computational design",
+    image: sourceImages.recompfig,
+    url: "https://morphingmatter.org/projects/recompfig",
+    summary: "A physical design tool for reconfigurable kinematic devices. Great for turning abstract mechanisms into something someone can touch.",
+    tags: ["kinematics", "haptics", "design tools"],
+    shape: "standard",
+  },
+  {
+    id: "pneumesh-truss",
+    title: "PneuMesh robotic truss",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "pneumatic robot",
+    image: sourceImages.pneumesh,
+    url: "https://morphingmatter.org/projects/pneumesh",
+    summary: "Pneumatic-driven truss structures that make geometry move. Study this for mechanism vocabulary and physical design imagination.",
+    tags: ["pneumatic truss", "robotic matter", "morphing"],
+    shape: "wide",
+  },
+  {
+    id: "underwater-morphing-beads",
+    title: "Underwater morphing beads",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "ocean material",
+    image: sourceImages.underwaterBeads,
+    url: "https://morphingmatter.org/projects/underwater-morphing-beads",
+    summary: "Material behavior as environmental interaction: underwater beads that morph as a design and sustainability system.",
+    tags: ["morphing matter", "ocean", "sustainability"],
+    shape: "standard",
+  },
+  {
+    id: "simulearn-morphing-models",
+    title: "Learning morphing simulations",
+    source: "Morphing Matter Lab",
+    board: "Computational Design",
+    kind: "simulation",
+    image: sourceImages.simulearn,
+    url: "https://morphingmatter.org/projects/simulearn",
+    summary: "Machine learning for morphing modeling and simulation. Useful for turning hands-on material behavior into design software.",
+    tags: ["simulation", "machine learning", "morphing"],
+    shape: "wide",
+  },
+  {
+    id: "electrodermis-wearables",
+    title: "ElectroDermis wearables",
+    source: "Morphing Matter Lab",
+    board: "Wearables",
+    kind: "computational manufacturing",
+    image: sourceImages.electrodermis,
+    url: "https://morphingmatter.org/projects/electrodermis",
+    summary: "Soft, body-worn interactive skins that turn fabrication, sensing, and identity into one design problem.",
+    tags: ["wearables", "fabrication", "interactive skin"],
+    shape: "tall",
+  },
+  {
+    id: "epomemory-morphing-controller",
+    title: "Multi-state shape memory control",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "programmable interface",
+    image: sourceImages.epomemory,
+    url: "https://morphingmatter.org/projects/epomemory",
+    summary: "Programmable morphing interfaces with multiple remembered states. A clean example of materials becoming interface logic.",
+    tags: ["shape memory", "interfaces", "programmable matter"],
+    shape: "standard",
+  },
+];
+
+const staticItems = [...seedItems, ...inspirationItems, ...researchExpansionItems];
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
@@ -959,7 +1146,7 @@ function allItems() {
       imageCounts.set(imageKey, prior + 1);
       return true;
     })
-    .slice(0, 80);
+    .slice(0, 220);
   const seen = new Set();
   const seenTitles = new Set();
   return [...staticItems, ...remote].filter((item) => {
@@ -1006,6 +1193,11 @@ function pushSpacedItem(output, item, page, minDistance = 16) {
   return true;
 }
 
+function repeatDistanceFor(length) {
+  if (length <= 1) return 0;
+  return Math.max(72, Math.min(length - 1, Math.floor(length * 0.9)));
+}
+
 function visibleItems() {
   const baseItems = allItems();
   if (baseItems.length === 0) return [];
@@ -1016,11 +1208,12 @@ function visibleItems() {
     pushSpacedItem(output, baseItems[orderedIndex], 0, 0);
     if (output.length >= targetCount) return output;
   }
+  const repeatDistance = repeatDistanceFor(baseItems.length);
   for (let page = 1; output.length < targetCount; page += 1) {
     const order = pageOrder(baseItems.length, page);
     let addedThisPage = 0;
     for (const orderedIndex of order) {
-      if (pushSpacedItem(output, baseItems[orderedIndex], page)) addedThisPage += 1;
+      if (pushSpacedItem(output, baseItems[orderedIndex], page, repeatDistance)) addedThisPage += 1;
       if (output.length >= targetCount) break;
     }
     if (addedThisPage === 0) {
@@ -1107,20 +1300,25 @@ function wallColumnCount() {
 
 function chooseColumn(columns, item) {
   const key = contentKey(item);
+  const packedCount = columns.reduce((sum, column) => sum + column.items.length, 0);
+  const recentLimit = Math.max(36, Math.min(96, Math.ceil((packedCount + columns.length) / columns.length)));
   const ranked = columns
     .map((column, index) => ({ column, index }))
     .sort((a, b) => a.column.height - b.column.height);
+  const unseenColumn = ranked.find(({ column }) => !column.keys.has(key));
+  if (unseenColumn) return unseenColumn;
   return ranked.find(({ column }) => {
-    const recent = column.items.slice(-12);
+    const recent = column.items.slice(-recentLimit);
     return !recent.some((entry) => contentKey(entry.item) === key);
   }) || ranked[0];
 }
 
 function packColumns(items, count) {
-  const columns = Array.from({ length: count }, () => ({ height: 0, items: [] }));
+  const columns = Array.from({ length: count }, () => ({ height: 0, items: [], keys: new Set() }));
   items.forEach((item, index) => {
     const target = chooseColumn(columns, item);
     target.column.items.push({ item, index });
+    target.column.keys.add(contentKey(item));
     target.column.height += 1 / ratioValue(item, index);
   });
   return columns;
@@ -1180,11 +1378,12 @@ function focusedItems(item) {
   for (let index = 0; index < firstTake; index += 1) {
     pushSpacedItem(output, baseItems[index], 0, 0);
   }
+  const repeatDistance = repeatDistanceFor(baseItems.length);
   for (let page = 1; output.length < targetCount; page += 1) {
     const order = pageOrder(baseItems.length, page + 13);
     let addedThisPage = 0;
     for (const orderedIndex of order) {
-      if (pushSpacedItem(output, baseItems[orderedIndex], page)) addedThisPage += 1;
+      if (pushSpacedItem(output, baseItems[orderedIndex], page, repeatDistance)) addedThisPage += 1;
       if (output.length >= targetCount) break;
     }
     if (addedThisPage === 0) {
