@@ -263,6 +263,7 @@ const seedItems = [
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
+let transitionId = selectedId;
 let actionNote = "";
 let savedIds = loadSaved();
 
@@ -420,7 +421,7 @@ function mediaMarkup(item, mode = "tile") {
     ? `<img src="${esc(image)}" alt="" loading="${mode === "tile" ? "lazy" : "eager"}" onerror="this.remove();">`
     : fallback;
   if (!item.videoId) return poster;
-  if (mode === "tile") return `${poster}<span class="video-badge">video</span>`;
+  if (mode === "tile" || mode === "detail") return `${poster}<span class="video-badge">video</span>`;
   const controls = mode === "detail" ? "1" : "0";
   const src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${encodeURIComponent(item.videoId)}&controls=${controls}&modestbranding=1&rel=0&iv_load_policy=3`;
   return `
@@ -436,8 +437,9 @@ function shapeFor(item, index) {
 }
 
 function renderTile(item, index, compact = false) {
+  const transitionStyle = item.id === transitionId ? " view-transition-name:ocean-focus;" : "";
   return `
-    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)}">
+    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)};${transitionStyle}">
       <div class="media-frame">${mediaMarkup(item)}</div>
       <div class="media-gradient"></div>
       <div class="media-label">
@@ -454,45 +456,13 @@ function overlapScore(a, b) {
   return [b.board, ...(b.tags || [])].reduce((score, tag) => score + (aTags.has(String(tag).toLowerCase()) ? 1 : 0), 0);
 }
 
-function buildPromptsFor(item) {
-  const tags = item.tags || [];
-  return [
-    {
-      id: `prompt-build-${item.id}`,
-      title: "Build a tiny proof",
-      source: "Ocean lens",
-      board: item.board,
-      kind: "build prompt",
-      summary: `Make a 20-second artifact inspired by ${item.title}: one mechanism, one motion, one measurement, or one diagram.`,
-      tags: ["prototype", "portfolio", ...tags].slice(0, 5),
-      shape: "standard",
-      accent: "#7ee2b8",
-    },
-    {
-      id: `prompt-study-${item.id}`,
-      title: "Steal the vocabulary",
-      source: "Ocean lens",
-      board: item.board,
-      kind: "study prompt",
-      summary: "Extract the serious nouns: mechanism, sensor, rig, audience, constraint, failure mode, control loop, pipeline.",
-      tags: ["research scientist", "language", ...tags].slice(0, 5),
-      shape: "standard",
-      accent: "#f5c45f",
-    },
-  ];
-}
-
 function similarItems(item) {
-  const ranked = allItems()
+  return allItems()
     .filter((candidate) => candidate.id !== item.id)
     .map((candidate) => ({ candidate, score: overlapScore(item, candidate) }))
     .sort((a, b) => b.score - a.score)
-    .map((row) => row.candidate);
-  return [...ranked.slice(0, 12), ...buildPromptsFor(item)].slice(0, 14);
-}
-
-function tagRow(tags = []) {
-  return tags.slice(0, 5).map((tag) => `<span>${esc(tag)}</span>`).join("");
+    .map((row) => row.candidate)
+    .slice(0, 18);
 }
 
 function selectedItem() {
@@ -502,30 +472,34 @@ function selectedItem() {
 function renderDetail(item) {
   if (!item) return "";
   const related = similarItems(item);
-  const source = item.url
-    ? `<a class="action-pill primary" href="${esc(item.url)}" target="_blank" rel="noopener">source</a>`
+  const visit = item.url
+    ? `<a class="visit-button" href="${esc(item.url)}" target="_blank" rel="noopener">Visit</a>`
     : "";
+  const transitionStyle = item.id === transitionId ? " style=\"view-transition-name:ocean-focus;\"" : "";
   return `
     <aside class="detail-panel" aria-label="Selected media" style="--accent:${esc(item.accent)}">
       <div class="detail-top">
-        <button class="icon-button" data-action="close" aria-label="Close">x</button>
-        <div>
+        <button class="icon-button close-button" data-action="close" aria-label="Close">x</button>
+        <div class="source-avatar">${esc((item.source || "O").slice(0, 1).toUpperCase())}</div>
+        <div class="detail-title">
           <span>${esc(item.source)}</span>
           <strong>${esc(item.title)}</strong>
         </div>
+        <button class="icon-button more-button" data-action="more" aria-label="More">...</button>
       </div>
-      <div class="detail-media">${mediaMarkup(item, "detail")}</div>
-      <div class="detail-copy">
-        <p>${esc(item.summary || "")}</p>
-        <div class="tag-row">${tagRow(item.tags)}</div>
+      <div class="detail-media"${transitionStyle}>${mediaMarkup(item, "detail")}</div>
+      <div class="result-info">
+        <div>
+          <strong>${esc(item.title)}</strong>
+          <span>${esc(item.source)}</span>
+        </div>
+        ${visit}
       </div>
       <div class="detail-actions">
-        ${source}
-        <button class="action-pill" data-action="save" data-id="${esc(item.id)}">${savedIds.has(item.id) ? "saved" : "save"}</button>
-        <button class="action-pill" data-action="share" data-id="${esc(item.id)}">share</button>
+        <button class="action-pill" data-action="share" data-id="${esc(item.id)}">Share</button>
+        <button class="action-pill" data-action="save" data-id="${esc(item.id)}">${savedIds.has(item.id) ? "Saved" : "Save"}</button>
+        <button class="action-pill" data-action="more" data-id="${esc(item.id)}">More</button>
       </div>
-      ${actionNote ? `<div class="action-note">${esc(actionNote)}</div>` : ""}
-      <div class="similar-head">similar</div>
       <section class="similar-grid">
         ${related.map((entry, index) => renderTile(entry, index, true)).join("")}
       </section>
@@ -555,18 +529,38 @@ function render() {
   `;
 }
 
+function withTransition(update) {
+  if (!document.startViewTransition) {
+    update();
+    return;
+  }
+  const transition = document.startViewTransition(update);
+  transition.finished.finally(() => {
+    transitionId = selectedId;
+  });
+}
+
 function openItem(id) {
-  selectedId = id;
-  actionNote = "";
-  history.replaceState(null, "", `?item=${encodeURIComponent(id)}`);
-  render();
+  transitionId = id;
+  const activeTile = document.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  if (activeTile) activeTile.style.viewTransitionName = "ocean-focus";
+  withTransition(() => {
+    selectedId = id;
+    actionNote = "";
+    history.replaceState(null, "", `?item=${encodeURIComponent(id)}`);
+    render();
+  });
 }
 
 function closeDetail() {
-  selectedId = null;
-  actionNote = "";
-  history.replaceState(null, "", location.pathname);
-  render();
+  const closingId = selectedId;
+  transitionId = closingId;
+  withTransition(() => {
+    selectedId = null;
+    actionNote = "";
+    history.replaceState(null, "", location.pathname);
+    render();
+  });
 }
 
 function toggleSave(id) {
@@ -631,6 +625,7 @@ document.addEventListener("click", (event) => {
   if (action === "close") closeDetail();
   if (action === "save") toggleSave(target.dataset.id);
   if (action === "share") shareItem(target.dataset.id);
+  if (action === "more") render();
   if (action === "refresh") loadRadar(true);
   if (action === "home") home();
 });
