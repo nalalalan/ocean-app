@@ -1263,14 +1263,13 @@ function mediaMarkup(item, mode = "tile") {
       <span class="video-badge">video</span>
     `;
   }
-  if (!item.videoId) return poster;
-  const controls = mode === "detail" ? "1" : "0";
-  const src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${encodeURIComponent(item.videoId)}&controls=${controls}&modestbranding=1&rel=0&iv_load_policy=3`;
-  return `
-    ${poster}
-    <iframe class="video-frame" src="${src}" title="${esc(item.title)}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-    <span class="video-badge">video</span>
-  `;
+  if (item.videoId) {
+    return `
+      ${poster}
+      <span class="video-badge">video</span>
+    `;
+  }
+  return poster;
 }
 
 function tileRatioFor(item, index) {
@@ -1431,8 +1430,9 @@ function renderDetail(item) {
   if (!item) return "";
   const related = focusedItems(item);
   const relatedColumnCount = (window.innerWidth || 1200) <= 760 ? 1 : 2;
+  const visitLabel = item.videoId ? "Watch" : "Visit";
   const visit = item.url
-    ? `<a class="visit-button" href="${esc(item.url)}" target="_blank" rel="noopener">Visit</a>`
+    ? `<a class="visit-button" href="${esc(item.url)}" target="_blank" rel="noopener">${visitLabel}</a>`
     : "";
   return `
     <aside class="detail-panel" aria-label="Selected media" style="--accent:${esc(item.accent)}">
