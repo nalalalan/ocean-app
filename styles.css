@@ -130,7 +130,7 @@ a {
 .media-wall {
   display: block;
   column-gap: 0;
-  column-width: 260px;
+  column-width: 340px;
   font-size: 0;
   min-height: 100vh;
   padding: 0;
@@ -283,7 +283,7 @@ a {
   position: absolute;
   z-index: 3;
   inset: auto 0 0;
-  height: 62%;
+  height: min(34%, 160px);
   background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.82));
   pointer-events: none;
 }
@@ -291,19 +291,22 @@ a {
 .media-label {
   position: absolute;
   z-index: 5;
-  left: 14px;
-  right: 14px;
+  left: 16px;
+  right: 16px;
   bottom: 14px;
   display: grid;
-  gap: 6px;
+  gap: 5px;
+  max-height: 31%;
+  overflow: hidden;
   pointer-events: none;
 }
 
 .media-label span {
   overflow: hidden;
   color: rgba(226, 232, 240, 0.9);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 850;
+  line-height: 1;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
@@ -313,15 +316,15 @@ a {
   display: -webkit-box;
   overflow: hidden;
   color: #ffffff;
-  font-size: 22px;
-  line-height: 1.04;
+  font-size: clamp(18px, 1.45vw, 25px);
+  line-height: 1.02;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 
 .shape-hero .media-label strong {
-  font-size: 31px;
+  font-size: clamp(20px, 1.75vw, 30px);
 }
 
 .detail-panel {
@@ -663,6 +666,7 @@ a {
     right: 16px;
     bottom: 16px;
     gap: 4px;
+    max-height: 38%;
   }
 
   .media-label span {
