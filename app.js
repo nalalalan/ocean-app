@@ -11,6 +11,23 @@ const sourceImages = {
   disneyAvatar: "https://studios.disneyresearch.com/app/uploads/2026/04/FastGHA-Generalized-Few-Shot-3D-Gaussian-Head-Avatars-with-Real-Time-Animation--400x250.png",
   disneyMotion: "https://studios.disneyresearch.com/app/uploads/2025/12/Shaping-Strands-with-Neural-Style-Transfer-Image-400x250.jpg",
   disneyDiffusion: "https://studios.disneyresearch.com/app/uploads/2026/04/HIGS-History-Guided-Sampling-for-Diffusion-Models-Image-400x250.jpg",
+  disneyAutonomousHri: "https://la.disneyresearch.com/wp-content/uploads/autonomous_interaction_teaser-1024x517.jpg",
+  disneyQuaternion: "https://la.disneyresearch.com/wp-content/uploads/A-Versatile-Quaternion-based-Constrained-Rigid-Body-Dynamics-Teaser-1024x299.jpg",
+  disneyAmor: "https://la.disneyresearch.com/wp-content/uploads/AMOR-1-1024x211.png",
+  disneyRobotMdm: "https://la.disneyresearch.com/wp-content/uploads/image-12-1024x333.png",
+  disneyPneumatic: "https://la.disneyresearch.com/wp-content/uploads/papers_745s3-1024x683.jpg",
+  disneyGaits: "https://la.disneyresearch.com/wp-content/uploads/Images_Interactive_Design_of_Stylized_Walking_Gaits_for_Robotic_Characters-4-1024x255.jpg",
+  disneyBdx: "https://la.disneyresearch.com/wp-content/uploads/BDX-1024x683.png",
+  chainmail: "https://tangpengbin.github.io/publications/DIM/project_files/images/teaser.png",
+  metaTruss: "https://engineering.berkeley.edu/wp-content/uploads/2025/09/metatruss_feature_01.png",
+  metaTrussVideo: "https://engineering.berkeley.edu/wp-content/uploads/2025/09/Screenshot_Metatruss_Video-scaled.jpg",
+  metaTrussHelmet: "https://engineering.berkeley.edu/wp-content/uploads/2025/09/metatruss_12-1200x675.png",
+  metaTrussBrace: "https://images.squarespace-cdn.com/content/v1/5fc1dbf8116eb00e3c52b568/a0208527-4e70-43b3-b970-5b442dd9443a/metatruss-19.jpg",
+  morphingSkin: "https://engineering.berkeley.edu/wp-content/uploads/2025/11/MorphingSkin.gif",
+  thermorph: "https://engineering.berkeley.edu/wp-content/uploads/2025/11/20250903_Yao_AVL_0352_K0-C1-400x185.png",
+  selfBuryingSeed: "https://engineering.berkeley.edu/wp-content/uploads/2025/11/Self-burying1.gif",
+  droneSeed: "https://engineering.berkeley.edu/wp-content/uploads/2025/11/Drone.gif",
+  seedGermination: "https://engineering.berkeley.edu/wp-content/uploads/2025/11/Seed_06-1-400x530.jpg",
   mitInform: "https://dam-prod.media.mit.edu/thumb/files/Display/inform.jpg.1400x1400.jpg",
   cmuRobotics: "https://www.ri.cmu.edu/app/uploads/2021/12/iris-integrstion-still-1-scaled.jpg",
 };
@@ -260,12 +277,530 @@ const seedItems = [
   },
 ];
 
+const inspirationItems = [
+  {
+    id: "disney-olaf-2025",
+    title: "Olaf in the physical world",
+    source: "Disney Research Robotics",
+    board: "Disney Research",
+    kind: "2025 video",
+    videoId: "-L8OFMTteOo",
+    image: yt("-L8OFMTteOo"),
+    url: "https://arxiv.org/abs/2512.16705",
+    summary: "A recent free-roaming character robotics paper: animation references, reinforcement learning, thermal constraints, soft character surfaces, and believability under real-world physics.",
+    tags: ["Disney Research", "robotics", "character control", "2025"],
+    shape: "hero",
+  },
+  {
+    id: "disney-falling-robots",
+    title: "Robots that fall with character",
+    source: "Moritz Baecher / Disney Research",
+    board: "Disney Research",
+    kind: "2025 video",
+    videoId: "BXqpVMPk63A",
+    image: yt("BXqpVMPk63A"),
+    url: "https://www.baecher.info/publications/",
+    summary: "A sharp reminder that physical characters need failure behavior too: recovery, damage reduction, end-pose control, and motion that still feels intentional.",
+    tags: ["falling", "robot control", "Disney", "2025"],
+    shape: "wide",
+  },
+  {
+    id: "operator-imitation-hri",
+    title: "Autonomous HRI via operator imitation",
+    source: "Disney Research",
+    board: "Disney Research",
+    kind: "IROS 2025",
+    videoId: "4U4etupwzhQ",
+    image: sourceImages.disneyAutonomousHri,
+    url: "https://la.disneyresearch.com/publication/autonomous-human-robot-interaction-via-operator-imitation/",
+    summary: "Train autonomous robotic characters from expert operator data so interaction can retain social intuition instead of feeling like generic automation.",
+    tags: ["HRI", "imitation", "robot characters", "2025"],
+    shape: "hero",
+  },
+  {
+    id: "amor-robot-character-control",
+    title: "AMOR character control",
+    source: "Disney Research",
+    board: "Disney Research",
+    kind: "SIGGRAPH 2025",
+    videoId: "gQidYj-AKaA",
+    image: sourceImages.disneyAmor,
+    url: "https://la.disneyresearch.com/publication/amor-adaptive-character-control-through-multi-objective-reinforcement-learning/",
+    summary: "Multi-objective RL for robotic characters: tune behavior after training instead of endlessly hand-tuning reward weights.",
+    tags: ["reinforcement learning", "robotics", "characters", "SIGGRAPH"],
+    shape: "wide",
+  },
+  {
+    id: "quaternion-rbd-2025",
+    title: "Quaternion constrained dynamics",
+    source: "Disney Research",
+    board: "Disney Research",
+    kind: "SIGGRAPH 2025",
+    videoId: "clHoSEbWjlQ",
+    image: sourceImages.disneyQuaternion,
+    url: "https://la.disneyresearch.com/publication/a-versatile-quaternion-based-constrained-rigid-body-dynamics/",
+    summary: "A simulation engine tile for the part of robotics that is less glamorous and absolutely required: stable constrained rigid-body dynamics.",
+    tags: ["simulation", "robotics", "dynamics", "2025"],
+    shape: "wide",
+  },
+  {
+    id: "robot-motion-diffusion",
+    title: "Robot Motion Diffusion Model",
+    source: "Disney Research",
+    board: "Disney Research",
+    kind: "SIGGRAPH Asia 2024",
+    videoId: "eRXS98c_Suc",
+    image: sourceImages.disneyRobotMdm,
+    url: "https://la.disneyresearch.com/publication/robot-motion-diffusion-model-motion-generation-for-robotic-characters/",
+    summary: "Text-conditioned motion generation connected to physics-based control: a useful bridge between generative AI and robots that actually move.",
+    tags: ["motion diffusion", "robotics", "control", "characters"],
+    shape: "hero",
+  },
+  {
+    id: "vmp-physical-characters",
+    title: "Motion priors for physical characters",
+    source: "Moritz Baecher / Disney Research",
+    board: "Disney Research",
+    kind: "SCA 2024",
+    videoId: "Q2I7u0tjlJs",
+    image: yt("Q2I7u0tjlJs"),
+    url: "https://www.baecher.info/publications/",
+    summary: "Robustly track diverse motions on a physical bipedal character by learning useful priors instead of overfitting one canned demo.",
+    tags: ["motion priors", "robots", "physical characters", "2024"],
+    shape: "tall",
+  },
+  {
+    id: "stylized-walking-gaits",
+    title: "Stylized walking gaits",
+    source: "Disney Research + WDI R&D",
+    board: "Disney Research",
+    kind: "SIGGRAPH 2024",
+    videoId: "FDgW3983Cvc",
+    image: sourceImages.disneyGaits,
+    url: "https://la.disneyresearch.com/publication/interactive-design-of-stylized-walking-gaits-for-robotic-characters/",
+    summary: "Artist-directed gait authoring for robotic characters: the exact overlap of animation taste, control, and hardware constraints.",
+    tags: ["WDI R&D", "gaits", "animation", "robots"],
+    shape: "hero",
+  },
+  {
+    id: "bipedal-robotic-character",
+    title: "Bipedal robotic character",
+    source: "Disney Research + Walt Disney Imagineering",
+    board: "Disney Research",
+    kind: "RSS 2024",
+    image: sourceImages.disneyBdx,
+    url: "https://la.disneyresearch.com/publication/design-and-control-of-a-bipedal-robotic-character/",
+    summary: "The core case study for a believable free-walking character: custom mechanics, animation-conditioned control, operator interface, and performance.",
+    tags: ["Imagineering", "BDX", "character robot", "RSS"],
+    shape: "wide",
+  },
+  {
+    id: "soft-pneumatic-differentiable",
+    title: "Soft pneumatic actuator design",
+    source: "Disney Research",
+    board: "Soft Robotics",
+    kind: "SIGGRAPH 2024",
+    image: sourceImages.disneyPneumatic,
+    url: "https://la.disneyresearch.com/publication/soft-pneumatic-actuator-design-using-differentiable-simulation/",
+    summary: "Differentiable simulation for soft robots that deform and push against the world. This is a direct lane from math to strange physical behavior.",
+    tags: ["soft robotics", "differentiable simulation", "actuators"],
+    shape: "wide",
+  },
+  {
+    id: "spline-transformers",
+    title: "Spline-based transformers",
+    source: "Disney Research Studios",
+    board: "Creative Tools",
+    kind: "ECCV 2024",
+    videoId: "AzolLlIbKhg",
+    image: yt("AzolLlIbKhg"),
+    url: "https://www.baecher.info/publications/",
+    summary: "A creative-AI tile because Disney Research is not only robots: spline control points as an interaction handle for latent spaces.",
+    tags: ["AI", "animation", "creative tools", "ECCV"],
+    shape: "standard",
+  },
+  {
+    id: "attention-map-locomotion",
+    title: "Attention-map locomotion",
+    source: "Disney Research",
+    board: "Disney Research",
+    kind: "2025 video",
+    videoId: "GUgwB6WxcFo",
+    image: yt("GUgwB6WxcFo"),
+    url: "https://www.baecher.info/publications/",
+    summary: "A current robotics signal around compact environment representation, attention, and legged motion through cluttered worlds.",
+    tags: ["locomotion", "attention", "robotics", "2025"],
+    shape: "standard",
+  },
+  {
+    id: "thomaszewski-star-voronoi",
+    title: "Star-shaped Voronoi metamaterials",
+    source: "Bernhard Thomaszewski",
+    board: "Computational Design",
+    kind: "SIGGRAPH Asia 2025",
+    image: sourceImages.chainmail,
+    url: "https://crl.ethz.ch/papers/SSVDMetamaterials.pdf",
+    summary: "A 2025 computational metamaterials direction: differentiable 3D Voronoi metrics for graded cellular structures and directional stiffness.",
+    tags: ["metamaterials", "Voronoi", "optimization", "2025"],
+    shape: "hero",
+  },
+  {
+    id: "inverse-discrete-interlocking-materials",
+    title: "Inverse design of interlocking materials",
+    source: "Bernhard Thomaszewski + ETH",
+    board: "Computational Design",
+    kind: "SIGGRAPH 2025",
+    image: sourceImages.chainmail,
+    url: "https://tangpengbin.github.io/publications/InverseDIM/project_files/InverseDIM_SIGGRAPH2025_AuthorVersion.pdf",
+    summary: "Design chainmail-like discrete interlocking materials for target mechanical behavior. This is exactly the kind of physical design taste worth studying.",
+    tags: ["chainmail", "metamaterials", "inverse design", "SIGGRAPH"],
+    shape: "wide",
+  },
+  {
+    id: "beyond-chainmail",
+    title: "Beyond Chainmail",
+    source: "Pengbin Tang / Thomaszewski",
+    board: "Computational Design",
+    kind: "video",
+    videoId: "e1h2C8uk6SU",
+    image: "https://tangpengbin.github.io/publications/DIM/project_files/images/teaser.png",
+    url: "https://tangpengbin.github.io/publications/DIM/DIM.html",
+    summary: "Discrete interlocking materials as simulated and fabricated fabrics: anisotropic deformation limits, macro-scale models, and physical validation.",
+    tags: ["mechanical materials", "simulation", "fabrication"],
+    shape: "hero",
+  },
+  {
+    id: "shape-morphing-metamaterials-2025",
+    title: "Shape-morphing metamaterials",
+    source: "Nature Reviews Materials",
+    board: "Computational Design",
+    kind: "2025 review",
+    image: sourceImages.metaTrussBrace,
+    url: "https://www.nature.com/articles/s41578-025-00828-9",
+    summary: "A recent high-level map of morphing materials. Use it to find the vocabulary, mechanisms, and big open questions in the field.",
+    tags: ["morphing matter", "metamaterials", "2025", "review"],
+    shape: "wide",
+  },
+  {
+    id: "metatruss-ai-robots",
+    title: "MetaTruss morphing robots",
+    source: "Morphing Matter Lab / UC Berkeley",
+    board: "Shape + Matter",
+    kind: "Nature Communications 2025",
+    image: sourceImages.metaTruss,
+    url: "https://engineering.berkeley.edu/news/2025/09/mighty-morphing-robots/",
+    summary: "AI-optimized truss robots that morph into many body states with fewer control channels. Study this for the ambition level.",
+    tags: ["morphing robots", "AI design", "MetaTruss", "2025"],
+    shape: "hero",
+  },
+  {
+    id: "metatruss-helmet",
+    title: "Morphing helmet states",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "prototype",
+    image: sourceImages.metaTrussHelmet,
+    url: "https://engineering.berkeley.edu/news/2025/09/mighty-morphing-robots/",
+    summary: "A concrete product-style example: morph the geometry to move protection where it is needed.",
+    tags: ["wearables", "morphing", "design", "robotic matter"],
+    shape: "wide",
+  },
+  {
+    id: "compliant-metastructure",
+    title: "Reconfigurable compliant metastructures",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "Nature Communications 2025",
+    image: sourceImages.metaTrussBrace,
+    url: "https://morphingmatter.org/projects/compliant-metastructures",
+    summary: "Six-degree reconfigurability, stiffness tunability, wearable braces, and programmable joints. This is a direct inspiration source.",
+    tags: ["compliant mechanisms", "metastructures", "wearables"],
+    shape: "hero",
+  },
+  {
+    id: "morphing-skin",
+    title: "MorphingSkin tactile robots",
+    source: "Morphing Matter Lab",
+    board: "Soft Robotics",
+    kind: "2025 visual research",
+    image: sourceImages.morphingSkin,
+    url: "https://engineering.berkeley.edu/news/2025/11/material-intelligence/",
+    summary: "Soft robotic skin with surface nodes and suction-like behavior for grasping, climbing, wearables, and haptic guidance.",
+    tags: ["soft robotics", "tactile", "robot skin", "2025"],
+    shape: "hero",
+  },
+  {
+    id: "thermorph-4d-printing",
+    title: "Thermorph 4D printing",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "material intelligence",
+    image: sourceImages.thermorph,
+    url: "https://engineering.berkeley.edu/news/2025/11/material-intelligence/",
+    summary: "Flat prints that self-transform into 3D objects. Study it for the link between fabrication constraints and magical behavior.",
+    tags: ["4D printing", "programmable matter", "fabrication"],
+    shape: "standard",
+  },
+  {
+    id: "self-burying-seed",
+    title: "Self-burying seed carriers",
+    source: "Morphing Matter Lab",
+    board: "Shape + Matter",
+    kind: "bio-inspired matter",
+    image: sourceImages.seedGermination,
+    url: "https://engineering.berkeley.edu/news/2025/11/material-intelligence/",
+    summary: "Bio-inspired morphing matter that drills seeds into soil. Different domain, same question: how can material geometry do the work?",
+    tags: ["bioinspired", "morphing", "sustainability", "materials"],
+    shape: "tall",
+  },
+  {
+    id: "mit-metamaterials-map",
+    title: "Mapping the future of metamaterials",
+    source: "MIT News",
+    board: "Computational Design",
+    kind: "2025 field map",
+    image: sourceImages.metaTrussVideo,
+    url: "https://news.mit.edu/2025/mapping-future-metamaterials-0327",
+    summary: "A field-map tile for architected materials, fabrication, characterization, and where metamaterials are heading.",
+    tags: ["metamaterials", "field map", "MIT", "2025"],
+    shape: "standard",
+  },
+  {
+    id: "creative-soft-robotics-course",
+    title: "Creative Soft Robotics",
+    source: "CMU Morphing Matter Lab",
+    board: "Learning",
+    kind: "Spring 2025",
+    image: sourceImages.disneyPneumatic,
+    url: "https://courses.ideate.cmu.edu/16-480/s2025/text/video/Morphing-Matter-Lab.html",
+    summary: "A current course doorway into soft robotic materials, morphing mechanisms, actuation, and project taste.",
+    tags: ["soft robotics", "course", "CMU", "2025"],
+    shape: "standard",
+  },
+  {
+    id: "rotational-3d-soft-robotic-matter",
+    title: "Rotational 3D printed soft robotic matter",
+    source: "arXiv",
+    board: "Soft Robotics",
+    kind: "2025 paper",
+    image: sourceImages.disneyPneumatic,
+    url: "https://arxiv.org/abs/2505.18095",
+    summary: "Recent soft robotic matter: multi-material 3D printing, asymmetrical embedded pneumatics, shape morphing, and wearable device potential.",
+    tags: ["soft robotic matter", "3D printing", "2025"],
+    shape: "standard",
+  },
+  {
+    id: "programmable-telescopic-soft-actuators",
+    title: "Telescopic soft pneumatic actuators",
+    source: "arXiv",
+    board: "Soft Robotics",
+    kind: "2025 paper",
+    image: sourceImages.metaTrussBrace,
+    url: "https://arxiv.org/abs/2511.06673",
+    summary: "Recent deployable and shape-morphing soft robots. Good for learning how actuator architecture expands the design space.",
+    tags: ["soft actuators", "deployable", "shape morphing"],
+    shape: "standard",
+  },
+  {
+    id: "whole-body-proprioceptive-morphing",
+    title: "Whole-body proprioceptive morphing",
+    source: "arXiv",
+    board: "Soft Robotics",
+    kind: "2025 paper",
+    image: sourceImages.morphingSkin,
+    url: "https://arxiv.org/abs/2510.27666",
+    summary: "Octopus-inspired soft grasping: entire-body reconfiguration, sensing, and cross-scale manipulation.",
+    tags: ["soft gripper", "proprioception", "morphing", "2025"],
+    shape: "wide",
+  },
+  {
+    id: "robotecture-shape-interface",
+    title: "Robotecture shape-changing interface",
+    source: "ACM TEI 2025",
+    board: "Tangible",
+    kind: "2025 paper",
+    image: sourceImages.mitInform,
+    url: "https://cs.unm.edu/~zhuwang/assets/pdf/RoboTerrain__TEI_2025.pdf",
+    summary: "A modular shape-changing interface using actuated support beams. Tangible interfaces are still alive and still weird.",
+    tags: ["shape-changing interface", "TEI", "tangible", "2025"],
+    shape: "wide",
+  },
+  {
+    id: "siggraph-emerging-tech-2026",
+    title: "SIGGRAPH Emerging Technologies",
+    source: "SIGGRAPH",
+    board: "Creative Tools",
+    kind: "2026 source",
+    image: sourceImages.disneyDiffusion,
+    url: "https://s2026.siggraph.org/program/emerging-technologies/",
+    summary: "A standing source for demos that feel like the future: installations, interaction, graphics, haptics, robots, and experimental displays.",
+    tags: ["emerging tech", "SIGGRAPH", "demos", "interaction"],
+    shape: "standard",
+  },
+  {
+    id: "rss-2026",
+    title: "Robotics: Science and Systems",
+    source: "RSS",
+    board: "Robotics",
+    kind: "conference source",
+    image: sourceImages.cmuRobotics,
+    url: "https://roboticsconference.org/",
+    summary: "Read the accepted papers and ask: which work would make a physical character, tool, or interaction more believable?",
+    tags: ["robotics", "conference", "papers", "systems"],
+    shape: "standard",
+  },
+  {
+    id: "icra-2026-watch",
+    title: "ICRA robotics papers",
+    source: "IEEE RAS",
+    board: "Robotics",
+    kind: "conference source",
+    image: sourceImages.cmuRobotics,
+    url: "https://www.ieee-ras.org/conferences-workshops/fully-sponsored/icra",
+    summary: "Use ICRA as a scan for new mechanisms, soft robots, manipulation, control, HRI, and field systems.",
+    tags: ["robotics", "ICRA", "mechanisms", "papers"],
+    shape: "standard",
+  },
+  {
+    id: "world-haptics-2025",
+    title: "World Haptics",
+    source: "IEEE World Haptics",
+    board: "Haptics",
+    kind: "conference source",
+    image: sourceImages.wdiWebslingers,
+    url: "https://2025.worldhaptics.org/",
+    summary: "A concentrated stream for tactile displays, force feedback, wearable haptics, teleoperation, and physical interaction.",
+    tags: ["haptics", "touch", "wearables", "interfaces"],
+    shape: "standard",
+  },
+  {
+    id: "haptics-symposium-2026",
+    title: "Haptics Symposium",
+    source: "IEEE Haptics Symposium",
+    board: "Haptics",
+    kind: "2026 source",
+    image: sourceImages.wdiWebslingers,
+    url: "https://2026.hapticssymposium.org/",
+    summary: "A source to mine when you want physical feedback, tactile devices, and interaction that people can feel.",
+    tags: ["haptics", "touch", "2026", "hardware"],
+    shape: "standard",
+  },
+  {
+    id: "autodesk-design-make",
+    title: "Autodesk Research",
+    source: "Autodesk Research",
+    board: "Creative Tools",
+    kind: "source board",
+    image: sourceImages.metaTruss,
+    url: "https://www.research.autodesk.com/",
+    summary: "Computational design, fabrication, generative tools, and design-make workflows. Excellent adjacent taste for research work.",
+    tags: ["design tools", "fabrication", "creative systems"],
+    shape: "wide",
+  },
+  {
+    id: "pixar-graphics-library",
+    title: "Pixar graphics research",
+    source: "Pixar",
+    board: "Computer Graphics",
+    kind: "source board",
+    image: sourceImages.disneyMotion,
+    url: "https://graphics.pixar.com/library/",
+    summary: "A deep archive for production-grade simulation, rendering, animation, geometry, and technical taste.",
+    tags: ["graphics", "simulation", "animation", "research"],
+    shape: "standard",
+  },
+  {
+    id: "nvidia-physical-ai",
+    title: "NVIDIA physical AI",
+    source: "NVIDIA Research",
+    board: "Robotics",
+    kind: "industry source",
+    image: sourceImages.disneyRobotMdm,
+    url: "https://research.nvidia.com/research-area/robotics",
+    summary: "Simulation, robot learning, digital twins, and physical AI. Use it to track how industry is turning models into motion.",
+    tags: ["physical AI", "simulation", "robotics", "industry"],
+    shape: "standard",
+  },
+  {
+    id: "google-robotics-research",
+    title: "Google robotics research",
+    source: "Google Research",
+    board: "Robotics",
+    kind: "industry source",
+    image: sourceImages.cmuRobotics,
+    url: "https://research.google/teams/robotics/",
+    summary: "Robot learning, generalist manipulation, and embodied AI. Scan selectively for what transfers into physical prototyping.",
+    tags: ["robot learning", "embodied AI", "manipulation"],
+    shape: "standard",
+  },
+  {
+    id: "make-one-proof",
+    title: "Make one visible proof today",
+    source: "Research motivation",
+    board: "Momentum",
+    kind: "build prompt",
+    image: sourceImages.metaTruss,
+    summary: "Do not wait for a perfect project. Make one short clip, one diagram, one measured prototype, one simulation, or one teardown that proves a taste for hard physical work.",
+    tags: ["portfolio", "prototype", "practice"],
+    shape: "hero",
+  },
+  {
+    id: "read-like-builder",
+    title: "Read papers like a builder",
+    source: "Research motivation",
+    board: "Momentum",
+    kind: "research prompt",
+    image: sourceImages.disneyQuaternion,
+    summary: "For every paper: what is the mechanism, what constraint made it hard, what artifact proves it, and what would you build in seven days?",
+    tags: ["research", "papers", "portfolio"],
+    shape: "standard",
+  },
+  {
+    id: "copy-the-energy",
+    title: "Copy the energy, not the project",
+    source: "Research motivation",
+    board: "Momentum",
+    kind: "taste prompt",
+    image: sourceImages.disneyGaits,
+    summary: "The goal is not to duplicate Olaf, MetaTruss, or inFORM. The goal is to match the ambition: visible behavior, real constraints, and a memorable interaction.",
+    tags: ["taste", "ambition", "creative R&D"],
+    shape: "wide",
+  },
+  {
+    id: "weekly-research-sprint",
+    title: "Weekly research sprint",
+    source: "Research motivation",
+    board: "Momentum",
+    kind: "practice loop",
+    image: sourceImages.morphingSkin,
+    summary: "Pick one source, build one tiny derivative, film it, write the mechanism, write the failure, and publish the evidence. That is how the feed becomes a portfolio.",
+    tags: ["sprint", "build", "publish", "practice"],
+    shape: "standard",
+  },
+  {
+    id: "physical-magic-standard",
+    title: "Physical magic standard",
+    source: "Research motivation",
+    board: "Momentum",
+    kind: "north star",
+    image: sourceImages.disneyBdx,
+    summary: "Great work in this lane feels alive, behaves reliably, and reveals technical depth when inspected. Build toward that bar.",
+    tags: ["Disney", "physical systems", "north star"],
+    shape: "standard",
+  },
+];
+
+const staticItems = [...seedItems, ...inspirationItems];
+
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
 let loadingMoreFeed = false;
-const initialFeedPageCount = 2;
+let loadingMoreDetail = false;
+const initialFeedPageCount = 4;
 const feedPageSize = 24;
+const initialDetailPageCount = 3;
 let feedPageCount = initialFeedPageCount;
+let detailPageCount = initialDetailPageCount;
 let feedSessionSeed = makeFeedSeed();
 
 function makeFeedSeed() {
@@ -288,6 +823,7 @@ function mixNumber(value) {
 function refreshFeedLayout() {
   feedSessionSeed = makeFeedSeed();
   feedPageCount = initialFeedPageCount;
+  detailPageCount = initialDetailPageCount;
 }
 
 function esc(value) {
@@ -339,6 +875,9 @@ function inferTags(item) {
 
 function imageForLiveItem(item, index) {
   const text = `${item.source || ""} ${item.title || ""}`.toLowerCase();
+  if (text.includes("olaf") || text.includes("character control") || text.includes("robotic character")) return [sourceImages.disneyBdx, sourceImages.disneyAmor, sourceImages.disneyRobotMdm][index % 3];
+  if (text.includes("metamaterial") || text.includes("interlocking") || text.includes("chainmail") || text.includes("voronoi")) return [sourceImages.chainmail, sourceImages.metaTruss, sourceImages.metaTrussHelmet][index % 3];
+  if (text.includes("morphing") || text.includes("compliant") || text.includes("shape-changing")) return [sourceImages.metaTruss, sourceImages.metaTrussBrace, sourceImages.morphingSkin][index % 3];
   if (text.includes("disney research")) return [sourceImages.disneyRig, sourceImages.disneyAvatar, sourceImages.disneyMotion, sourceImages.disneyDiffusion][index % 4];
   if (text.includes("disney") || text.includes("imagineering")) return [sourceImages.wdiCampus, sourceImages.wdiWebslingers, sourceImages.wdiNeverland, sourceImages.wdiCulture][index % 4];
   if (text.includes("mit") || text.includes("tangible") || text.includes("shape")) return sourceImages.mitInform;
@@ -352,7 +891,10 @@ function imageForLiveItem(item, index) {
     sourceImages.disneyAvatar,
     sourceImages.disneyMotion,
     sourceImages.wdiWebslingers,
-  ][index % 8];
+    sourceImages.metaTruss,
+    sourceImages.disneyAmor,
+    sourceImages.morphingSkin,
+  ][index % 11];
 }
 
 function normalizeRemoteItem(item, index) {
@@ -390,6 +932,8 @@ function normalizeRemoteItem(item, index) {
     date: item.date || "",
     url: item.url || "",
     image: item.image || imageForLiveItem(item, index),
+    videoId: item.videoId || "",
+    videoUrl: item.videoUrl || "",
     summary: item.summary || item.why || "Fresh signal from the live Ocean feed.",
     tags: tags.length ? tags.slice(0, 5) : inferTags(item),
     shape: index % 7 === 0 ? "wide" : "standard",
@@ -400,7 +944,7 @@ function normalizeRemoteItem(item, index) {
 }
 
 function allItems() {
-  const seedKeys = new Set(seedItems.map((item) => `${item.url || ""}|${item.title}`.toLowerCase()));
+  const seedKeys = new Set(staticItems.map((item) => `${item.url || ""}|${item.title}`.toLowerCase()));
   const usedImages = new Map();
   const imageCounts = new Map();
   const remote = (radar.items || [])
@@ -418,8 +962,8 @@ function allItems() {
     .slice(0, 80);
   const seen = new Set();
   const seenTitles = new Set();
-  return [...seedItems, ...remote].filter((item) => {
-    if (!item.image && !item.videoId) return false;
+  return [...staticItems, ...remote].filter((item) => {
+    if (!item.image && !item.videoId && !item.videoUrl) return false;
     const key = `${item.url || ""}|${item.title}`.toLowerCase();
     const titleKey = slug(item.title);
     if (seen.has(key) || seenTitles.has(titleKey)) return false;
@@ -453,14 +997,12 @@ function pageVariantItem(item, index, page) {
 function visibleItems() {
   const baseItems = allItems();
   if (baseItems.length === 0) return [];
-  const targetCount = feedPageCount * feedPageSize;
+  const targetCount = Math.min(feedPageCount * feedPageSize, baseItems.length);
   const output = [];
-  for (let page = 0; output.length < targetCount; page += 1) {
-    const order = pageOrder(baseItems.length, page);
-    for (const orderedIndex of order) {
-      output.push(pageVariantItem(baseItems[orderedIndex], output.length, page));
-      if (output.length >= targetCount) break;
-    }
+  const firstOrder = pageOrder(baseItems.length, 0);
+  for (const orderedIndex of firstOrder) {
+    output.push(pageVariantItem(baseItems[orderedIndex], output.length, 0));
+    if (output.length >= targetCount) return output;
   }
   return output;
 }
@@ -478,13 +1020,20 @@ function mediaMarkup(item, mode = "tile") {
       <img class="media-primary" src="${esc(image)}" alt="" loading="${mode === "tile" ? "lazy" : "eager"}" onerror="this.remove();">
     `
     : fallback;
+  if (item.videoUrl) {
+    return `
+      ${poster}
+      <video class="video-frame" src="${esc(item.videoUrl)}" ${image ? `poster="${esc(image)}"` : ""} autoplay muted loop playsinline preload="${mode === "tile" ? "metadata" : "auto"}"></video>
+      <span class="video-badge">video</span>
+    `;
+  }
   if (!item.videoId) return poster;
-  if (mode === "tile" || mode === "detail") return `${poster}<span class="video-badge">video</span>`;
   const controls = mode === "detail" ? "1" : "0";
   const src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${encodeURIComponent(item.videoId)}&controls=${controls}&modestbranding=1&rel=0&iv_load_policy=3`;
   return `
     ${poster}
     <iframe class="video-frame" src="${src}" title="${esc(item.title)}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    <span class="video-badge">video</span>
   `;
 }
 
@@ -521,13 +1070,36 @@ function similarItems(item) {
     .slice(0, 18);
 }
 
+function focusedItems(item) {
+  const baseItems = allItems()
+    .filter((candidate) => candidate.id !== item.id)
+    .map((candidate) => ({ candidate, score: overlapScore(item, candidate) }))
+    .sort((a, b) => b.score - a.score)
+    .map((row) => row.candidate);
+  if (baseItems.length === 0) return [];
+  const targetCount = detailPageCount * feedPageSize;
+  const output = [];
+  const firstTake = Math.min(targetCount, baseItems.length);
+  for (let index = 0; index < firstTake; index += 1) {
+    output.push(pageVariantItem(baseItems[index], output.length, 0));
+  }
+  for (let page = 1; output.length < targetCount; page += 1) {
+    const order = pageOrder(baseItems.length, page + 13);
+    for (const orderedIndex of order) {
+      output.push(pageVariantItem(baseItems[orderedIndex], output.length, page));
+      if (output.length >= targetCount) break;
+    }
+  }
+  return output;
+}
+
 function selectedItem() {
   return selectedId ? findItem(selectedId) : null;
 }
 
 function renderDetail(item) {
   if (!item) return "";
-  const related = similarItems(item);
+  const related = focusedItems(item);
   const visit = item.url
     ? `<a class="visit-button" href="${esc(item.url)}" target="_blank" rel="noopener">Visit</a>`
     : "";
@@ -597,10 +1169,12 @@ function render() {
       ${renderDetail(selectedItem())}
     </main>
   `;
+  const detailPanel = typeof app.querySelector === "function" ? app.querySelector(".detail-panel") : null;
+  detailPanel?.addEventListener("scroll", () => extendDetailIfNeeded(detailPanel), { passive: true });
 }
 
 function extendFeedIfNeeded() {
-  if (selectedId || loadingMoreFeed) return;
+  if (loadingMoreFeed) return;
   const remaining = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
   if (remaining > Math.max(window.innerHeight * 1.8, 900)) return;
   loadingMoreFeed = true;
@@ -610,6 +1184,21 @@ function extendFeedIfNeeded() {
   requestAnimationFrame(() => {
     window.scrollTo(0, scrollTop);
     loadingMoreFeed = false;
+  });
+}
+
+function extendDetailIfNeeded(panel) {
+  if (!selectedId || loadingMoreDetail || !panel) return;
+  const remaining = panel.scrollHeight - panel.clientHeight - panel.scrollTop;
+  if (remaining > Math.max(panel.clientHeight * 1.5, 720)) return;
+  loadingMoreDetail = true;
+  detailPageCount += 2;
+  const scrollTop = panel.scrollTop;
+  render();
+  requestAnimationFrame(() => {
+    const nextPanel = document.querySelector(".detail-panel");
+    if (nextPanel) nextPanel.scrollTop = scrollTop;
+    loadingMoreDetail = false;
   });
 }
 
@@ -663,6 +1252,7 @@ function animateFocusFrom(flight) {
 }
 
 function openItem(id, sourceElement) {
+  if (selectedId !== id) detailPageCount = initialDetailPageCount;
   const activeTile = sourceElement || document.querySelector(`[data-id="${CSS.escape(id)}"]`);
   const flight = makeFocusFlyer(activeTile);
   selectedId = id;
@@ -673,6 +1263,7 @@ function openItem(id, sourceElement) {
 
 function closeDetail() {
   selectedId = null;
+  detailPageCount = initialDetailPageCount;
   history.replaceState(null, "", location.pathname);
   render();
 }
@@ -713,6 +1304,7 @@ async function loadRadar(force = false, reshuffle = false) {
 
 function home() {
   selectedId = null;
+  detailPageCount = initialDetailPageCount;
   history.replaceState(null, "", location.pathname);
   render();
 }
