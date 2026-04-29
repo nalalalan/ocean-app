@@ -1130,20 +1130,40 @@ function normalizeRemoteItem(item, index) {
   };
 }
 
+function normalizedMediaUrl(value) {
+  if (!value) return "";
+  try {
+    const url = new URL(value, location.href);
+    url.hash = "";
+    const search = url.searchParams;
+    ["format", "width", "height", "w", "h"].forEach((param) => search.delete(param));
+    url.search = search.toString();
+    return url.toString().replace(/^http:/, "https:").toLowerCase();
+  } catch {
+    return String(value).split("#")[0].toLowerCase();
+  }
+}
+
+function mediaKey(item) {
+  if (item.videoUrl) return `video-url:${normalizedMediaUrl(item.videoUrl)}`;
+  if (item.videoId) return `youtube:${item.videoId}`;
+  if (item.image) return `image:${normalizedMediaUrl(item.image)}`;
+  return "";
+}
+
 function allItems() {
   const seedKeys = new Set(staticItems.map((item) => `${item.url || ""}|${item.title}`.toLowerCase()));
-  const usedImages = new Map();
-  const imageCounts = new Map();
+  const usedMedia = new Set();
+  const remoteMedia = new Set();
   const remote = (radar.items || [])
     .map(normalizeRemoteItem)
     .filter((item) => item.showInWall && item.image)
     .filter((item) => {
       const key = `${item.url || ""}|${item.title}`.toLowerCase();
       if (seedKeys.has(key)) return false;
-      const imageKey = item.image || "";
-      const prior = imageCounts.get(imageKey) || 0;
-      if (imageKey && prior >= 2) return false;
-      imageCounts.set(imageKey, prior + 1);
+      const keyMedia = mediaKey(item);
+      if (keyMedia && remoteMedia.has(keyMedia)) return false;
+      if (keyMedia) remoteMedia.add(keyMedia);
       return true;
     })
     .slice(0, 220);
@@ -1156,10 +1176,9 @@ function allItems() {
     if (seen.has(key) || seenTitles.has(titleKey)) return false;
     seen.add(key);
     seenTitles.add(titleKey);
-    const imageKey = item.image || "";
-    const imagePrior = usedImages.get(imageKey) || 0;
-    if (imageKey && imagePrior >= 2) return false;
-    if (imageKey) usedImages.set(imageKey, imagePrior + 1);
+    const keyMedia = mediaKey(item);
+    if (keyMedia && usedMedia.has(keyMedia)) return false;
+    if (keyMedia) usedMedia.add(keyMedia);
     return true;
   }).map((item, index) => ({
     ...item,
@@ -1182,7 +1201,7 @@ function pageVariantItem(item, index, page) {
 }
 
 function contentKey(item) {
-  return `${item.url || ""}|${item.title || ""}|${item.image || ""}`.toLowerCase();
+  return mediaKey(item) || `${item.url || ""}|${item.title || ""}`.toLowerCase();
 }
 
 function pushSpacedItem(output, item, page, minDistance = 16) {
@@ -1307,10 +1326,19 @@ function chooseColumn(columns, item) {
     .sort((a, b) => a.column.height - b.column.height);
   const unseenColumn = ranked.find(({ column }) => !column.keys.has(key));
   if (unseenColumn) return unseenColumn;
-  return ranked.find(({ column }) => {
-    const recent = column.items.slice(-recentLimit);
-    return !recent.some((entry) => contentKey(entry.item) === key);
-  }) || ranked[0];
+  const scored = ranked.map((entry) => {
+    let distance = Infinity;
+    for (let index = entry.column.items.length - 1; index >= 0; index -= 1) {
+      if (contentKey(entry.column.items[index].item) === key) {
+        distance = entry.column.items.length - index;
+        break;
+      }
+    }
+    return { ...entry, distance };
+  });
+  const recentSafe = scored.filter(({ distance }) => distance > recentLimit);
+  if (recentSafe.length) return recentSafe.sort((a, b) => a.column.height - b.column.height)[0];
+  return scored.sort((a, b) => b.distance - a.distance || a.column.height - b.column.height)[0];
 }
 
 function packColumns(items, count) {
