@@ -997,12 +997,19 @@ function pageVariantItem(item, index, page) {
 function visibleItems() {
   const baseItems = allItems();
   if (baseItems.length === 0) return [];
-  const targetCount = Math.min(feedPageCount * feedPageSize, baseItems.length);
+  const targetCount = feedPageCount * feedPageSize;
   const output = [];
   const firstOrder = pageOrder(baseItems.length, 0);
   for (const orderedIndex of firstOrder) {
     output.push(pageVariantItem(baseItems[orderedIndex], output.length, 0));
     if (output.length >= targetCount) return output;
+  }
+  for (let page = 1; output.length < targetCount; page += 1) {
+    const order = pageOrder(baseItems.length, page);
+    for (const orderedIndex of order) {
+      output.push(pageVariantItem(baseItems[orderedIndex], output.length, page));
+      if (output.length >= targetCount) break;
+    }
   }
   return output;
 }
