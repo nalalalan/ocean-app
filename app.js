@@ -1037,6 +1037,16 @@ function mediaMarkup(item, mode = "tile") {
   `;
 }
 
+function tileRatioFor(item, index) {
+  if (item.videoId || item.videoUrl) return "16 / 9";
+  const shape = shapeFor(item, index);
+  if (shape === "wide") return "16 / 9";
+  if (shape === "hero") return "4 / 3";
+  if (shape === "small") return "4 / 3";
+  if (shape === "tall") return "3 / 4";
+  return "1 / 1";
+}
+
 function shapeFor(item, index) {
   if (item.shape) return item.shape;
   if (item.videoId) return index % 2 ? "wide" : "hero";
@@ -1044,8 +1054,9 @@ function shapeFor(item, index) {
 }
 
 function renderTile(item, index, compact = false) {
+  const ratio = tileRatioFor(item, index);
   return `
-    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" data-feed-id="${esc(item.feedId || item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)}">
+    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" data-feed-id="${esc(item.feedId || item.id)}" data-video="${item.videoId || item.videoUrl ? "true" : "false"}" role="button" tabindex="0" style="--accent:${esc(item.accent)};--media-ratio:${esc(ratio)}">
       <div class="media-frame">${mediaMarkup(item)}</div>
       <div class="media-gradient"></div>
       <div class="media-label">
@@ -1054,6 +1065,20 @@ function renderTile(item, index, compact = false) {
       </div>
     </article>
   `;
+}
+
+function updateTileRatioFromImage(image) {
+  if (!image?.naturalWidth || !image?.naturalHeight) return;
+  const card = image.closest?.(".media-card");
+  if (!card || card.dataset.video === "true") return;
+  card.style.setProperty("--media-ratio", `${image.naturalWidth} / ${image.naturalHeight}`);
+}
+
+function applyLoadedTileRatios() {
+  const images = document.querySelectorAll?.(".media-card .media-primary") || [];
+  images.forEach((image) => {
+    if (image.complete) updateTileRatioFromImage(image);
+  });
 }
 
 function overlapScore(a, b) {
@@ -1171,6 +1196,7 @@ function render() {
   `;
   const detailPanel = typeof app.querySelector === "function" ? app.querySelector(".detail-panel") : null;
   detailPanel?.addEventListener("scroll", () => extendDetailIfNeeded(detailPanel), { passive: true });
+  applyLoadedTileRatios();
 }
 
 function extendFeedIfNeeded() {
@@ -1333,6 +1359,12 @@ document.addEventListener("keydown", (event) => {
     openItem(target.dataset.id, target);
   }
 });
+
+document.addEventListener("load", (event) => {
+  if (event.target?.matches?.(".media-card .media-primary")) {
+    updateTileRatioFromImage(event.target);
+  }
+}, true);
 
 window.addEventListener("scroll", extendFeedIfNeeded, { passive: true });
 window.addEventListener("resize", extendFeedIfNeeded);
