@@ -1301,7 +1301,7 @@ function wallColumnCount() {
 function chooseColumn(columns, item) {
   const key = contentKey(item);
   const packedCount = columns.reduce((sum, column) => sum + column.items.length, 0);
-  const recentLimit = Math.max(36, Math.min(96, Math.ceil((packedCount + columns.length) / columns.length)));
+  const recentLimit = Math.max(36, Math.min(120, Math.ceil((packedCount + columns.length) / columns.length)));
   const ranked = columns
     .map((column, index) => ({ column, index }))
     .sort((a, b) => a.column.height - b.column.height);
