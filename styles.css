@@ -432,12 +432,12 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 22px;
+  min-height: 44px;
+  padding: 0 18px;
   border-radius: 999px;
   background: #8ab4ff;
   color: #071018;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 850;
 }
 
@@ -474,9 +474,8 @@ a {
 }
 
 .detail-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  gap: 8px;
   margin: 0 0 14px;
 }
 
@@ -484,8 +483,8 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0 16px;
+  min-height: 44px;
+  padding: 0 18px;
   border-radius: 999px;
   background: rgba(113, 128, 150, 0.34);
   color: #ffffff;
@@ -698,8 +697,8 @@ a {
   }
 
   .result-info {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
     margin: 0 0 14px;
     min-width: 0;
   }
@@ -714,26 +713,23 @@ a {
   }
 
   .visit-button {
-    min-height: 64px;
-    padding: 0 20px;
-    font-size: 24px;
+    justify-self: end;
+    min-height: 48px;
+    padding: 0 18px;
+    font-size: 20px;
     white-space: nowrap;
   }
 
   .detail-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
     gap: 10px;
-    margin: 0 0 16px;
+    margin: 0 0 14px;
   }
 
   .action-pill {
-    min-height: 64px;
-    padding: 0 8px;
-    font-size: 22px;
-  }
-
-  .detail-actions .action-pill:last-child {
-    grid-column: 1 / -1;
+    min-height: 48px;
+    padding: 0 22px;
+    font-size: 20px;
   }
 
   .similar-grid {
