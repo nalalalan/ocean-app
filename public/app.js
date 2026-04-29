@@ -263,8 +263,8 @@ const seedItems = [
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
 let loadingMoreFeed = false;
-const initialFeedPageCount = 6;
-const feedPageSize = 18;
+const initialFeedPageCount = 2;
+const feedPageSize = 24;
 let feedPageCount = initialFeedPageCount;
 let feedSessionSeed = makeFeedSeed();
 
@@ -343,7 +343,16 @@ function imageForLiveItem(item, index) {
   if (text.includes("disney") || text.includes("imagineering")) return [sourceImages.wdiCampus, sourceImages.wdiWebslingers, sourceImages.wdiNeverland, sourceImages.wdiCulture][index % 4];
   if (text.includes("mit") || text.includes("tangible") || text.includes("shape")) return sourceImages.mitInform;
   if (text.includes("cmu") || text.includes("robot")) return sourceImages.cmuRobotics;
-  return [sourceImages.mitInform, sourceImages.cmuRobotics, sourceImages.disneyRig, sourceImages.wdiCulture][index % 4];
+  return [
+    sourceImages.mitInform,
+    sourceImages.cmuRobotics,
+    sourceImages.disneyRig,
+    sourceImages.wdiCulture,
+    sourceImages.wdiNeverland,
+    sourceImages.disneyAvatar,
+    sourceImages.disneyMotion,
+    sourceImages.wdiWebslingers,
+  ][index % 8];
 }
 
 function normalizeRemoteItem(item, index) {
@@ -365,6 +374,13 @@ function normalizeRemoteItem(item, index) {
     || text.includes("research scientist")
     || text.includes("research engineer")
   );
+  const isLearningSource = (
+    text.includes("university source")
+    || text.includes("learning source")
+    || text.includes("lab source")
+    || text.includes("visual source")
+    || text.includes("source board")
+  );
   return {
     id: `live-${slug(title)}-${index}`,
     title,
@@ -379,27 +395,27 @@ function normalizeRemoteItem(item, index) {
     shape: index % 7 === 0 ? "wide" : "standard",
     live: true,
     originalImage: hasOriginalImage,
-    showInWall: hasOriginalImage || isStrongOpportunity,
+    showInWall: hasOriginalImage || isStrongOpportunity || isLearningSource,
   };
 }
 
 function allItems() {
   const seedKeys = new Set(seedItems.map((item) => `${item.url || ""}|${item.title}`.toLowerCase()));
-  const usedImages = new Set();
+  const usedImages = new Map();
   const imageCounts = new Map();
   const remote = (radar.items || [])
     .map(normalizeRemoteItem)
-    .filter((item) => item.showInWall && item.originalImage)
+    .filter((item) => item.showInWall && item.image)
     .filter((item) => {
       const key = `${item.url || ""}|${item.title}`.toLowerCase();
       if (seedKeys.has(key)) return false;
       const imageKey = item.image || "";
       const prior = imageCounts.get(imageKey) || 0;
-      if (imageKey && prior >= 1) return false;
+      if (imageKey && prior >= 2) return false;
       imageCounts.set(imageKey, prior + 1);
       return true;
     })
-    .slice(0, 6);
+    .slice(0, 80);
   const seen = new Set();
   return [...seedItems, ...remote].filter((item) => {
     if (!item.image && !item.videoId) return false;
@@ -407,8 +423,9 @@ function allItems() {
     if (seen.has(key)) return false;
     seen.add(key);
     const imageKey = item.image || "";
-    if (imageKey && usedImages.has(imageKey)) return false;
-    if (imageKey) usedImages.add(imageKey);
+    const imagePrior = usedImages.get(imageKey) || 0;
+    if (imageKey && imagePrior >= 2) return false;
+    if (imageKey) usedImages.set(imageKey, imagePrior + 1);
     return true;
   }).map((item, index) => ({
     ...item,
@@ -581,7 +598,7 @@ function extendFeedIfNeeded() {
   const remaining = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
   if (remaining > Math.max(window.innerHeight * 1.8, 900)) return;
   loadingMoreFeed = true;
-  feedPageCount += 3;
+  feedPageCount += 2;
   const scrollTop = window.scrollY;
   render();
   requestAnimationFrame(() => {
