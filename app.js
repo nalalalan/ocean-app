@@ -262,6 +262,9 @@ const seedItems = [
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
+let feedPageCount = 6;
+let loadingMoreFeed = false;
+const feedPageSize = 18;
 
 function esc(value) {
   return String(value ?? "")
@@ -389,8 +392,33 @@ function allItems() {
   }));
 }
 
+function pageOrder(length, page) {
+  return Array.from({ length }, (_, index) => index)
+    .sort((a, b) => ((a * 37 + page * 19) % 101) - ((b * 37 + page * 19) % 101));
+}
+
+function pageVariantItem(item, index, page) {
+  if (page === 0) return item;
+  return {
+    ...item,
+    feedId: `${item.id}--feed-${page}-${index}`,
+    shape: ["standard", "tall", "wide", "standard", "hero", "small"][(index + page) % 6],
+  };
+}
+
 function visibleItems() {
-  return allItems();
+  const baseItems = allItems();
+  if (baseItems.length === 0) return [];
+  const targetCount = feedPageCount * feedPageSize;
+  const output = [];
+  for (let page = 0; output.length < targetCount; page += 1) {
+    const order = pageOrder(baseItems.length, page);
+    for (const orderedIndex of order) {
+      output.push(pageVariantItem(baseItems[orderedIndex], output.length, page));
+      if (output.length >= targetCount) break;
+    }
+  }
+  return output;
 }
 
 function findItem(id) {
@@ -421,7 +449,7 @@ function shapeFor(item, index) {
 
 function renderTile(item, index, compact = false) {
   return `
-    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)}">
+    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" data-feed-id="${esc(item.feedId || item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)}">
       <div class="media-frame">${mediaMarkup(item)}</div>
       <div class="media-gradient"></div>
       <div class="media-label">
@@ -524,6 +552,20 @@ function render() {
   `;
 }
 
+function extendFeedIfNeeded() {
+  if (selectedId || loadingMoreFeed) return;
+  const remaining = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+  if (remaining > Math.max(window.innerHeight * 1.8, 900)) return;
+  loadingMoreFeed = true;
+  feedPageCount += 3;
+  const scrollTop = window.scrollY;
+  render();
+  requestAnimationFrame(() => {
+    window.scrollTo(0, scrollTop);
+    loadingMoreFeed = false;
+  });
+}
+
 function animateFocusFrom(flight) {
   requestAnimationFrame(() => {
     const media = document.querySelector(".detail-media");
@@ -613,6 +655,7 @@ async function loadRadar(force = false) {
     const response = await fetch(`/api/radar${force ? "?force=1" : ""}`, { cache: "no-store" });
     if (!response.ok) throw new Error(`Radar returned ${response.status}`);
     const data = await response.json();
+    feedPageCount = Math.max(feedPageCount, 6);
     radar = { ...data, loading: false };
   } catch (error) {
     radar = { ...radar, loading: false, error: error.message };
@@ -650,6 +693,9 @@ document.addEventListener("keydown", (event) => {
     openItem(target.dataset.id, target);
   }
 });
+
+window.addEventListener("scroll", extendFeedIfNeeded, { passive: true });
+window.addEventListener("resize", extendFeedIfNeeded);
 
 render();
 loadRadar();
