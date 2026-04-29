@@ -218,7 +218,8 @@ a {
 .video-frame {
   z-index: 2;
   background: transparent;
-  opacity: 0.34;
+  opacity: 0.82;
+  pointer-events: none;
 }
 
 .detail-media .video-frame {
@@ -594,6 +595,27 @@ a {
   padding: 18px;
   transform: translate(-50%, -50%);
   text-align: center;
+}
+
+@media (min-width: 1201px) {
+  html.detail-open,
+  body.detail-open {
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .media-app.has-detail {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding-right: min(536px, calc(42vw + 24px));
+  }
+
+  .detail-panel {
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
 }
 
 @media (max-width: 1180px) {
