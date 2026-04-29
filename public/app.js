@@ -262,7 +262,6 @@ const seedItems = [
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
-let transitionId = selectedId;
 
 function esc(value) {
   return String(value ?? "")
@@ -421,9 +420,8 @@ function shapeFor(item, index) {
 }
 
 function renderTile(item, index, compact = false) {
-  const transitionStyle = item.id === transitionId ? " view-transition-name:ocean-focus;" : "";
   return `
-    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)};${transitionStyle}">
+    <article class="media-card shape-${esc(shapeFor(item, index))} ${compact ? "is-compact" : ""}" data-action="open" data-id="${esc(item.id)}" role="button" tabindex="0" style="--accent:${esc(item.accent)}">
       <div class="media-frame">${mediaMarkup(item)}</div>
       <div class="media-gradient"></div>
       <div class="media-label">
@@ -458,7 +456,6 @@ function renderDetail(item) {
   const visit = item.url
     ? `<a class="visit-button" href="${esc(item.url)}" target="_blank" rel="noopener">Visit</a>`
     : "";
-  const transitionStyle = item.id === transitionId ? " style=\"view-transition-name:ocean-focus;\"" : "";
   return `
     <aside class="detail-panel" aria-label="Selected media" style="--accent:${esc(item.accent)}">
       <div class="detail-top">
@@ -469,7 +466,7 @@ function renderDetail(item) {
           <strong>${esc(item.title)}</strong>
         </div>
       </div>
-      <div class="detail-media"${transitionStyle}>${mediaMarkup(item, "detail")}</div>
+      <div class="detail-media">${mediaMarkup(item, "detail")}</div>
       <div class="result-info">
         <div>
           <strong>${esc(item.title)}</strong>
@@ -485,6 +482,24 @@ function renderDetail(item) {
       </section>
     </aside>
   `;
+}
+
+function makeFocusFlyer(tile) {
+  if (!tile) return null;
+  const rect = tile.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+  const frame = tile.querySelector(".media-frame");
+  const flyer = document.createElement("div");
+  flyer.className = "focus-flyer";
+  flyer.style.left = `${rect.left}px`;
+  flyer.style.top = `${rect.top}px`;
+  flyer.style.width = `${rect.width}px`;
+  flyer.style.height = `${rect.height}px`;
+  flyer.style.setProperty("--accent", getComputedStyle(tile).getPropertyValue("--accent") || "#64d8ff");
+  flyer.style.setProperty("--start-radius", getComputedStyle(tile).borderRadius || "7px");
+  if (frame) flyer.appendChild(frame.cloneNode(true));
+  document.body.appendChild(flyer);
+  return { flyer, rect };
 }
 
 function formatUpdated(value) {
@@ -509,50 +524,60 @@ function render() {
   `;
 }
 
-function animateFocusFrom(startRect) {
+function animateFocusFrom(flight) {
   requestAnimationFrame(() => {
     const media = document.querySelector(".detail-media");
     const panel = document.querySelector(".detail-panel");
-    if (!media || !startRect) return;
+    if (!media || !flight?.flyer || !flight?.rect) {
+      panel?.animate([{ opacity: 0.86 }, { opacity: 1 }], { duration: 180, easing: "ease-out" });
+      return;
+    }
+    const { flyer, rect: startRect } = flight;
     const endRect = media.getBoundingClientRect();
-    if (!endRect.width || !endRect.height) return;
-    media.animate([
+    if (!endRect.width || !endRect.height) {
+      flyer.remove();
+      return;
+    }
+    media.classList.add("is-transition-target");
+    const animation = flyer.animate([
       {
         transformOrigin: "top left",
-        transform: `translate(${startRect.left - endRect.left}px, ${startRect.top - endRect.top}px) scale(${startRect.width / endRect.width}, ${startRect.height / endRect.height})`,
-        borderRadius: "7px",
+        transform: "translate3d(0, 0, 0) scale(1)",
+        borderRadius: getComputedStyle(flyer).getPropertyValue("--start-radius") || "7px",
       },
       {
         transformOrigin: "top left",
-        transform: "translate(0, 0) scale(1)",
+        transform: `translate3d(${endRect.left - startRect.left}px, ${endRect.top - startRect.top}px, 0) scale(${endRect.width / startRect.width}, ${endRect.height / startRect.height})`,
         borderRadius: getComputedStyle(media).borderRadius,
       },
     ], {
-      duration: 340,
-      easing: "cubic-bezier(0.2, 0, 0, 1)",
+      duration: 430,
+      easing: "cubic-bezier(0.16, 1, 0.3, 1)",
     });
     panel?.animate([
-      { opacity: 0.72 },
+      { opacity: 0.9 },
       { opacity: 1 },
     ], {
-      duration: 220,
+      duration: 260,
       easing: "ease-out",
+    });
+    animation.finished.finally(() => {
+      media.classList.remove("is-transition-target");
+      flyer.remove();
     });
   });
 }
 
-function openItem(id) {
-  transitionId = id;
-  const activeTile = document.querySelector(`[data-id="${CSS.escape(id)}"]`);
-  const startRect = activeTile?.getBoundingClientRect();
+function openItem(id, sourceElement) {
+  const activeTile = sourceElement || document.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  const flight = makeFocusFlyer(activeTile);
   selectedId = id;
   history.replaceState(null, "", `?item=${encodeURIComponent(id)}`);
   render();
-  animateFocusFrom(startRect);
+  animateFocusFrom(flight);
 }
 
 function closeDetail() {
-  transitionId = selectedId;
   selectedId = null;
   history.replaceState(null, "", location.pathname);
   render();
@@ -601,7 +626,7 @@ document.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   if (!target) return;
   const action = target.dataset.action;
-  if (action === "open") openItem(target.dataset.id);
+  if (action === "open") openItem(target.dataset.id, target);
   if (action === "close") closeDetail();
   if (action === "share") shareItem(target.dataset.id);
   if (action === "refresh") loadRadar(true);
@@ -617,7 +642,7 @@ document.addEventListener("keydown", (event) => {
   if (!target) return;
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
-    openItem(target.dataset.id);
+    openItem(target.dataset.id, target);
   }
 });
 
