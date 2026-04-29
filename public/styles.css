@@ -245,14 +245,13 @@ a {
   opacity: 1;
 }
 
-.detail-media .youtube-frame {
-  pointer-events: auto;
-}
-
 .youtube-play {
   position: absolute;
   z-index: 6;
   inset: 50% auto auto 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 132px;
   min-height: 48px;
   transform: translate(-50%, -50%);
@@ -263,6 +262,7 @@ a {
   cursor: pointer;
   font-size: 15px;
   font-weight: 950;
+  text-decoration: none;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
 }
 
