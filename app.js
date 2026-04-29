@@ -983,6 +983,7 @@ let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
 let loadingMoreFeed = false;
 let loadingMoreDetail = false;
+let activeEmbedItemId = null;
 const initialFeedPageCount = 4;
 const feedPageSize = 24;
 const initialDetailPageCount = 3;
@@ -1258,14 +1259,21 @@ function mediaMarkup(item, mode = "tile") {
     : fallback;
   if (item.videoUrl) {
     return `
-      ${poster}
       <video class="video-frame" src="${esc(item.videoUrl)}" ${image ? `poster="${esc(image)}"` : ""} autoplay muted loop playsinline preload="${mode === "tile" ? "metadata" : "auto"}"></video>
+      <span class="video-badge">video</span>
+    `;
+  }
+  if (mode === "detail" && item.videoId && activeEmbedItemId === item.id) {
+    const src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&mute=1&playsinline=1&controls=1&modestbranding=1&rel=0&iv_load_policy=3`;
+    return `
+      <iframe class="video-frame youtube-frame" src="${src}" title="${esc(item.title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
       <span class="video-badge">video</span>
     `;
   }
   if (item.videoId) {
     return `
       ${poster}
+      ${mode === "detail" ? `<button class="youtube-play" type="button" data-action="play-video" data-id="${esc(item.id)}">Play video</button>` : ""}
       <span class="video-badge">video</span>
     `;
   }
@@ -1581,6 +1589,7 @@ function animateFocusFrom(flight) {
 
 function openItem(id, sourceElement) {
   if (selectedId !== id) detailPageCount = initialDetailPageCount;
+  if (selectedId !== id) activeEmbedItemId = null;
   const activeTile = sourceElement || document.querySelector(`[data-id="${CSS.escape(id)}"]`);
   const flight = makeFocusFlyer(activeTile);
   selectedId = id;
@@ -1592,7 +1601,13 @@ function openItem(id, sourceElement) {
 function closeDetail() {
   selectedId = null;
   detailPageCount = initialDetailPageCount;
+  activeEmbedItemId = null;
   history.replaceState(null, "", location.pathname);
+  render();
+}
+
+function playEmbeddedVideo(id) {
+  activeEmbedItemId = id;
   render();
 }
 
@@ -1633,6 +1648,7 @@ async function loadRadar(force = false, reshuffle = false) {
 function home() {
   selectedId = null;
   detailPageCount = initialDetailPageCount;
+  activeEmbedItemId = null;
   history.replaceState(null, "", location.pathname);
   render();
 }
@@ -1644,6 +1660,7 @@ document.addEventListener("click", (event) => {
   const action = target.dataset.action;
   if (action === "open") openItem(target.dataset.id, target);
   if (action === "close") closeDetail();
+  if (action === "play-video") playEmbeddedVideo(target.dataset.id);
   if (action === "share") shareItem(target.dataset.id);
   if (action === "refresh") loadRadar(true, true);
   if (action === "home") home();
