@@ -983,7 +983,6 @@ let radar = { updatedAt: null, items: [], error: null, loading: true };
 let selectedId = new URLSearchParams(location.search).get("item");
 let loadingMoreFeed = false;
 let loadingMoreDetail = false;
-let activeEmbedItemId = null;
 const initialFeedPageCount = 4;
 const feedPageSize = 24;
 const initialDetailPageCount = 3;
@@ -1192,6 +1191,30 @@ function pageOrder(length, page) {
     .sort((a, b) => mixNumber(a * 1009 + page * 9176 + feedSessionSeed) - mixNumber(b * 1009 + page * 9176 + feedSessionSeed));
 }
 
+function isVideoItem(item) {
+  return Boolean(item.videoId || item.videoUrl || String(item.kind || "").toLowerCase().includes("video"));
+}
+
+function videoForwardItems(items) {
+  const videos = [];
+  const rest = [];
+  items.forEach((item) => (isVideoItem(item) ? videos : rest).push(item));
+  const mixed = [];
+  let videoIndex = 0;
+  let restIndex = 0;
+  while (videoIndex < videos.length || restIndex < rest.length) {
+    const shouldPlaceVideo = videoIndex < videos.length && (mixed.length < 12 ? mixed.length % 2 === 0 : mixed.length % 3 === 1);
+    if (shouldPlaceVideo || restIndex >= rest.length) {
+      mixed.push(videos[videoIndex]);
+      videoIndex += 1;
+    } else {
+      mixed.push(rest[restIndex]);
+      restIndex += 1;
+    }
+  }
+  return mixed.filter(Boolean);
+}
+
 function pageVariantItem(item, index, page) {
   if (page === 0) return item;
   return {
@@ -1223,17 +1246,18 @@ function visibleItems() {
   if (baseItems.length === 0) return [];
   const targetCount = feedPageCount * feedPageSize;
   const output = [];
-  const firstOrder = pageOrder(baseItems.length, 0);
-  for (const orderedIndex of firstOrder) {
-    pushSpacedItem(output, baseItems[orderedIndex], 0, 0);
+  const firstItems = videoForwardItems(pageOrder(baseItems.length, 0).map((orderedIndex) => baseItems[orderedIndex]));
+  for (const item of firstItems) {
+    pushSpacedItem(output, item, 0, 0);
     if (output.length >= targetCount) return output;
   }
   const repeatDistance = repeatDistanceFor(baseItems.length);
   for (let page = 1; output.length < targetCount; page += 1) {
     const order = pageOrder(baseItems.length, page);
+    const orderedItems = videoForwardItems(order.map((orderedIndex) => baseItems[orderedIndex]));
     let addedThisPage = 0;
-    for (const orderedIndex of order) {
-      if (pushSpacedItem(output, baseItems[orderedIndex], page, repeatDistance)) addedThisPage += 1;
+    for (const item of orderedItems) {
+      if (pushSpacedItem(output, item, page, repeatDistance)) addedThisPage += 1;
       if (output.length >= targetCount) break;
     }
     if (addedThisPage === 0) {
@@ -1246,6 +1270,10 @@ function visibleItems() {
 
 function findItem(id) {
   return allItems().find((item) => item.id === id);
+}
+
+function youtubeWatchUrl(item) {
+  return item?.videoId ? `https://www.youtube.com/watch?v=${encodeURIComponent(item.videoId)}` : "";
 }
 
 function mediaMarkup(item, mode = "tile") {
@@ -1263,17 +1291,10 @@ function mediaMarkup(item, mode = "tile") {
       <span class="video-badge">video</span>
     `;
   }
-  if (mode === "detail" && item.videoId && activeEmbedItemId === item.id) {
-    const src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&mute=1&playsinline=1&controls=1&modestbranding=1&rel=0&iv_load_policy=3`;
-    return `
-      <iframe class="video-frame youtube-frame" src="${src}" title="${esc(item.title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-      <span class="video-badge">video</span>
-    `;
-  }
   if (item.videoId) {
     return `
       ${poster}
-      ${mode === "detail" ? `<button class="youtube-play" type="button" data-action="play-video" data-id="${esc(item.id)}">Play video</button>` : ""}
+      ${mode === "detail" ? `<a class="youtube-play" href="${esc(youtubeWatchUrl(item))}" target="_blank" rel="noopener">Open YouTube</a>` : ""}
       <span class="video-badge">video</span>
     `;
   }
@@ -1410,16 +1431,17 @@ function focusedItems(item) {
   if (baseItems.length === 0) return [];
   const targetCount = detailPageCount * feedPageSize;
   const output = [];
-  const firstTake = Math.min(targetCount, baseItems.length);
-  for (let index = 0; index < firstTake; index += 1) {
-    pushSpacedItem(output, baseItems[index], 0, 0);
+  const firstItems = videoForwardItems(baseItems).slice(0, targetCount);
+  for (const item of firstItems) {
+    pushSpacedItem(output, item, 0, 0);
   }
   const repeatDistance = repeatDistanceFor(baseItems.length);
   for (let page = 1; output.length < targetCount; page += 1) {
     const order = pageOrder(baseItems.length, page + 13);
+    const orderedItems = videoForwardItems(order.map((orderedIndex) => baseItems[orderedIndex]));
     let addedThisPage = 0;
-    for (const orderedIndex of order) {
-      if (pushSpacedItem(output, baseItems[orderedIndex], page, repeatDistance)) addedThisPage += 1;
+    for (const item of orderedItems) {
+      if (pushSpacedItem(output, item, page, repeatDistance)) addedThisPage += 1;
       if (output.length >= targetCount) break;
     }
     if (addedThisPage === 0) {
@@ -1438,9 +1460,13 @@ function renderDetail(item) {
   if (!item) return "";
   const related = focusedItems(item);
   const relatedColumnCount = (window.innerWidth || 1200) <= 760 ? 1 : 2;
-  const visitLabel = item.videoId ? "Watch" : "Visit";
-  const visit = item.url
-    ? `<a class="visit-button" href="${esc(item.url)}" target="_blank" rel="noopener">${visitLabel}</a>`
+  const primaryUrl = youtubeWatchUrl(item) || item.url;
+  const visitLabel = item.videoId ? "YouTube" : "Visit";
+  const visit = primaryUrl
+    ? `<a class="visit-button" href="${esc(primaryUrl)}" target="_blank" rel="noopener">${visitLabel}</a>`
+    : "";
+  const sourceLink = item.videoId && item.url && item.url !== primaryUrl
+    ? `<a class="action-pill" href="${esc(item.url)}" target="_blank" rel="noopener">Source</a>`
     : "";
   return `
     <aside class="detail-panel" aria-label="Selected media" style="--accent:${esc(item.accent)}">
@@ -1462,6 +1488,7 @@ function renderDetail(item) {
       </div>
       <div class="detail-actions">
         <button class="action-pill" data-action="share" data-id="${esc(item.id)}">Share</button>
+        ${sourceLink}
       </div>
       ${renderColumns(related, "similar-grid", true, relatedColumnCount)}
     </aside>
@@ -1589,7 +1616,6 @@ function animateFocusFrom(flight) {
 
 function openItem(id, sourceElement) {
   if (selectedId !== id) detailPageCount = initialDetailPageCount;
-  if (selectedId !== id) activeEmbedItemId = null;
   const activeTile = sourceElement || document.querySelector(`[data-id="${CSS.escape(id)}"]`);
   const flight = makeFocusFlyer(activeTile);
   selectedId = id;
@@ -1601,13 +1627,7 @@ function openItem(id, sourceElement) {
 function closeDetail() {
   selectedId = null;
   detailPageCount = initialDetailPageCount;
-  activeEmbedItemId = null;
   history.replaceState(null, "", location.pathname);
-  render();
-}
-
-function playEmbeddedVideo(id) {
-  activeEmbedItemId = id;
   render();
 }
 
@@ -1648,7 +1668,6 @@ async function loadRadar(force = false, reshuffle = false) {
 function home() {
   selectedId = null;
   detailPageCount = initialDetailPageCount;
-  activeEmbedItemId = null;
   history.replaceState(null, "", location.pathname);
   render();
 }
@@ -1660,7 +1679,6 @@ document.addEventListener("click", (event) => {
   const action = target.dataset.action;
   if (action === "open") openItem(target.dataset.id, target);
   if (action === "close") closeDetail();
-  if (action === "play-video") playEmbeddedVideo(target.dataset.id);
   if (action === "share") shareItem(target.dataset.id);
   if (action === "refresh") loadRadar(true, true);
   if (action === "home") home();
