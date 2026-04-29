@@ -539,16 +539,21 @@ function animateFocusFrom(flight) {
       return;
     }
     media.classList.add("is-transition-target");
+    const targetRadius = getComputedStyle(media).borderRadius;
     const animation = flyer.animate([
       {
-        transformOrigin: "top left",
-        transform: "translate3d(0, 0, 0) scale(1)",
+        left: `${startRect.left}px`,
+        top: `${startRect.top}px`,
+        width: `${startRect.width}px`,
+        height: `${startRect.height}px`,
         borderRadius: getComputedStyle(flyer).getPropertyValue("--start-radius") || "7px",
       },
       {
-        transformOrigin: "top left",
-        transform: `translate3d(${endRect.left - startRect.left}px, ${endRect.top - startRect.top}px, 0) scale(${endRect.width / startRect.width}, ${endRect.height / startRect.height})`,
-        borderRadius: getComputedStyle(media).borderRadius,
+        left: `${endRect.left}px`,
+        top: `${endRect.top}px`,
+        width: `${endRect.width}px`,
+        height: `${endRect.height}px`,
+        borderRadius: targetRadius,
       },
     ], {
       duration: 430,
