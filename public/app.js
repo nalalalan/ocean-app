@@ -33,7 +33,7 @@ const sourceImages = {
 };
 
 function yt(id) {
-  return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+  return `https://i.ytimg.com/vi/${id}/hq720.jpg`;
 }
 
 const seedItems = [

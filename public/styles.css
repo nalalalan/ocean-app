@@ -140,7 +140,6 @@ a {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: var(--media-ratio, 1 / 1);
   break-inside: avoid;
   min-width: 0;
   overflow: hidden;
@@ -161,55 +160,68 @@ a {
 }
 
 .shape-small {
-  aspect-ratio: var(--media-ratio, 4 / 3);
 }
 
 .shape-standard {
-  aspect-ratio: var(--media-ratio, 1 / 1);
 }
 
 .shape-tall {
-  aspect-ratio: var(--media-ratio, 3 / 4);
 }
 
 .shape-wide {
-  aspect-ratio: var(--media-ratio, 16 / 9);
 }
 
 .shape-hero {
-  aspect-ratio: var(--media-ratio, 4 / 3);
 }
 
-.media-frame,
-.detail-media {
-  position: absolute;
-  inset: 0;
+.media-frame {
+  position: relative;
+  width: 100%;
   overflow: hidden;
   background:
     radial-gradient(circle at 40% 25%, color-mix(in srgb, var(--accent), white 12%), transparent 34%),
     #101827;
 }
 
-.media-frame img,
+.media-card[data-video="true"] .media-frame,
+.media-frame:has(.generated-media) {
+  aspect-ratio: var(--media-ratio, 16 / 9);
+}
+
+.detail-media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000000;
+}
+
+.media-frame .media-primary {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 0;
+  object-fit: contain;
+}
+
 .detail-media img,
-.video-frame {
+.media-card[data-video="true"] .media-frame img,
+.media-card[data-video="true"] .video-frame {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   border: 0;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .media-backdrop {
-  filter: blur(16px) saturate(1.12);
-  opacity: 0.58;
-  transform: scale(1.08);
+  display: none;
 }
 
-.media-frame .media-primary,
 .detail-media .media-primary {
-  object-fit: cover;
+  object-fit: contain;
   z-index: 2;
 }
 
@@ -399,7 +411,7 @@ a {
 }
 
 .detail-media .media-backdrop {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .focus-flyer {
@@ -424,11 +436,11 @@ a {
 .focus-flyer video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .focus-flyer .media-primary {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .result-info {
@@ -557,17 +569,14 @@ a {
 }
 
 .similar-grid .media-card {
-  aspect-ratio: var(--media-ratio, 1 / 1);
   font-size: 16px;
 }
 
 .similar-grid .shape-wide,
 .similar-grid .shape-hero {
-  aspect-ratio: var(--media-ratio, 16 / 9);
 }
 
 .similar-grid .shape-tall {
-  aspect-ratio: var(--media-ratio, 3 / 4);
 }
 
 .similar-grid .media-label strong {
@@ -637,20 +646,16 @@ a {
   }
 
   .shape-small {
-    aspect-ratio: var(--media-ratio, 4 / 3);
   }
 
   .shape-standard {
-    aspect-ratio: var(--media-ratio, 1 / 1);
   }
 
   .shape-tall {
-    aspect-ratio: var(--media-ratio, 3 / 4);
   }
 
   .shape-wide,
   .shape-hero {
-    aspect-ratio: var(--media-ratio, 4 / 3);
   }
 
   .media-label {
@@ -794,16 +799,13 @@ a {
   }
 
   .similar-grid .media-card {
-    aspect-ratio: var(--media-ratio, 1 / 1);
   }
 
   .similar-grid .shape-wide,
   .similar-grid .shape-hero {
-    aspect-ratio: var(--media-ratio, 4 / 3);
   }
 
   .similar-grid .shape-tall {
-    aspect-ratio: var(--media-ratio, 3 / 4);
   }
 
   .similar-grid .media-label span {
