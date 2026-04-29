@@ -1311,6 +1311,7 @@ function ratioValue(item, index) {
 
 function wallColumnCount() {
   const width = window.innerWidth || 1200;
+  if (width <= 760) return 1;
   if (width <= 1200) return 2;
   const detailWidth = selectedId ? Math.min(536, width * 0.42 + 24) : 0;
   const available = Math.max(360, width - detailWidth);
@@ -1429,6 +1430,7 @@ function selectedItem() {
 function renderDetail(item) {
   if (!item) return "";
   const related = focusedItems(item);
+  const relatedColumnCount = (window.innerWidth || 1200) <= 760 ? 1 : 2;
   const visit = item.url
     ? `<a class="visit-button" href="${esc(item.url)}" target="_blank" rel="noopener">Visit</a>`
     : "";
@@ -1453,7 +1455,7 @@ function renderDetail(item) {
       <div class="detail-actions">
         <button class="action-pill" data-action="share" data-id="${esc(item.id)}">Share</button>
       </div>
-      ${renderColumns(related, "similar-grid", true, 2)}
+      ${renderColumns(related, "similar-grid", true, relatedColumnCount)}
     </aside>
   `;
 }

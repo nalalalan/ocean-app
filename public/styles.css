@@ -828,3 +828,44 @@ a {
     max-width: none;
   }
 }
+
+@media (max-width: 760px) {
+  .media-wall,
+  .similar-grid {
+    display: block;
+  }
+
+  .media-column {
+    width: 100%;
+  }
+
+  .media-label {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    gap: 6px;
+    max-height: 34%;
+  }
+
+  .media-label span,
+  .similar-grid .media-label span {
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  .media-label strong,
+  .shape-hero .media-label strong,
+  .similar-grid .media-label strong {
+    font-size: clamp(26px, 7.2vw, 34px);
+    line-height: 1.02;
+    -webkit-line-clamp: 2;
+  }
+
+  .video-badge,
+  .saved-dot {
+    top: 12px;
+    right: 12px;
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+}
