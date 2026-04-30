@@ -1318,7 +1318,6 @@ function mediaMarkup(item, mode = "tile") {
   if (item.videoId) {
     return `
       ${poster}
-      ${mode === "detail" ? `<a class="youtube-play" href="${esc(youtubeWatchUrl(item))}" target="_blank" rel="noopener">Open YouTube</a>` : ""}
       <span class="video-badge">video</span>
     `;
   }
@@ -1485,7 +1484,7 @@ function renderDetail(item) {
   const related = focusedItems(item);
   const relatedColumnCount = (window.innerWidth || 1200) <= 760 ? 1 : 2;
   const primaryUrl = youtubeWatchUrl(item) || item.url;
-  const visitLabel = item.videoId ? "YouTube" : "Visit";
+  const visitLabel = item.videoId ? "YouTube" : "Website";
   const visit = primaryUrl
     ? `<a class="visit-button" href="${esc(primaryUrl)}" target="_blank" rel="noopener">${visitLabel}</a>`
     : "";
@@ -1641,11 +1640,12 @@ function animateFocusFrom(flight) {
 function openItem(id, sourceElement) {
   if (selectedId !== id) detailPageCount = initialDetailPageCount;
   const activeTile = sourceElement || document.querySelector(`[data-id="${CSS.escape(id)}"]`);
-  const flight = makeFocusFlyer(activeTile);
+  const shouldAnimateFocus = (window.innerWidth || 1200) <= 1200;
+  const flight = shouldAnimateFocus ? makeFocusFlyer(activeTile) : null;
   selectedId = id;
   history.replaceState(null, "", `?item=${encodeURIComponent(id)}`);
   render();
-  animateFocusFrom(flight);
+  if (shouldAnimateFocus) animateFocusFrom(flight);
 }
 
 function closeDetail() {
