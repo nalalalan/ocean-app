@@ -41,6 +41,7 @@ const sourceImages = {
   epomemory: "https://static1.squarespace.com/static/5fc1dbf8116eb00e3c52b568/5fc1dde2f81c9a2a0ce5f828/6444b75cc6ed9c0cbde7f4e4/1682225185661/Wearable+controller.png?format=1500w",
   northwesternTouch: "https://news.northwestern.edu/assets/Stories/2025/03/Backhand-resize__FocusFillMaxWyIwLjAwIiwiMC4wMCIsMTIwMCw2MzBd.jpg",
   ucsbHaptic: "https://news.ucsb.edu/sites/default/files/2025-11/haptic-graphics-opt.jpg",
+  arrayTac: "https://arraytac.github.io/assets/figures/figure1.png",
   bristolEmg: "https://www.bristol.ac.uk/media-library/sites/news/2025/october/gymnast-main%20article%20image.jpg",
   nvidiaRoboticsWeek: "https://blogs.nvidia.com/wp-content/uploads/2026/04/robotics-tech-blog-nrw-rolling-blog-1280x680-1.jpg",
   mitInform: "https://dam-prod.media.mit.edu/thumb/files/Display/inform.jpg.1400x1400.jpg",
@@ -1085,7 +1086,16 @@ function inferTags(item) {
 }
 
 function imageForLiveItem(item, index) {
-  const text = `${item.source || ""} ${item.title || ""}`.toLowerCase();
+  const extra = Array.isArray(item.topics)
+    ? item.topics.join(" ")
+    : Array.isArray(item.tags)
+      ? item.tags.join(" ")
+      : "";
+  const text = `${item.source || ""} ${item.title || ""} ${item.type || ""} ${item.board || ""} ${item.summary || ""} ${item.why || ""} ${extra}`.toLowerCase();
+  if (text.includes("arraytac") || (text.includes("tactile") && (text.includes("friction") || text.includes("stiffness")))) return sourceImages.arrayTac;
+  if (text.includes("haptic") || text.includes("tactile") || text.includes("palpation") || text.includes("touch")) return [sourceImages.ucsbHaptic, sourceImages.northwesternTouch, sourceImages.mitInform][index % 3];
+  if (text.includes("puffybot") || text.includes("untethered") || text.includes("amphibious")) return [sourceImages.bristolEmg, sourceImages.pneumesh, sourceImages.morphingTrussProject][index % 3];
+  if (text.includes("wearable") || text.includes("garment") || text.includes("fashion") || text.includes("body-worn")) return [sourceImages.compliantWearable, sourceImages.electrodermis, sourceImages.northwesternTouch][index % 3];
   if (text.includes("olaf") || text.includes("character control") || text.includes("robotic character")) return [sourceImages.disneyBdx, sourceImages.disneyAmor, sourceImages.disneyRobotMdm][index % 3];
   if (text.includes("metamaterial") || text.includes("interlocking") || text.includes("chainmail") || text.includes("voronoi")) return [sourceImages.chainmail, sourceImages.metaTruss, sourceImages.metaTrussHelmet][index % 3];
   if (text.includes("morphing") || text.includes("compliant") || text.includes("shape-changing")) return [sourceImages.metaTruss, sourceImages.metaTrussBrace, sourceImages.morphingSkin][index % 3];
@@ -1108,18 +1118,40 @@ function imageForLiveItem(item, index) {
   ][index % 11];
 }
 
+function isGenericSourcePreviewImage(image, item = {}) {
+  if (!image) return false;
+  const imageText = normalizedMediaUrl(image);
+  const sourceText = `${item.source || ""} ${item.url || ""}`.toLowerCase();
+  const host = (() => {
+    try {
+      return new URL(image, location.href).hostname.toLowerCase();
+    } catch {
+      return "";
+    }
+  })();
+  const genericName = /(^|[/_-])(favicon|logo|logomark|wordmark|brand|icon|site-header|header|social-card|default-og)([/_.-]|$)/i.test(imageText);
+  if (sourceText.includes("arxiv") && (imageText.includes("arxiv") || genericName)) return true;
+  if (host.includes("arxiv.org")) return true;
+  if (sourceText.includes("acm") && genericName) return true;
+  if (sourceText.includes("ieee") && genericName) return true;
+  if (sourceText.includes("nature.com") && genericName) return true;
+  return false;
+}
+
 function normalizeRemoteItem(item, index) {
   const tags = Array.isArray(item.topics) ? item.topics : inferTags(item);
   const title = item.title || "Live research signal";
   const source = item.source || item.type || "Live source";
-  const text = `${source} ${title} ${tags.join(" ")}`.toLowerCase();
+  const text = `${source} ${title} ${item.type || ""} ${item.board || ""} ${item.summary || ""} ${item.why || ""} ${tags.join(" ")}`.toLowerCase();
   let board = item.board || "Labs";
   if (text.includes("disney") || text.includes("wdi")) board = "Disney";
   if (text.includes("haptic") || text.includes("tactile")) board = "Haptics";
   if (text.includes("soft robot") || text.includes("material")) board = "Soft Robotics";
   if (text.includes("robot") && !text.includes("soft robot")) board = "Robotics";
   if (text.includes("tangible") || text.includes("shape")) board = "Tangible";
-  const hasOriginalImage = Boolean(item.image);
+  const sourceImage = item.image || "";
+  const hasOriginalImage = Boolean(sourceImage && !isGenericSourcePreviewImage(sourceImage, item));
+  const displayImage = hasOriginalImage ? sourceImage : imageForLiveItem(item, index);
   const isStrongOpportunity = (
     text.includes("disney careers")
     || text.includes("imagineering")
@@ -1134,6 +1166,14 @@ function normalizeRemoteItem(item, index) {
     || text.includes("visual source")
     || text.includes("source board")
   );
+  const isResearchSignal = (
+    text.includes("research signal")
+    || text.includes("arxiv")
+    || text.includes("paper")
+    || text.includes("proceedings")
+    || text.includes("conference source")
+    || text.includes("nature ")
+  );
   return {
     id: `live-${slug(title)}-${index}`,
     title,
@@ -1142,7 +1182,7 @@ function normalizeRemoteItem(item, index) {
     kind: item.type || "live signal",
     date: item.date || "",
     url: item.url || "",
-    image: item.image || imageForLiveItem(item, index),
+    image: displayImage,
     videoId: item.videoId || "",
     videoUrl: item.videoUrl || "",
     summary: item.summary || item.why || "Fresh signal from the live Ocean feed.",
@@ -1150,7 +1190,7 @@ function normalizeRemoteItem(item, index) {
     shape: index % 7 === 0 ? "wide" : "standard",
     live: true,
     originalImage: hasOriginalImage,
-    showInWall: hasOriginalImage || isStrongOpportunity || isLearningSource,
+    showInWall: Boolean(displayImage) && (hasOriginalImage || isStrongOpportunity || isLearningSource || isResearchSignal),
   };
 }
 
