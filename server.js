@@ -80,6 +80,25 @@ function normalizeUrl(value, baseUrl) {
   }
 }
 
+function isGenericPreviewImage(image, pageUrl = "") {
+  if (!image) return false;
+  let imageUrl;
+  try {
+    imageUrl = new URL(image, pageUrl);
+  } catch {
+    return false;
+  }
+  const imageText = imageUrl.toString().toLowerCase();
+  const pageText = String(pageUrl || "").toLowerCase();
+  const genericName = /(^|[/_-])(favicon|logo|logomark|wordmark|brand|icon|site-header|header|social-card|default-og)([/_.-]|$)/i.test(imageText);
+  if (pageText.includes("arxiv") && (imageText.includes("arxiv") || genericName)) return true;
+  if (imageUrl.hostname.toLowerCase().includes("arxiv.org")) return true;
+  if (pageText.includes("acm") && genericName) return true;
+  if (pageText.includes("ieee") && genericName) return true;
+  if (pageText.includes("nature.com") && genericName) return true;
+  return false;
+}
+
 async function fetchText(url, timeoutMs = 15000) {
   const response = await fetch(url, {
     signal: AbortSignal.timeout(timeoutMs),
@@ -94,12 +113,13 @@ async function fetchText(url, timeoutMs = 15000) {
 
 async function fetchPagePreview(url) {
   const html = await fetchText(url, 5500);
-  const image = normalizeUrl(
+  const imageCandidate = normalizeUrl(
     metaContent(html, "og:image")
       || metaContent(html, "twitter:image")
       || html.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1],
     url
   );
+  const image = isGenericPreviewImage(imageCandidate, url) ? "" : imageCandidate;
   return {
     image,
     description: metaContent(html, "og:description") || metaContent(html, "description"),
@@ -790,7 +810,7 @@ function recentResearchRows() {
     ["University source", "Soft Robotics", "University of Bristol", "Electro-morphing gel soft robot", "October 16, 2025", "Bristol", "https://www.bristol.ac.uk/news/2025/october/soft-robotics-breakthrough.html", ["soft robotics", "electric fields", "morphing matter", "2025"], "A recent soft robotics source for untethered electric-field-controlled soft morphing matter.", "https://www.bristol.ac.uk/media-library/sites/news/2025/october/gymnast-main%20article%20image.jpg"],
     ["University source", "Soft Robotics", "University of Sheffield", "Hysteresis-assisted shape morphing", "2025", "Sheffield", "https://sheffield.ac.uk/eee/news/turning-flaw-superpower-sheffield-researchers-redefine-how-robots-move", ["soft continuum robots", "shape morphing", "2025"], "A recent soft robot source on turning material hysteresis into controlled shape morphing and growing robot behavior."],
     ["Research signal", "Haptics", "Rice MAHI Lab", "Wearable multisensory haptic technology", "2025 review", "Rice University", "https://news.rice.edu/news/2025/revolutionizing-touch-researchers-explore-future-wearable-multisensory-haptic-technology", ["haptics", "wearables", "review", "2025"], "A field-map source for wearable haptics, tactile feedback, body placement, and multisensory device design."],
-    ["Research signal", "Haptics", "arXiv", "ArrayTac shape stiffness friction display", "March 2026", "Research", "https://arxiv.org/abs/2603.13829", ["haptics", "tactile display", "2026"], "A very recent tactile display paper to check for shape, stiffness, and friction rendering in one interface."],
+    ["Research signal", "Haptics", "ArrayTac project", "ArrayTac shape stiffness friction display", "March 2026", "Research", "https://arraytac.github.io/", ["haptics", "tactile display", "2026"], "A very recent tactile display paper to check for shape, stiffness, and friction rendering in one interface.", "https://arraytac.github.io/assets/figures/figure1.png", "https://arraytac.github.io/assets/movies/Movie_mov1_seq1_v1.mp4"],
     ["Research signal", "Soft Robotics", "arXiv", "PuffyBot untethered shape morphing robot", "November 2025", "Research", "https://arxiv.org/abs/2511.09885", ["soft robotics", "shape morphing", "untethered robot"], "A recent soft robot paper signal for multi-environment locomotion through body morphology changes."],
     ["Research signal", "Soft Robotics", "arXiv", "Soft robotic speculative fashion futures", "December 2025", "Research", "https://arxiv.org/abs/2512.23570", ["soft robotics", "wearables", "fashion", "HRI"], "A weird but useful source for soft robotic garments, social movement, and how robotic matter can communicate through the body."],
     ["Research signal", "Soft Robotics", "Nature Communications", "Pneumatic torsion strip braiding", "2025", "Research", "https://www.nature.com/articles/s41467-025-59051-3", ["soft robotics", "shape morphing", "pneumatics", "2025"], "A recent Nature Communications source for shape morphing through braided pneumatic torsion strips."],
