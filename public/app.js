@@ -1,6 +1,6 @@
 const app = document.getElementById("app");
 
-const palette = ["#64d8ff", "#7ee2b8", "#f5c45f", "#ca9cff", "#ff8da1", "#8fb7ff", "#76e6dd"];
+const palette = ["#2f9d98", "#4f8290", "#c9796e", "#c98a53", "#df6a59", "#b95c76", "#7fb9a8"];
 
 const sourceImages = {
   wdiCampus: "https://sites.disney.com/app/uploads/sites/55/2021/06/Avengers_Campus_DCA.jpg",
@@ -1052,11 +1052,11 @@ function slug(value) {
 
 function accentFor(item, index) {
   const text = `${item.board || ""} ${item.source || ""} ${item.title || ""}`.toLowerCase();
-  if (text.includes("disney")) return "#75f0d0";
-  if (text.includes("robot")) return "#73b8ff";
-  if (text.includes("haptic") || text.includes("tactile")) return "#f5c45f";
-  if (text.includes("soft") || text.includes("material")) return "#ff91a8";
-  if (text.includes("tangible")) return "#b69cff";
+  if (text.includes("disney")) return "#c98a53";
+  if (text.includes("robot")) return "#2f9d98";
+  if (text.includes("haptic") || text.includes("tactile")) return "#4f8290";
+  if (text.includes("soft") || text.includes("material")) return "#df6a59";
+  if (text.includes("tangible")) return "#b95c76";
   return palette[index % palette.length];
 }
 

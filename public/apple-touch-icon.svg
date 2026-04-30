@@ -1,15 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Ocean tracker">
-  <defs>
-    <linearGradient id="ocean" x1="24" y1="22" x2="158" y2="164" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffd0bd"/>
-      <stop offset="0.52" stop-color="#ff8f7d"/>
-      <stop offset="1" stop-color="#ff5f8f"/>
-    </linearGradient>
-  </defs>
-  <rect width="180" height="180" rx="42" fill="#351923"/>
-  <path d="M35 110c26 26 66 27 93 3 13-12 17-27 10-39-8-13-27-13-39 2-10 12-11 27-2 40 10 15 30 23 49 17" fill="none" stroke="url(#ocean)" stroke-width="18" stroke-linecap="round"/>
-  <path d="M40 125c27 21 63 25 93 10" fill="none" stroke="#fff2ec" stroke-width="10" stroke-linecap="round" opacity=".96"/>
-  <path d="M76 78c15-22 38-33 67-34" fill="none" stroke="#ffc3d0" stroke-width="10" stroke-linecap="round" opacity=".92"/>
-  <circle cx="51" cy="76" r="8" fill="#fff8f5"/>
-  <circle cx="127" cy="79" r="7" fill="#fff8f5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Ocean">
+  <rect width="180" height="180" rx="42" fill="#ffd8c8"/>
+  <path d="M34 108c26 26 66 27 93 3 14-12 18-30 10-42-9-14-30-13-43 4-12 14-12 32 0 46 14 17 39 25 62 13" fill="none" stroke="#251713" stroke-width="21" stroke-linecap="round"/>
+  <path d="M34 108c26 26 66 27 93 3 14-12 18-30 10-42-9-14-30-13-43 4-12 14-12 32 0 46 14 17 39 25 62 13" fill="none" stroke="#2f9d98" stroke-width="13" stroke-linecap="round"/>
+  <path d="M43 133c30 18 68 19 99 2" fill="none" stroke="#fffaf6" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="55" cy="78" r="8" fill="#fffaf6"/>
+  <circle cx="124" cy="80" r="7" fill="#fffaf6"/>
 </svg>
