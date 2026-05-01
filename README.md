@@ -10,6 +10,12 @@ npm start
 
 Open `http://localhost:3000`.
 
+## Deploy To GitHub Pages
+
+The public media wall can be deployed from the `public` folder to a `gh-pages` branch.
+
+The former Railway server provided `/api/radar` as a live feed worker. GitHub Pages serves `public/api/radar` as a static fallback so the site still loads cleanly without Railway.
+
 ## Deploy To Railway
 
 1. Push this folder to a GitHub repo.
