@@ -1,0 +1,15 @@
+{
+  "updatedAt": null,
+  "items": [],
+  "learningMoves": [],
+  "fieldLens": [],
+  "dailyPrompt": "",
+  "error": null,
+  "sourceStatus": [
+    {
+      "source": "Static GitHub Pages",
+      "ok": true,
+      "message": "Curated media wall loaded without the Railway live-feed worker."
+    }
+  ]
+}
