@@ -981,6 +981,41 @@ const researchExpansionItems = [
 const staticItems = [...seedItems, ...inspirationItems, ...researchExpansionItems];
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
+let onlineResearch = { items: [], exhausted: false, loading: false };
+let onlineSourceIndex = 0;
+
+const onlineSources = [
+  { query: "robotics laboratory robot", label: "Robotics Lab", board: "Robotics", kind: "online image", requireAny: ["robot", "robotics", "laboratory"] },
+  { query: "humanoid robot research", label: "Humanoid Robotics", board: "Robotics", kind: "online image", requireAny: ["robot", "humanoid", "research"] },
+  { query: "robot hand manipulation", label: "Robot Manipulation", board: "Robotics", kind: "online image", requireAny: ["robot", "hand", "manipulation"] },
+  { query: "NASA robotics rover", label: "Field Robotics", board: "Robotics", kind: "online image", requireAny: ["nasa", "rover", "robot"] },
+  { query: "soft robot actuator", label: "Soft Robotics", board: "Soft Robotics", kind: "online image", requireAny: ["soft", "robot", "actuator"] },
+  { query: "pneumatic soft robot", label: "Pneumatic Robots", board: "Soft Robotics", kind: "online image", requireAny: ["pneumatic", "soft", "robot"] },
+  { query: "wearable robot exoskeleton", label: "Wearable Robotics", board: "Wearables", kind: "online image", requireAny: ["wearable", "robot", "exoskeleton"] },
+  { query: "haptic glove tactile interface", label: "Haptics", board: "Haptics", kind: "online image", requireAny: ["haptic", "tactile", "glove"] },
+  { query: "virtual reality haptics glove", label: "Haptic Interfaces", board: "Haptics", kind: "online image", requireAny: ["haptic", "glove", "interface"] },
+  { query: "shape display tangible media", label: "Tangible Media", board: "Tangible", kind: "online image", requireAny: ["shape", "display", "tangible"] },
+  { query: "programmable matter metamaterial", label: "Programmable Matter", board: "Computational Design", kind: "online image", requireAny: ["programmable", "matter", "metamaterial"] },
+  { query: "metamaterial lattice structure", label: "Metamaterials", board: "Computational Design", kind: "online image", requireAny: ["metamaterial", "lattice", "structure"] },
+  { query: "computer graphics motion capture research", label: "Motion Capture", board: "Creative Tools", kind: "online image", requireAny: ["motion", "capture", "graphics"] },
+  { query: "bipedal robot research", label: "Bipedal Robotics", board: "Robotics", kind: "online image", requireAny: ["bipedal", "robot"] },
+  { query: "animatronic robot", label: "Animatronics", board: "Disney", kind: "online image", requireAny: ["animatronic", "robot"] },
+];
+
+const blockedOnlineTitleTerms = [
+  "coat of arms",
+  "diagram",
+  "drawing",
+  "flag",
+  "icon",
+  "illustration",
+  "logo",
+  "map",
+  "poster",
+  "symbol",
+  "vector",
+  "wikimedia",
+];
 
 function isBrowserReload() {
   const navigationEntry = performance.getEntriesByType?.("navigation")?.[0];
@@ -1200,7 +1235,7 @@ function normalizedMediaUrl(value) {
     const url = new URL(value, location.href);
     url.hash = "";
     const search = url.searchParams;
-    ["format", "width", "height", "w", "h"].forEach((param) => search.delete(param));
+    ["format", "height", "utm_campaign", "utm_content", "utm_medium", "utm_source", "width", "w", "h"].forEach((param) => search.delete(param));
     url.search = search.toString();
     return url.toString().replace(/^http:/, "https:").toLowerCase();
   } catch {
@@ -1208,11 +1243,185 @@ function normalizedMediaUrl(value) {
   }
 }
 
+function normalizeKeyText(value) {
+  try {
+    return decodeURIComponent(String(value || ""));
+  } catch {
+    return String(value || "");
+  }
+}
+
+function canonicalSourceId(value) {
+  return normalizeKeyText(value)
+    .replace(/^file:/i, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 function mediaKey(item) {
+  if (item.sourceId) return `source:${canonicalSourceId(item.sourceId)}`;
   if (item.videoUrl) return `video-url:${normalizedMediaUrl(item.videoUrl)}`;
   if (item.videoId) return `youtube:${item.videoId}`;
   if (item.image) return `image:${normalizedMediaUrl(item.image)}`;
   return "";
+}
+
+function cleanOnlineTitle(title) {
+  return normalizeKeyText(title || "")
+    .replace(/^file:/i, "")
+    .replace(/\.(jpe?g|png|webp)$/i, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isBlockedOnlineTitle(title) {
+  const lower = title.toLowerCase();
+  return blockedOnlineTitleTerms.some((term) => lower.includes(term));
+}
+
+function hasRequiredOnlineTerms(title, source) {
+  if (!source.requireAny || !source.requireAny.length) return true;
+  const lower = title.toLowerCase();
+  return source.requireAny.some((term) => lower.includes(term));
+}
+
+function commonsFileUrl(fileName) {
+  return `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(fileName)}`;
+}
+
+function shapeFromDimensions(width, height, fallback = "standard") {
+  const ratio = width / Math.max(height, 1);
+  if (ratio >= 1.8) return "wide";
+  if (ratio >= 1.18) return "wide";
+  if (ratio <= 0.62) return "tall";
+  if (ratio <= 0.85) return "tall";
+  return fallback;
+}
+
+function commonsSearchUrl(source) {
+  const params = new URLSearchParams({
+    action: "query",
+    generator: "search",
+    gsrnamespace: "6",
+    gsrsearch: source.query,
+    gsrlimit: "24",
+    prop: "imageinfo",
+    iiprop: "url|mime|size",
+    iiurlwidth: "1800",
+    format: "json",
+    origin: "*",
+  });
+
+  if (source.offset) params.set("gsroffset", String(source.offset));
+  return `https://commons.wikimedia.org/w/api.php?${params.toString()}`;
+}
+
+function onlineItemFromCommonsPage(source, page) {
+  const info = page.imageinfo && page.imageinfo[0];
+  if (!info) return null;
+
+  const title = cleanOnlineTitle(page.title);
+  const lowerTitle = title.toLowerCase();
+  const width = Number(info.width) || 0;
+  const height = Number(info.height) || 0;
+  const mime = String(info.mime || "").toLowerCase();
+  const ratio = width / Math.max(height, 1);
+
+  if (!/^image\/(jpeg|png|webp)$/.test(mime)) return null;
+  if (width < 800 || height < 500 || width * height < 650000) return null;
+  if (ratio < 0.38 || ratio > 2.9) return null;
+  if (!hasRequiredOnlineTerms(lowerTitle, source)) return null;
+  if (isBlockedOnlineTitle(lowerTitle)) return null;
+
+  const fileName = String(page.title || "").replace(/^File:/i, "");
+  const id = `online-${slug(source.label)}-${slug(fileName)}`;
+  return {
+    id,
+    title: title || source.label,
+    source: source.label,
+    board: source.board || "Labs",
+    kind: source.kind || "online source",
+    image: info.thumburl || info.url,
+    url: commonsFileUrl(fileName),
+    sourceId: fileName,
+    summary: `Fresh online image source for ${source.label.toLowerCase()}.`,
+    tags: [source.board || "Labs", source.label].filter(Boolean),
+    shape: shapeFromDimensions(width, height, source.board === "Robotics" ? "wide" : "standard"),
+    online: true,
+  };
+}
+
+function nextOnlineSource() {
+  for (let index = 0; index < onlineSources.length; index += 1) {
+    const source = onlineSources[onlineSourceIndex % onlineSources.length];
+    onlineSourceIndex += 1;
+    if (!source.exhausted) return source;
+  }
+  return null;
+}
+
+async function fetchOnlineSource(source) {
+  const response = await fetch(commonsSearchUrl(source), { headers: { Accept: "application/json" } });
+  if (!response.ok) throw new Error(`Commons returned ${response.status}`);
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("Commons returned a rate-limit page");
+  }
+
+  const pages = Object.values((data.query && data.query.pages) || {})
+    .sort((a, b) => (a.index || 0) - (b.index || 0));
+
+  if (data.continue && data.continue.gsroffset) {
+    source.offset = data.continue.gsroffset;
+  } else {
+    source.exhausted = true;
+  }
+
+  return pages
+    .map((page) => onlineItemFromCommonsPage(source, page))
+    .filter(Boolean);
+}
+
+async function loadMoreOnlineItems(targetCount = feedPageSize * 2) {
+  if (onlineResearch.loading || onlineResearch.exhausted) return [];
+  onlineResearch = { ...onlineResearch, loading: true };
+  const seen = new Set(allItems().map(contentKey));
+  const collected = [];
+  let attempts = 0;
+
+  while (collected.length < targetCount && attempts < onlineSources.length * 2) {
+    const source = nextOnlineSource();
+    if (!source) break;
+    attempts += 1;
+
+    try {
+      const items = await fetchOnlineSource(source);
+      items.forEach((item) => {
+        const key = contentKey(item);
+        if (seen.has(key)) return;
+        seen.add(key);
+        collected.push(item);
+      });
+    } catch {
+      source.failures = (source.failures || 0) + 1;
+      if (source.failures >= 2) source.exhausted = true;
+    }
+  }
+
+  onlineResearch = {
+    ...onlineResearch,
+    items: [...onlineResearch.items, ...collected],
+    exhausted: onlineSources.every((source) => source.exhausted),
+    loading: false,
+  };
+
+  return collected;
 }
 
 function allItems() {
@@ -1233,7 +1442,7 @@ function allItems() {
     .slice(0, 220);
   const seen = new Set();
   const seenTitles = new Set();
-  return [...staticItems, ...remote].filter((item) => {
+  return [...staticItems, ...remote, ...onlineResearch.items].filter((item) => {
     if (!item.image && !item.videoId && !item.videoUrl) return false;
     const key = `${item.url || ""}|${item.title}`.toLowerCase();
     const titleKey = slug(item.title);
@@ -1279,57 +1488,16 @@ function videoForwardItems(items) {
   return mixed.filter(Boolean);
 }
 
-function pageVariantItem(item, index, page) {
-  if (page === 0) return item;
-  return {
-    ...item,
-    feedId: `${item.id}--feed-${page}-${index}`,
-    shape: ["standard", "tall", "wide", "standard", "hero", "small"][(index + page) % 6],
-  };
-}
-
 function contentKey(item) {
   return mediaKey(item) || `${item.url || ""}|${item.title || ""}`.toLowerCase();
-}
-
-function pushSpacedItem(output, item, page, minDistance = 16) {
-  const recent = output.slice(Math.max(0, output.length - minDistance));
-  const key = contentKey(item);
-  if (recent.some((entry) => contentKey(entry) === key)) return false;
-  output.push(pageVariantItem(item, output.length, page));
-  return true;
-}
-
-function repeatDistanceFor(length) {
-  if (length <= 1) return 0;
-  return Math.max(72, Math.min(length - 1, Math.floor(length * 0.9)));
 }
 
 function visibleItems() {
   const baseItems = allItems();
   if (baseItems.length === 0) return [];
   const targetCount = feedPageCount * feedPageSize;
-  const output = [];
-  const firstItems = videoForwardItems(pageOrder(baseItems.length, 0).map((orderedIndex) => baseItems[orderedIndex]));
-  for (const item of firstItems) {
-    pushSpacedItem(output, item, 0, 0);
-    if (output.length >= targetCount) return output;
-  }
-  const repeatDistance = repeatDistanceFor(baseItems.length);
-  for (let page = 1; output.length < targetCount; page += 1) {
-    const order = pageOrder(baseItems.length, page);
-    const orderedItems = videoForwardItems(order.map((orderedIndex) => baseItems[orderedIndex]));
-    let addedThisPage = 0;
-    for (const item of orderedItems) {
-      if (pushSpacedItem(output, item, page, repeatDistance)) addedThisPage += 1;
-      if (output.length >= targetCount) break;
-    }
-    if (addedThisPage === 0) {
-      const fallback = baseItems[order[0]];
-      output.push(pageVariantItem(fallback, output.length, page));
-    }
-  }
-  return output;
+  return videoForwardItems(pageOrder(baseItems.length, 0).map((orderedIndex) => baseItems[orderedIndex]))
+    .slice(0, targetCount);
 }
 
 function findItem(id) {
@@ -1493,26 +1661,7 @@ function focusedItems(item) {
     .map((row) => row.candidate);
   if (baseItems.length === 0) return [];
   const targetCount = detailPageCount * feedPageSize;
-  const output = [];
-  const firstItems = videoForwardItems(baseItems).slice(0, targetCount);
-  for (const item of firstItems) {
-    pushSpacedItem(output, item, 0, 0);
-  }
-  const repeatDistance = repeatDistanceFor(baseItems.length);
-  for (let page = 1; output.length < targetCount; page += 1) {
-    const order = pageOrder(baseItems.length, page + 13);
-    const orderedItems = videoForwardItems(order.map((orderedIndex) => baseItems[orderedIndex]));
-    let addedThisPage = 0;
-    for (const item of orderedItems) {
-      if (pushSpacedItem(output, item, page, repeatDistance)) addedThisPage += 1;
-      if (output.length >= targetCount) break;
-    }
-    if (addedThisPage === 0) {
-      const fallback = baseItems[order[0]];
-      output.push(pageVariantItem(fallback, output.length, page));
-    }
-  }
-  return output;
+  return videoForwardItems(baseItems).slice(0, targetCount);
 }
 
 function selectedItem() {
@@ -1599,18 +1748,25 @@ function render() {
   applyLoadedTileRatios();
 }
 
-function extendFeedIfNeeded() {
+async function extendFeedIfNeeded() {
   if (loadingMoreFeed) return;
   const remaining = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
   if (remaining > Math.max(window.innerHeight * 1.8, 900)) return;
   loadingMoreFeed = true;
   feedPageCount += 2;
   const scrollTop = window.scrollY;
-  render();
-  requestAnimationFrame(() => {
-    window.scrollTo(0, scrollTop);
-    loadingMoreFeed = false;
-  });
+  try {
+    const shouldFetchOnline = feedPageCount * feedPageSize > allItems().length - feedPageSize;
+    if (shouldFetchOnline) {
+      await loadMoreOnlineItems(feedPageSize * 2);
+    }
+    render();
+  } finally {
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollTop);
+      loadingMoreFeed = false;
+    });
+  }
 }
 
 function extendDetailIfNeeded(panel) {
@@ -1725,6 +1881,9 @@ async function loadRadar(force = false, reshuffle = false) {
     radar = { ...data, loading: false };
   } catch (error) {
     radar = { ...radar, loading: false, error: error.message };
+  }
+  if (allItems().length < feedPageCount * feedPageSize) {
+    await loadMoreOnlineItems(feedPageSize * 2);
   }
   render();
 }
