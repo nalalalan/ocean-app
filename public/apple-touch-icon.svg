@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Ocean">
-  <rect width="180" height="180" rx="42" fill="#ffd8c8"/>
-  <path d="M34 108c26 26 66 27 93 3 14-12 18-30 10-42-9-14-30-13-43 4-12 14-12 32 0 46 14 17 39 25 62 13" fill="none" stroke="#251713" stroke-width="21" stroke-linecap="round"/>
-  <path d="M34 108c26 26 66 27 93 3 14-12 18-30 10-42-9-14-30-13-43 4-12 14-12 32 0 46 14 17 39 25 62 13" fill="none" stroke="#2f9d98" stroke-width="13" stroke-linecap="round"/>
-  <path d="M43 133c30 18 68 19 99 2" fill="none" stroke="#fffaf6" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="55" cy="78" r="8" fill="#fffaf6"/>
-  <circle cx="124" cy="80" r="7" fill="#fffaf6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Ocean icon">
+  <rect width="128" height="128" rx="18" fill="#141419"/>
+
+  <path d="M18 80c18-30 42-43 67-34 19 7 29 24 24 44-10-11-23-15-37-7-17 10-36 12-54-3Z" fill="#59c5b8" stroke="#f7f8f5" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M70 48c15 9 21 22 15 38 13-6 20-17 21-32" fill="none" stroke="#141419" stroke-width="7" stroke-linecap="round" opacity=".75"/>
+  <path d="M26 92c22 10 52 10 79-1" fill="none" stroke="#f7f8f5" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="87" cy="62" r="5" fill="#f3c969"/>
 </svg>
