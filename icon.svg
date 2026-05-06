@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Ocean icon">
-  <rect width="128" height="128" rx="18" fill="#141419"/>
-
-  <path d="M18 80c18-30 42-43 67-34 19 7 29 24 24 44-10-11-23-15-37-7-17 10-36 12-54-3Z" fill="#59c5b8" stroke="#f7f8f5" stroke-width="7" stroke-linejoin="round"/>
-  <path d="M70 48c15 9 21 22 15 38 13-6 20-17 21-32" fill="none" stroke="#141419" stroke-width="7" stroke-linecap="round" opacity=".75"/>
-  <path d="M26 92c22 10 52 10 79-1" fill="none" stroke="#f7f8f5" stroke-width="6" stroke-linecap="round"/>
-  <circle cx="87" cy="62" r="5" fill="#f3c969"/>
+  <rect width="128" height="128" rx="26" fill="#0c0d12"/>
+  <style>
+    .w { font-family: Inter, Arial, Helvetica, sans-serif; font-weight: 950; fill: #f7f5ef; }
+    .r { font-family: Inter, Arial, Helvetica, sans-serif; font-weight: 950; fill: #d76d86; }
+  </style>
+  <circle cx="64" cy="64" r="32" fill="none" stroke="#f7f5ef" stroke-width="10"/>
+  <path d="M39 68c13-13 29-13 50 0" fill="none" stroke="#18c8bd" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="89" cy="59" r="5" fill="#e6b33a"/>
 </svg>
