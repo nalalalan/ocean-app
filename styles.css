@@ -928,10 +928,6 @@ a {
 }
 
 @media (max-width: 760px) {
-  .ao-home {
-    display: none;
-  }
-
   .media-wall,
   .similar-grid {
     display: block;
