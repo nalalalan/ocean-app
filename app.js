@@ -44,12 +44,14 @@ const sourceImages = {
   arrayTac: "https://arraytac.github.io/assets/figures/figure1.png",
   bristolEmg: "https://www.bristol.ac.uk/media-library/sites/news/2025/october/gymnast-main%20article%20image.jpg",
   nvidiaRoboticsWeek: "https://blogs.nvidia.com/wp-content/uploads/2026/04/robotics-tech-blog-nrw-rolling-blog-1280x680-1.jpg",
+  starVoronoi: "https://crl.ethz.ch/images/pub/logan2025-2.png",
+  inverseInterlocking: "https://crl.ethz.ch/images/pub/pangbing2025.png",
   mitInform: "https://dam-prod.media.mit.edu/thumb/files/Display/inform.jpg.1400x1400.jpg",
   cmuRobotics: "https://www.ri.cmu.edu/app/uploads/2021/12/iris-integrstion-still-1-scaled.jpg",
 };
 
 function yt(id) {
-  return `https://i.ytimg.com/vi/${id}/hq720.jpg`;
+  return `https://i.ytimg.com/vi/${id}/sddefault.jpg`;
 }
 
 const seedItems = [
@@ -454,7 +456,7 @@ const inspirationItems = [
     source: "Bernhard Thomaszewski",
     board: "Computational Design",
     kind: "SIGGRAPH Asia 2025",
-    image: sourceImages.chainmail,
+    image: sourceImages.starVoronoi,
     url: "https://crl.ethz.ch/papers/SSVDMetamaterials.pdf",
     summary: "A 2025 computational metamaterials direction: differentiable 3D Voronoi metrics for graded cellular structures and directional stiffness.",
     tags: ["metamaterials", "Voronoi", "optimization", "2025"],
@@ -466,7 +468,7 @@ const inspirationItems = [
     source: "Bernhard Thomaszewski + ETH",
     board: "Computational Design",
     kind: "SIGGRAPH 2025",
-    image: sourceImages.chainmail,
+    image: sourceImages.inverseInterlocking,
     url: "https://tangpengbin.github.io/publications/InverseDIM/project_files/InverseDIM_SIGGRAPH2025_AuthorVersion.pdf",
     summary: "Design chainmail-like discrete interlocking materials for target mechanical behavior. This is exactly the kind of physical design taste worth studying.",
     tags: ["chainmail", "metamaterials", "inverse design", "SIGGRAPH"],
@@ -1496,8 +1498,17 @@ function visibleItems() {
   const baseItems = allItems();
   if (baseItems.length === 0) return [];
   const targetCount = feedPageCount * feedPageSize;
-  return videoForwardItems(pageOrder(baseItems.length, 0).map((orderedIndex) => baseItems[orderedIndex]))
-    .slice(0, targetCount);
+  const paperItems = baseItems.filter((item) => !item.live && !item.online && isPaperLikeItem(item));
+  const staticFeedItems = baseItems.filter((item) => !item.live && !item.online && !isPaperLikeItem(item));
+  const liveItems = baseItems.filter((item) => item.live && !item.online);
+  const onlineItems = baseItems.filter((item) => item.online);
+  const orderedGroup = (items, page) => pageOrder(items.length, page).map((orderedIndex) => items[orderedIndex]);
+  return [
+    ...videoForwardItems(orderedGroup(paperItems, 0)),
+    ...videoForwardItems(orderedGroup(staticFeedItems, 1)),
+    ...videoForwardItems(orderedGroup(liveItems, 2)),
+    ...videoForwardItems(orderedGroup(onlineItems, 3)),
+  ].slice(0, targetCount);
 }
 
 function findItem(id) {
@@ -1732,43 +1743,8 @@ function formatUpdated(value) {
 }
 
 function isPaperLikeItem(item) {
-  const text = `${item.kind || ""} ${item.url || ""} ${item.title || ""} ${item.source || ""}`.toLowerCase();
-  return /\bpaper\b|\.pdf|arxiv|publication|siggraph|iros|chi|science robotics/.test(text);
-}
-
-function featuredPaperItems() {
-  const seen = new Set();
-  return allItems()
-    .filter(isPaperLikeItem)
-    .filter((item) => {
-      const key = contentKey(item);
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return Boolean(item.url);
-    })
-    .slice(0, 6);
-}
-
-function renderPaperShelf() {
-  const papers = featuredPaperItems();
-  if (!papers.length) return "";
-  return `
-    <section class="paper-shelf" aria-label="Featured research papers">
-      <div class="paper-shelf-head">
-        <span>Papers</span>
-        <strong>Research papers and source literature</strong>
-      </div>
-      <div class="paper-shelf-grid">
-        ${papers.map((item) => `
-          <a class="paper-shelf-card" href="${esc(item.url)}" target="_blank" rel="noopener">
-            <span>${esc(item.kind || "paper")}</span>
-            <strong>${esc(item.title)}</strong>
-            <em>${esc(item.source)}</em>
-          </a>
-        `).join("")}
-      </div>
-    </section>
-  `;
+  const text = `${item.kind || ""} ${item.url || ""} ${item.board || ""} ${item.source || ""}`.toLowerCase();
+  return /\.pdf\b|arxiv|publication|\b(siggraph|iros|icra|rss|uist|sca|eccv|paper|papers)\b|science robotics|nature communications|nature reviews/.test(text);
 }
 
 function render() {
@@ -1777,7 +1753,6 @@ function render() {
   document.body.classList.toggle("detail-open", Boolean(selectedId));
   app.innerHTML = `
     <main class="media-app ${selectedId ? "has-detail" : ""}">
-      ${renderPaperShelf()}
       ${renderColumns(items, "media-wall")}
       ${items.length === 0 ? '<section class="empty-state">Nothing loaded yet.</section>' : ""}
       ${radar.error ? '<div class="source-warning">Live sources are partly rate-limited; curated media is still loaded.</div>' : ""}
@@ -1913,7 +1888,7 @@ async function shareItem(id) {
 async function loadRadar(force = false, reshuffle = false) {
   if (reshuffle) refreshFeedLayout();
   radar = { ...radar, loading: true };
-  render();
+  if (reshuffle) render();
   try {
     const response = await fetch(`/api/radar${force ? "?force=1" : ""}`, { cache: "no-store" });
     if (!response.ok) throw new Error(`Radar returned ${response.status}`);
@@ -1971,5 +1946,5 @@ window.addEventListener("scroll", extendFeedIfNeeded, { passive: true });
 window.addEventListener("resize", extendFeedIfNeeded);
 
 render();
-loadRadar(true, true);
+loadRadar(true);
 setInterval(() => loadRadar(true), 1000 * 60 * 30);
