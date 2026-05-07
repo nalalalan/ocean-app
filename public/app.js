@@ -1731,12 +1731,53 @@ function formatUpdated(value) {
   return Number.isNaN(date.getTime()) ? "updated" : date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
+function isPaperLikeItem(item) {
+  const text = `${item.kind || ""} ${item.url || ""} ${item.title || ""} ${item.source || ""}`.toLowerCase();
+  return /\bpaper\b|\.pdf|arxiv|publication|siggraph|iros|chi|science robotics/.test(text);
+}
+
+function featuredPaperItems() {
+  const seen = new Set();
+  return allItems()
+    .filter(isPaperLikeItem)
+    .filter((item) => {
+      const key = contentKey(item);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return Boolean(item.url);
+    })
+    .slice(0, 6);
+}
+
+function renderPaperShelf() {
+  const papers = featuredPaperItems();
+  if (!papers.length) return "";
+  return `
+    <section class="paper-shelf" aria-label="Featured research papers">
+      <div class="paper-shelf-head">
+        <span>Papers</span>
+        <strong>Research papers and source literature</strong>
+      </div>
+      <div class="paper-shelf-grid">
+        ${papers.map((item) => `
+          <a class="paper-shelf-card" href="${esc(item.url)}" target="_blank" rel="noopener">
+            <span>${esc(item.kind || "paper")}</span>
+            <strong>${esc(item.title)}</strong>
+            <em>${esc(item.source)}</em>
+          </a>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function render() {
   const items = visibleItems();
   document.documentElement.classList.toggle("detail-open", Boolean(selectedId));
   document.body.classList.toggle("detail-open", Boolean(selectedId));
   app.innerHTML = `
     <main class="media-app ${selectedId ? "has-detail" : ""}">
+      ${renderPaperShelf()}
       ${renderColumns(items, "media-wall")}
       ${items.length === 0 ? '<section class="empty-state">Nothing loaded yet.</section>' : ""}
       ${radar.error ? '<div class="source-warning">Live sources are partly rate-limited; curated media is still loaded.</div>' : ""}
