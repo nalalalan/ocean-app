@@ -174,12 +174,59 @@ a {
   font-size: 16px;
   outline: none;
   isolation: isolate;
-  transition: filter 130ms ease;
+  transition: filter 140ms ease;
+}
+
+.media-card::before {
+  content: "";
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  border: 2px solid color-mix(in srgb, var(--accent), white 34%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.38),
+    inset 0 0 44px rgba(255, 255, 255, 0.14);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.media-card::after {
+  content: "Open";
+  position: absolute;
+  z-index: 9;
+  top: 10px;
+  left: 10px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: 999px;
+  background: rgba(255, 250, 246, 0.92);
+  color: #071018;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+  transform: translateY(-4px);
+  transition: opacity 140ms ease, transform 140ms ease;
 }
 
 .media-card:hover,
 .media-card:focus-visible {
-  filter: saturate(1.1);
+  filter: saturate(1.16) contrast(1.05) brightness(1.04);
+}
+
+.media-card:hover::before,
+.media-card:focus-visible::before,
+.media-card:hover::after,
+.media-card:focus-visible::after {
+  opacity: 1;
+}
+
+.media-card:hover::after,
+.media-card:focus-visible::after {
+  transform: translateY(0);
 }
 
 .shape-small {
@@ -226,6 +273,22 @@ a {
   height: auto;
   border: 0;
   object-fit: contain;
+}
+
+.media-frame .media-primary,
+.media-card .video-frame,
+.generated-media {
+  transition: filter 180ms ease, transform 180ms ease;
+}
+
+.media-card:hover .media-primary,
+.media-card:focus-visible .media-primary,
+.media-card:hover .video-frame,
+.media-card:focus-visible .video-frame,
+.media-card:hover .generated-media,
+.media-card:focus-visible .generated-media {
+  filter: brightness(1.07);
+  transform: scale(1.035);
 }
 
 .detail-media img,
