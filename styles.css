@@ -55,16 +55,16 @@ a {
   height: 42px;
   display: inline-grid;
   place-items: center;
-  border: 1px solid rgba(38, 23, 18, 0.16);
-  border-radius: 8px;
-  background: rgba(255, 250, 246, 0.82);
-  box-shadow: 0 12px 34px rgba(72, 44, 34, 0.12);
-  backdrop-filter: blur(14px);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .ao-home img {
-  width: 23px;
-  height: 23px;
+  width: 31px;
+  height: 31px;
   display: block;
 }
 
