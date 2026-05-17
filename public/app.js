@@ -46,10 +46,6 @@ const sourceImages = {
   nvidiaRoboticsWeek: "https://blogs.nvidia.com/wp-content/uploads/2026/04/robotics-tech-blog-nrw-rolling-blog-1280x680-1.jpg",
   starVoronoi: "https://crl.ethz.ch/images/pub/logan2025-2.png",
   inverseInterlocking: "https://crl.ethz.ch/images/pub/pangbing2025.png",
-  sarrusWave: "https://sarrus.aolabs.io/assets/showcase-wave.jpg",
-  sarrusArray: "https://sarrus.aolabs.io/assets/sarrus-array-wall.jpg",
-  fluxcellFull: "https://fluxcell.aolabs.io/paper/figures/final-yx-opaque-full.png",
-  fluxcellStates: "https://fluxcell.aolabs.io/paper/figures/cell-3d-states.png",
   mitInform: "https://dam-prod.media.mit.edu/thumb/files/Display/inform.jpg.1400x1400.jpg",
   cmuRobotics: "https://www.ri.cmu.edu/app/uploads/2021/12/iris-integrstion-still-1-scaled.jpg",
 };
@@ -984,62 +980,10 @@ const researchExpansionItems = [
   },
 ];
 
-const aolabsBuildItems = [
-  {
-    id: "sarrus-wave-motion-record",
-    title: "Sarrus wave motion record",
-    source: "AO Labs / Sarrus",
-    board: "Build Record",
-    kind: "soft robotic surface",
-    image: sourceImages.sarrusWave,
-    url: "https://sarrus.aolabs.io/",
-    summary: "Current AO Labs soft robotic surface record: monolithic pneumatic cells, wave motion, object interaction, and paper-backed measurements.",
-    tags: ["Sarrus", "soft robotics", "motion record", "paper"],
-    shape: "hero",
-  },
-  {
-    id: "sarrus-array-build-record",
-    title: "Sarrus array build record",
-    source: "AO Labs / Sarrus",
-    board: "Build Record",
-    kind: "soft robotic surface",
-    image: sourceImages.sarrusArray,
-    url: "https://sarrus.aolabs.io/",
-    summary: "A local build reference for array geometry, soft actuation, and the kind of source-backed evidence Ocean should feed.",
-    tags: ["Sarrus", "soft robotics", "array", "build"],
-    shape: "wide",
-  },
-  {
-    id: "fluxcell-modular-motion-cells",
-    title: "FluxCell modular motion cells",
-    source: "AO Labs / FluxCell",
-    board: "Build Record",
-    kind: "electropermanent cell",
-    image: sourceImages.fluxcellFull,
-    url: "https://fluxcell.aolabs.io/",
-    summary: "Current AO Labs modular-motion direction: electropermanent cells, controllable state, and soft robotic system relevance.",
-    tags: ["FluxCell", "modular motion", "electropermanent", "soft robotics"],
-    shape: "wide",
-  },
-  {
-    id: "fluxcell-cell-state-record",
-    title: "FluxCell cell states",
-    source: "AO Labs / FluxCell",
-    board: "Build Record",
-    kind: "state record",
-    image: sourceImages.fluxcellStates,
-    url: "https://fluxcell.aolabs.io/",
-    summary: "A compact state-reference tile for the active modular-motion experiment lane.",
-    tags: ["FluxCell", "states", "build", "record"],
-    shape: "standard",
-  },
-];
-
-const staticItems = [...aolabsBuildItems, ...seedItems, ...inspirationItems, ...researchExpansionItems];
+const externalMediaItems = Array.isArray(globalThis.OCEAN_MEDIA_PACK) ? globalThis.OCEAN_MEDIA_PACK : [];
+const staticItems = [...seedItems, ...inspirationItems, ...researchExpansionItems, ...externalMediaItems];
 
 const targetWallItemIds = [
-  "sarrus-wave-motion-record",
-  "fluxcell-modular-motion-cells",
   "disney-olaf-2025",
   "bipedal-robotic-character",
   "vmp-physical-characters",
@@ -1057,8 +1001,6 @@ const targetWallItemIds = [
   "ucsb-optotactile-display",
   "mit-inform-video",
   "robotecture-shape-interface",
-  "sarrus-array-build-record",
-  "fluxcell-cell-state-record",
   "whole-body-proprioceptive-morphing",
   "pneumesh-truss",
   "electrodermis-wearables",
@@ -1072,7 +1014,7 @@ const targetWallItemIds = [
   "autodesk-design-make",
 ];
 
-const wallExcludedSources = new Set(["Ocean lens", "Research motivation"]);
+const wallExcludedSources = new Set(["Ocean lens", "Research motivation", "AO Labs / Sarrus", "AO Labs / FluxCell"]);
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let onlineResearch = { items: [], exhausted: false, loading: false };
@@ -1137,7 +1079,7 @@ function initialSelectedId() {
 let selectedId = initialSelectedId();
 let loadingMoreFeed = false;
 let loadingMoreDetail = false;
-const initialFeedPageCount = 3;
+const initialFeedPageCount = 12;
 const feedPageSize = 24;
 const initialDetailPageCount = 3;
 let feedPageCount = initialFeedPageCount;
@@ -1563,6 +1505,10 @@ function isVideoItem(item) {
   return Boolean(item.videoId || item.videoUrl || String(item.kind || "").toLowerCase().includes("video"));
 }
 
+function isOutsideMediaItem(item) {
+  return String(item.kind || "").toLowerCase() === "outside media";
+}
+
 function videoForwardItems(items) {
   const videos = [];
   const rest = [];
@@ -1596,7 +1542,8 @@ function visibleItems() {
   const targetIds = new Set(targetItems.map((item) => item.id));
   const remainingItems = baseItems.filter((item) => !targetIds.has(item.id));
   const paperItems = remainingItems.filter((item) => !item.live && !item.online && isPaperLikeItem(item));
-  const staticFeedItems = remainingItems.filter((item) => !item.live && !item.online && !isPaperLikeItem(item));
+  const staticFeedItems = remainingItems.filter((item) => !item.live && !item.online && !isPaperLikeItem(item) && !isOutsideMediaItem(item));
+  const outsideMediaItems = remainingItems.filter((item) => !item.live && !item.online && isOutsideMediaItem(item));
   const liveItems = remainingItems.filter((item) => item.live && !item.online);
   const onlineItems = remainingItems.filter((item) => item.online);
   const orderedGroup = (items, page) => pageOrder(items.length, page).map((orderedIndex) => items[orderedIndex]);
@@ -1604,8 +1551,9 @@ function visibleItems() {
     ...targetItems,
     ...videoForwardItems(orderedGroup(paperItems, 0)),
     ...videoForwardItems(orderedGroup(staticFeedItems, 1)),
-    ...videoForwardItems(orderedGroup(liveItems, 2)),
-    ...videoForwardItems(orderedGroup(onlineItems, 3)),
+    ...videoForwardItems(orderedGroup(outsideMediaItems, 2)),
+    ...videoForwardItems(orderedGroup(liveItems, 3)),
+    ...videoForwardItems(orderedGroup(onlineItems, 4)),
   ].slice(0, targetCount);
 }
 
