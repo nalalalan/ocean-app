@@ -46,6 +46,10 @@ const sourceImages = {
   nvidiaRoboticsWeek: "https://blogs.nvidia.com/wp-content/uploads/2026/04/robotics-tech-blog-nrw-rolling-blog-1280x680-1.jpg",
   starVoronoi: "https://crl.ethz.ch/images/pub/logan2025-2.png",
   inverseInterlocking: "https://crl.ethz.ch/images/pub/pangbing2025.png",
+  sarrusWave: "https://sarrus.aolabs.io/assets/showcase-wave.jpg",
+  sarrusArray: "https://sarrus.aolabs.io/assets/sarrus-array-wall.jpg",
+  fluxcellFull: "https://fluxcell.aolabs.io/paper/figures/final-yx-opaque-full.png",
+  fluxcellStates: "https://fluxcell.aolabs.io/paper/figures/cell-3d-states.png",
   mitInform: "https://dam-prod.media.mit.edu/thumb/files/Display/inform.jpg.1400x1400.jpg",
   cmuRobotics: "https://www.ri.cmu.edu/app/uploads/2021/12/iris-integrstion-still-1-scaled.jpg",
 };
@@ -980,7 +984,95 @@ const researchExpansionItems = [
   },
 ];
 
-const staticItems = [...seedItems, ...inspirationItems, ...researchExpansionItems];
+const aolabsBuildItems = [
+  {
+    id: "sarrus-wave-motion-record",
+    title: "Sarrus wave motion record",
+    source: "AO Labs / Sarrus",
+    board: "Build Record",
+    kind: "soft robotic surface",
+    image: sourceImages.sarrusWave,
+    url: "https://sarrus.aolabs.io/",
+    summary: "Current AO Labs soft robotic surface record: monolithic pneumatic cells, wave motion, object interaction, and paper-backed measurements.",
+    tags: ["Sarrus", "soft robotics", "motion record", "paper"],
+    shape: "hero",
+  },
+  {
+    id: "sarrus-array-build-record",
+    title: "Sarrus array build record",
+    source: "AO Labs / Sarrus",
+    board: "Build Record",
+    kind: "soft robotic surface",
+    image: sourceImages.sarrusArray,
+    url: "https://sarrus.aolabs.io/",
+    summary: "A local build reference for array geometry, soft actuation, and the kind of source-backed evidence Ocean should feed.",
+    tags: ["Sarrus", "soft robotics", "array", "build"],
+    shape: "wide",
+  },
+  {
+    id: "fluxcell-modular-motion-cells",
+    title: "FluxCell modular motion cells",
+    source: "AO Labs / FluxCell",
+    board: "Build Record",
+    kind: "electropermanent cell",
+    image: sourceImages.fluxcellFull,
+    url: "https://fluxcell.aolabs.io/",
+    summary: "Current AO Labs modular-motion direction: electropermanent cells, controllable state, and soft robotic system relevance.",
+    tags: ["FluxCell", "modular motion", "electropermanent", "soft robotics"],
+    shape: "wide",
+  },
+  {
+    id: "fluxcell-cell-state-record",
+    title: "FluxCell cell states",
+    source: "AO Labs / FluxCell",
+    board: "Build Record",
+    kind: "state record",
+    image: sourceImages.fluxcellStates,
+    url: "https://fluxcell.aolabs.io/",
+    summary: "A compact state-reference tile for the active modular-motion experiment lane.",
+    tags: ["FluxCell", "states", "build", "record"],
+    shape: "standard",
+  },
+];
+
+const staticItems = [...aolabsBuildItems, ...seedItems, ...inspirationItems, ...researchExpansionItems];
+
+const targetWallItemIds = [
+  "sarrus-wave-motion-record",
+  "fluxcell-modular-motion-cells",
+  "disney-olaf-2025",
+  "bipedal-robotic-character",
+  "vmp-physical-characters",
+  "stylized-walking-gaits",
+  "operator-imitation-hri",
+  "amor-robot-character-control",
+  "robot-motion-diffusion",
+  "disney-falling-robots",
+  "soft-pneumatic-differentiable",
+  "morphingskin-project",
+  "morphing-truss-ai",
+  "metatruss-ai-robots",
+  "compliant-metastructure",
+  "northwestern-touch-device",
+  "ucsb-optotactile-display",
+  "mit-inform-video",
+  "robotecture-shape-interface",
+  "sarrus-array-build-record",
+  "fluxcell-cell-state-record",
+  "whole-body-proprioceptive-morphing",
+  "pneumesh-truss",
+  "electrodermis-wearables",
+  "recompfig-kinematic-display",
+  "wdi-robotics-video",
+  "wdi-projects",
+  "disney-publications",
+  "creative-soft-robotics-course",
+  "world-haptics-2025",
+  "siggraph-emerging-tech-2026",
+  "autodesk-design-make",
+];
+
+const wallExcludedSources = new Set(["Ocean lens", "Research motivation"]);
 
 let radar = { updatedAt: null, items: [], error: null, loading: true };
 let onlineResearch = { items: [], exhausted: false, loading: false };
@@ -1045,7 +1137,7 @@ function initialSelectedId() {
 let selectedId = initialSelectedId();
 let loadingMoreFeed = false;
 let loadingMoreDetail = false;
-const initialFeedPageCount = 4;
+const initialFeedPageCount = 3;
 const feedPageSize = 24;
 const initialDetailPageCount = 3;
 let feedPageCount = initialFeedPageCount;
@@ -1446,6 +1538,7 @@ function allItems() {
   const seenTitles = new Set();
   return [...staticItems, ...remote, ...onlineResearch.items].filter((item) => {
     if (!item.image && !item.videoId && !item.videoUrl) return false;
+    if (wallExcludedSources.has(String(item.source || ""))) return false;
     const key = `${item.url || ""}|${item.title}`.toLowerCase();
     const titleKey = slug(item.title);
     if (seen.has(key) || seenTitles.has(titleKey)) return false;
@@ -1498,12 +1591,17 @@ function visibleItems() {
   const baseItems = allItems();
   if (baseItems.length === 0) return [];
   const targetCount = feedPageCount * feedPageSize;
-  const paperItems = baseItems.filter((item) => !item.live && !item.online && isPaperLikeItem(item));
-  const staticFeedItems = baseItems.filter((item) => !item.live && !item.online && !isPaperLikeItem(item));
-  const liveItems = baseItems.filter((item) => item.live && !item.online);
-  const onlineItems = baseItems.filter((item) => item.online);
+  const baseById = new Map(baseItems.map((item) => [item.id, item]));
+  const targetItems = targetWallItemIds.map((id) => baseById.get(id)).filter(Boolean);
+  const targetIds = new Set(targetItems.map((item) => item.id));
+  const remainingItems = baseItems.filter((item) => !targetIds.has(item.id));
+  const paperItems = remainingItems.filter((item) => !item.live && !item.online && isPaperLikeItem(item));
+  const staticFeedItems = remainingItems.filter((item) => !item.live && !item.online && !isPaperLikeItem(item));
+  const liveItems = remainingItems.filter((item) => item.live && !item.online);
+  const onlineItems = remainingItems.filter((item) => item.online);
   const orderedGroup = (items, page) => pageOrder(items.length, page).map((orderedIndex) => items[orderedIndex]);
   return [
+    ...targetItems,
     ...videoForwardItems(orderedGroup(paperItems, 0)),
     ...videoForwardItems(orderedGroup(staticFeedItems, 1)),
     ...videoForwardItems(orderedGroup(liveItems, 2)),

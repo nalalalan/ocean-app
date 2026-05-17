@@ -397,7 +397,7 @@ a {
   bottom: 14px;
   display: grid;
   gap: 5px;
-  max-height: 31%;
+  max-height: 42%;
   overflow: hidden;
   pointer-events: none;
 }
@@ -938,24 +938,24 @@ a {
   }
 
   .media-label {
-    left: 18px;
-    right: 18px;
-    bottom: 18px;
-    gap: 6px;
-    max-height: 34%;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    gap: 5px;
+    max-height: 40%;
   }
 
   .media-label span,
   .similar-grid .media-label span {
-    font-size: 13px;
+    font-size: 11px;
     line-height: 1;
   }
 
   .media-label strong,
   .shape-hero .media-label strong,
   .similar-grid .media-label strong {
-    font-size: clamp(26px, 7.2vw, 34px);
-    line-height: 1.02;
+    font-size: clamp(21px, 6.1vw, 26px);
+    line-height: 1.04;
     -webkit-line-clamp: 2;
   }
 
