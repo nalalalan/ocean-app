@@ -984,8 +984,8 @@ const externalMediaItems = Array.isArray(globalThis.OCEAN_MEDIA_PACK) ? globalTh
 const staticItems = [...seedItems, ...inspirationItems, ...researchExpansionItems, ...externalMediaItems];
 
 const targetWallItemIds = [
-  "disney-olaf-2025",
   "bipedal-robotic-character",
+  "disney-olaf-2025",
   "vmp-physical-characters",
   "stylized-walking-gaits",
   "operator-imitation-hri",
@@ -1079,8 +1079,9 @@ function initialSelectedId() {
 let selectedId = initialSelectedId();
 let loadingMoreFeed = false;
 let loadingMoreDetail = false;
-const initialFeedPageCount = 12;
+const initialFeedPageCount = 5;
 const feedPageSize = 24;
+const featuredCount = 5;
 const initialDetailPageCount = 3;
 let feedPageCount = initialFeedPageCount;
 let detailPageCount = initialDetailPageCount;
@@ -1682,6 +1683,15 @@ function renderColumns(items, className, compact = false, count = wallColumnCoun
   `;
 }
 
+function renderFeatureStage(items) {
+  if (!items.length) return "";
+  return `
+    <section class="feature-stage" aria-label="Featured Ocean sources">
+      ${items.map((item, index) => renderTile(item, index)).join("")}
+    </section>
+  `;
+}
+
 function updateTileRatioFromImage(image) {
   if (!image?.naturalWidth || !image?.naturalHeight) return;
   const card = image.closest?.(".media-card");
@@ -1730,20 +1740,21 @@ function renderDetail(item) {
   const related = focusedItems(item);
   const relatedColumnCount = (window.innerWidth || 1200) <= 760 ? 1 : 2;
   const primaryUrl = youtubeWatchUrl(item) || item.url;
-  const visitLabel = item.videoId ? "YouTube" : "Website";
+  const visitLabel = item.videoId ? "Open video" : "Open source";
+  const detailMeta = [item.source, item.kind].filter(Boolean).join(" / ");
   const visit = primaryUrl
     ? `<a class="visit-button" href="${esc(primaryUrl)}" target="_blank" rel="noopener">${visitLabel}</a>`
     : "";
   const sourceLink = item.videoId && item.url && item.url !== primaryUrl
-    ? `<a class="action-pill" href="${esc(item.url)}" target="_blank" rel="noopener">Source</a>`
+    ? `<a class="action-pill" href="${esc(item.url)}" target="_blank" rel="noopener">Context</a>`
     : "";
+  const detailCopy = renderDetailCopy(item);
   return `
     <aside class="detail-panel" aria-label="Selected media" style="--accent:${esc(item.accent)}">
       <div class="detail-top">
         <button class="icon-button close-button" data-action="close" aria-label="Close">x</button>
-        <div class="source-avatar">${esc((item.source || "O").slice(0, 1).toUpperCase())}</div>
         <div class="detail-title">
-          <span>${esc(item.source)}</span>
+          <span>${esc(detailMeta)}</span>
           <strong>${esc(item.title)}</strong>
         </div>
       </div>
@@ -1759,8 +1770,26 @@ function renderDetail(item) {
         <button class="action-pill" data-action="share" data-id="${esc(item.id)}">Share</button>
         ${sourceLink}
       </div>
+      ${detailCopy}
       ${renderColumns(related, "similar-grid", true, relatedColumnCount)}
     </aside>
+  `;
+}
+
+function renderDetailCopy(item) {
+  const paragraphs = [item.summary, item.why]
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .filter((value, index, list) => list.findIndex((candidate) => candidate.toLowerCase() === value.toLowerCase()) === index)
+    .slice(0, 2);
+  const tags = [...new Set([item.board, ...(item.tags || [])].filter(Boolean))]
+    .slice(0, 7);
+  if (!paragraphs.length && !tags.length) return "";
+  return `
+    <div class="detail-copy">
+      ${paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}
+      ${tags.length ? `<div class="tag-row">${tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>` : ""}
+    </div>
   `;
 }
 
@@ -1795,11 +1824,14 @@ function isPaperLikeItem(item) {
 
 function render() {
   const items = visibleItems();
+  const featureItems = selectedId ? [] : items.slice(0, featuredCount);
+  const wallItems = selectedId ? items : items.slice(featuredCount);
   document.documentElement.classList.toggle("detail-open", Boolean(selectedId));
   document.body.classList.toggle("detail-open", Boolean(selectedId));
   app.innerHTML = `
     <main class="media-app ${selectedId ? "has-detail" : ""}">
-      ${renderColumns(items, "media-wall")}
+      ${renderFeatureStage(featureItems)}
+      ${renderColumns(wallItems, "media-wall")}
       ${items.length === 0 ? '<section class="empty-state">Nothing loaded yet.</section>' : ""}
       ${radar.error ? '<div class="source-warning">Live sources are partly rate-limited; curated media is still loaded.</div>' : ""}
       ${renderDetail(selectedItem())}
